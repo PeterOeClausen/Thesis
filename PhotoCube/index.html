@@ -7,16 +7,19 @@
 			body { margin: 0; }
 			canvas { width: 100%; height: 100% }
 		</style>
+		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/core.js"></script>-->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 	</head>
 	<body>
 		<script src="three.js"></script>
 		<script src="OrbitControls.js"></script>
+		<script src="keyMap.js"></script>
 		<script>
 			//Setup scene:
 			var scene = new THREE.Scene();
 			//Setup camera:
 			var camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
-			camera.position.z = 5;
+			camera.position.z = 6;
 
 			//Setup renderer:
 			var renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -93,6 +96,14 @@
 				renderer.render( scene, camera );
 			}
 			animate();
+
+			//Reset camera on esc.
+			$(document).keyup(function(e) {
+			     if (e.keyCode == 27) { // escape key maps to keycode `27`
+			        controls.reset();
+			        camera.position.z = 6;
+			    }
+			});
 
 		</script>
 	</body>
