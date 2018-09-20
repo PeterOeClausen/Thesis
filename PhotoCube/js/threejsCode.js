@@ -74,7 +74,8 @@ $(document).ready(function(){
     newLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), 0x0000F0); //z is blue
 
     function addText(string, aColor, position){
-        var someText = new THREE.TextGeometry( color:aColor);
+        var someText = new THREE.TextGeometry( {color: aColor} );
+
     }
 
     //Animation loop that logs FPS to console.
