@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace ObjectCubeServer.Models.DomainClasses
 {
-    public class Photo
+    public class Tagset
     {
         public int Id { get; set; }
-        public byte[] Image { get; set; }
+        public string Name{ get; set; }
+        public List<Hierarchy> Hierarchies { get; set; }
+        public List<TagTagsetRelation> Tags { get; set; }
     }
 }

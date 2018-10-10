@@ -1,6 +1,6 @@
 ﻿namespace ObjectCubeServer.Models.DomainClasses
 {
-    public class ObjectTag
+    public class ObjectTagRelation
     {
         public int ObjectId { get; set; }
         public CubeObject Object { get; set; }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ObjectCubeServer.Models.DomainClasses
 {
@@ -9,7 +6,7 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<ObjectTag> ObjectTags { get; set; }
-
+        public List<ObjectTagRelation> ObjectTags { get; set; }
+        public List<TagTagsetRelation> TagSets { get; set; }
     }
 }

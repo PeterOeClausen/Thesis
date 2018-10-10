@@ -14,13 +14,13 @@ namespace ObjectCubeServer.Models.DataAccess
     public class ObjectContext : DbContext
     {
         public DbSet<CubeObject> CubeObject { get; set; }
-        public DbSet<ObjectTag> ObjectTags { get; set; }
+        public DbSet<ObjectTagRelation> ObjectTags { get; set; }
         public DbSet<Tag> Tags{ get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ObjectTag>().HasKey(ot => new { ot.ObjectId, ot.TagId }); //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId.
-            modelBuilder.Entity<CubeObject>().HasOne(co => co.Photo).WithOne(p => p.Object); //Tells EF That CubeObject has a one-to-one relationship with Photo.
+            modelBuilder.Entity<ObjectTagRelation>().HasKey(ot => new { ot.ObjectId, ot.TagId }); //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId.
+            modelBuilder.Entity<TagTagsetRelation>().HasKey(ttr => new { ttr.TagId, ttr.TagsetId }); //Tells EF that TagTagsetRelations's primary key is composed of TagId and TagsetId.
             base.OnModelCreating(modelBuilder);
         }
 
