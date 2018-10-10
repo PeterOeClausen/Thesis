@@ -1,6 +1,7 @@
 ﻿using ObjectCubeServer.Models.DataAccess;
 using ObjectCubeServer.Models.DomainClasses;
 using System;
+using System.Linq;
 
 namespace ConsoleAppForInteractingWithDatabase
 {
@@ -9,7 +10,7 @@ namespace ConsoleAppForInteractingWithDatabase
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            InsertObject();
+            GetAllObjects();
             Console.WriteLine("Done!");
             Console.ReadKey();
         }
@@ -24,6 +25,25 @@ namespace ConsoleAppForInteractingWithDatabase
             using( var context = new ObjectContext())
             {
                 context.CubeObjects.Add(anObject);
+                context.SaveChanges();
+            }
+        }
+
+        static void GetAllObjects()
+        {
+            using (var context = new ObjectContext())
+            {
+                var cubeObjects = context.CubeObjects.ToList();
+                cubeObjects.ForEach(co => Console.WriteLine(co.Id));
+            }
+        }
+
+        static void DeleteAllObjects()
+        {
+            using (var context = new ObjectContext())
+            {
+                var allCubeObjects = context.CubeObjects.ToList();
+                context.CubeObjects.RemoveRange(allCubeObjects);
                 context.SaveChanges();
             }
         }
