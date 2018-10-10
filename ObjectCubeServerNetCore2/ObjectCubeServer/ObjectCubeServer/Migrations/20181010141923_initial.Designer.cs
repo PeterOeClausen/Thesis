@@ -10,8 +10,8 @@ using ObjectCubeServer.Models.DataAccess;
 namespace ObjectCubeServer.Migrations
 {
     [DbContext(typeof(ObjectContext))]
-    [Migration("20181001164419_RenamingObjectToCubeObject")]
-    partial class RenamingObjectToCubeObject
+    [Migration("20181010141923_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,16 +27,33 @@ namespace ObjectCubeServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("FileId");
-
                     b.Property<int>("FileType");
+
+                    b.Property<int?>("PhotoId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("CubeObject");
+                    b.HasIndex("PhotoId");
+
+                    b.ToTable("CubeObjects");
                 });
 
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTag", b =>
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("TagsetId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TagsetId");
+
+                    b.ToTable("Hierarchy");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTagRelation", b =>
                 {
                     b.Property<int>("ObjectId");
 
@@ -46,7 +63,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("ObjectTags");
+                    b.ToTable("ObjectTagsRelations");
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Photo", b =>
@@ -57,12 +74,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<byte[]>("Image");
 
-                    b.Property<int>("ObjectId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ObjectId")
-                        .IsUnique();
 
                     b.ToTable("Photo");
                 });
@@ -80,7 +92,47 @@ namespace ObjectCubeServer.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTag", b =>
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Tagset", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tagset");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.TagTagsetRelation", b =>
+                {
+                    b.Property<int>("TagId");
+
+                    b.Property<int>("TagsetId");
+
+                    b.HasKey("TagId", "TagsetId");
+
+                    b.HasIndex("TagsetId");
+
+                    b.ToTable("TagTagsetRelation");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.CubeObject", b =>
+                {
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Photo", "Photo")
+                        .WithMany()
+                        .HasForeignKey("PhotoId");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
+                {
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset")
+                        .WithMany("Hierarchies")
+                        .HasForeignKey("TagsetId");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTagRelation", b =>
                 {
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.CubeObject", "Object")
                         .WithMany("ObjectTags")
@@ -93,11 +145,16 @@ namespace ObjectCubeServer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Photo", b =>
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.TagTagsetRelation", b =>
                 {
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.CubeObject", "Object")
-                        .WithOne("Photo")
-                        .HasForeignKey("ObjectCubeServer.Models.DomainClasses.Photo", "ObjectId")
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
+                        .WithMany("TagSets")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset", "Tagset")
+                        .WithMany("Tags")
+                        .HasForeignKey("TagsetId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

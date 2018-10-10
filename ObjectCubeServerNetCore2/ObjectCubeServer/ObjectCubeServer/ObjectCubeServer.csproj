@@ -5,15 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20181010100330_TagTagsetAndRelations.cs" />
-    <Compile Remove="Migrations\20181010100330_TagTagsetAndRelations.Designer.cs" />
-    <Compile Remove="Migrations\20181010100836_TagTagsetAndRelations.cs" />
-    <Compile Remove="Migrations\20181010100836_TagTagsetAndRelations.Designer.cs" />
-    <Compile Remove="Migrations\20181010101322_ChangedPhotoAndAddedTagss.cs" />
-    <Compile Remove="Migrations\20181010101322_ChangedPhotoAndAddedTagss.Designer.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

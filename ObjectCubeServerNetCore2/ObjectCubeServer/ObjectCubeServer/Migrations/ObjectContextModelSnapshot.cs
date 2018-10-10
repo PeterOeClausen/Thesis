@@ -33,7 +33,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.HasIndex("PhotoId");
 
-                    b.ToTable("CubeObject");
+                    b.ToTable("CubeObjects");
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
@@ -61,7 +61,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("ObjectTags");
+                    b.ToTable("ObjectTagsRelations");
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Photo", b =>

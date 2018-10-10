@@ -13,9 +13,9 @@ namespace ObjectCubeServer.Models.DataAccess
 {
     public class ObjectContext : DbContext
     {
-        public DbSet<CubeObject> CubeObject { get; set; }
-        public DbSet<ObjectTagRelation> ObjectTags { get; set; }
-        public DbSet<Tag> Tags{ get; set; }
+        public DbSet<CubeObject> CubeObjects { get; set; }
+        public DbSet<ObjectTagRelation> ObjectTagsRelations { get; set; }
+        public DbSet<Tag> Tags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

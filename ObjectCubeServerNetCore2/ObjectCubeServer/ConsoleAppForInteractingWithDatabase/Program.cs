@@ -9,16 +9,21 @@ namespace ConsoleAppForInteractingWithDatabase
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+            InsertObject();
+            Console.WriteLine("Done!");
             Console.ReadKey();
         }
 
         static void InsertObject()
         {
-
-            var anObject = new CubeObject {  };
+            var anObject = new CubeObject {
+                FileType = FileType.Photo,
+                ObjectTags = new System.Collections.Generic.List<ObjectTagRelation>() { },
+                Photo = new Photo() { }
+            };
             using( var context = new ObjectContext())
             {
-                context.CubeObject.Add(anObject);
+                context.CubeObjects.Add(anObject);
                 context.SaveChanges();
             }
         }
