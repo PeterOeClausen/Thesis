@@ -13,11 +13,9 @@ namespace ObjectCubeServer.Models.DataAccess
 * TODO.
 * 
 * To clear database and migrations:
-* 1) Open the 'SQL Server Object Explorer' in Visual Studio.
-* 2) There should be one called something like: "(localdb)\MSSQLLocalDB (SQL Server)...". Open that one, open Databases. You should be able to find the database in there. Open the your database there, then tables. Now delete all tables by right-clicking each one and clicking 'Delete'. Also 'dbo.__EFMigrationsHistory'.
-* 3) Delete the 'Migrations' folder in your Solution.
-* 4) Run 'Add-Migration yourMigrationNameHere' in the Package Manager Console.
-* 5) Run 'Update-Database' in the Package Manager Console.
+* - Delete the Migrations folder.
+* - Run the command "drop-database" from the PMC.
+* - Check this issue for more information: https://github.com/aspnet/EntityFramework.Docs/issues/1048
 */
 
 {
