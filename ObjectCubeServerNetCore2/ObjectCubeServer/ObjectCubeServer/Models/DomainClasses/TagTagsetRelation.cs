@@ -11,5 +11,13 @@ namespace ObjectCubeServer.Models.DomainClasses
         public Tag Tag { get; set; }
         public int TagsetId { get; set; }
         public Tagset Tagset { get; set; }
+
+        /*
+        public TagTagsetRelation(Tag tag, Tagset tagset)
+        {
+            this.Tag = tag;
+            this.Tagset = tagset;
+        }
+        */
     }
 }

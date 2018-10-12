@@ -11,5 +11,14 @@ namespace ObjectCubeServer.Models.DomainClasses
         public string Name{ get; set; }
         public List<Hierarchy> Hierarchies { get; set; }
         public List<TagTagsetRelation> Tags { get; set; }
+
+        /*
+        public Tagset(string name)
+        {
+            this.Name = name;
+            this.Hierarchies = new List<Hierarchy>();
+            this.Tags = new List<TagTagsetRelation>();
+        }
+        */
     }
 }
