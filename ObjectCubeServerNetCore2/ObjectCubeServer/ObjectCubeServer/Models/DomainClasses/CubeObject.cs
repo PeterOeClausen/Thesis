@@ -7,6 +7,6 @@ namespace ObjectCubeServer.Models.DomainClasses
         public int Id { get; set; }
         public FileType FileType { get; set; }
         public Photo Photo { get; set; }
-        public List<ObjectTagRelation> ObjectTags { get; set; }
+        public List<ObjectTagRelation> ObjectTagRelations { get; set; }
     }
 }

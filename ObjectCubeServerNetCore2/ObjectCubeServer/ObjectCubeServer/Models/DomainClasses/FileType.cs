@@ -7,7 +7,6 @@ namespace ObjectCubeServer.Models.DomainClasses
 {
     public enum FileType
     {
-        Photo,
-        Video
+        Photo
     }
 }

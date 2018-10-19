@@ -1,4 +1,5 @@
-﻿using ObjectCubeServer.Models.DataAccess;
+﻿using ObjectCubeServer.Models;
+using ObjectCubeServer.Models.DataAccess;
 using ObjectCubeServer.Models.DomainClasses;
 using System;
 using System.Linq;
@@ -10,7 +11,8 @@ namespace ConsoleAppForInteractingWithDatabase
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-            GetAllObjects();
+            JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
+            //DeleteAllObjects();
             Console.WriteLine("Done!");
             Console.ReadKey();
         }
@@ -19,12 +21,40 @@ namespace ConsoleAppForInteractingWithDatabase
         {
             var anObject = new CubeObject {
                 FileType = FileType.Photo,
-                ObjectTags = new System.Collections.Generic.List<ObjectTagRelation>() { },
+                ObjectTagRelations = new System.Collections.Generic.List<ObjectTagRelation>() { },
                 Photo = new Photo() { }
             };
             using( var context = new ObjectContext())
             {
                 context.CubeObjects.Add(anObject);
+                context.SaveChanges();
+            }
+        }
+
+        static void InsertManyToManyObjects()
+        {
+            //Creating tags:
+            var friends = DomainClassFactory.NewTag("Friends");
+            var alice = DomainClassFactory.NewTag("Alice");
+            var bob = DomainClassFactory.NewTag("Bob");
+            
+            Tag[] tags = new Tag[] {
+                friends,
+                alice,
+                bob,
+            };
+            
+            //Creating tagset people:
+            var people = DomainClassFactory.NewTagSet("People");
+            
+            //Creating relations:
+
+            
+            //Inserting into database:
+            using (var context = new ObjectContext())
+            {
+                context.Tags.AddRange(tags);
+                context.Tagsets.Add(people);
                 context.SaveChanges();
             }
         }

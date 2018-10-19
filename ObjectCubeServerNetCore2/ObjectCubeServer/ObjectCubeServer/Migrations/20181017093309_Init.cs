@@ -4,10 +4,22 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ObjectCubeServer.Migrations
 {
-    public partial class initial : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Hierarchies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Hierarchies", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Photo",
                 columns: table => new
@@ -35,16 +47,23 @@ namespace ObjectCubeServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tagset",
+                name: "Tagsets",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: true),
+                    HierarchyId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tagset", x => x.Id);
+                    table.PrimaryKey("PK_Tagsets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tagsets_Hierarchies_HierarchyId",
+                        column: x => x.HierarchyId,
+                        principalTable: "Hierarchies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,26 +87,7 @@ namespace ObjectCubeServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Hierarchy",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    TagsetId = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Hierarchy", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Hierarchy_Tagset_TagsetId",
-                        column: x => x.TagsetId,
-                        principalTable: "Tagset",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TagTagsetRelation",
+                name: "TagTagsetRelations",
                 columns: table => new
                 {
                     TagId = table.Column<int>(nullable: false),
@@ -95,23 +95,23 @@ namespace ObjectCubeServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TagTagsetRelation", x => new { x.TagId, x.TagsetId });
+                    table.PrimaryKey("PK_TagTagsetRelations", x => new { x.TagId, x.TagsetId });
                     table.ForeignKey(
-                        name: "FK_TagTagsetRelation_Tags_TagId",
+                        name: "FK_TagTagsetRelations_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TagTagsetRelation_Tagset_TagsetId",
+                        name: "FK_TagTagsetRelations_Tagsets_TagsetId",
                         column: x => x.TagsetId,
-                        principalTable: "Tagset",
+                        principalTable: "Tagsets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ObjectTagsRelations",
+                name: "ObjectTagRelation",
                 columns: table => new
                 {
                     ObjectId = table.Column<int>(nullable: false),
@@ -119,15 +119,15 @@ namespace ObjectCubeServer.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ObjectTagsRelations", x => new { x.ObjectId, x.TagId });
+                    table.PrimaryKey("PK_ObjectTagRelation", x => new { x.ObjectId, x.TagId });
                     table.ForeignKey(
-                        name: "FK_ObjectTagsRelations_CubeObjects_ObjectId",
+                        name: "FK_ObjectTagRelation_CubeObjects_ObjectId",
                         column: x => x.ObjectId,
                         principalTable: "CubeObjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ObjectTagsRelations_Tags_TagId",
+                        name: "FK_ObjectTagRelation_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id",
@@ -140,31 +140,28 @@ namespace ObjectCubeServer.Migrations
                 column: "PhotoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Hierarchy_TagsetId",
-                table: "Hierarchy",
-                column: "TagsetId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ObjectTagsRelations_TagId",
-                table: "ObjectTagsRelations",
+                name: "IX_ObjectTagRelation_TagId",
+                table: "ObjectTagRelation",
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TagTagsetRelation_TagsetId",
-                table: "TagTagsetRelation",
+                name: "IX_Tagsets_HierarchyId",
+                table: "Tagsets",
+                column: "HierarchyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TagTagsetRelations_TagsetId",
+                table: "TagTagsetRelations",
                 column: "TagsetId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Hierarchy");
+                name: "ObjectTagRelation");
 
             migrationBuilder.DropTable(
-                name: "ObjectTagsRelations");
-
-            migrationBuilder.DropTable(
-                name: "TagTagsetRelation");
+                name: "TagTagsetRelations");
 
             migrationBuilder.DropTable(
                 name: "CubeObjects");
@@ -173,10 +170,13 @@ namespace ObjectCubeServer.Migrations
                 name: "Tags");
 
             migrationBuilder.DropTable(
-                name: "Tagset");
+                name: "Tagsets");
 
             migrationBuilder.DropTable(
                 name: "Photo");
+
+            migrationBuilder.DropTable(
+                name: "Hierarchies");
         }
     }
 }

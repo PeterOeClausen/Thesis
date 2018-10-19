@@ -28,6 +28,7 @@ namespace ObjectCubeServer.Models.DataAccess
             }
         }
 
+        #region GetAll methods
         public static List<CubeObject> GetAllCubeObjects()
         {
             List<CubeObject> allCubeObjects;
@@ -67,7 +68,67 @@ namespace ObjectCubeServer.Models.DataAccess
             }
             return allHierarchies;
         }
+        #endregion GetAll
 
+        #region GetWhere
+        public static Tag GetTagWhereNameEquals(Predicate<string> p)
+        {
+            Tag foundTag;
+            using (var context = new ObjectContext())
+            {
+                foundTag = context.Tags.Where(t => p(t.Name)).Single();
+            }
+            return foundTag;
+        }
+
+        public static Tagset GetTagSetWhereNameEquals(Predicate<string> p)
+        {
+            Tagset foundTagset;
+            using (var context = new ObjectContext())
+            {
+                foundTagset = context.Tagsets.Where(t => p(t.Name)).Single();
+            }
+            return foundTagset;
+        }
+        #endregion GetWhere
+
+        #region InsertMethods
+        public static void InsertTag(Tag tag)
+        {
+            using (var context = new ObjectContext())
+            {
+                context.Tags.Add(tag);
+                context.SaveChanges();
+            }
+        }
+
+        public static void InsertManyTags(params Tag[] tags)
+        {
+            using (var context = new ObjectContext())
+            {
+                context.Tags.AddRange(tags);
+                context.SaveChanges();
+            }
+        }
+
+        public static void InsertTagset(Tagset tagset)
+        {
+            using (var context = new ObjectContext())
+            {
+                context.Tagsets.Add(tagset);
+                context.SaveChanges();
+            }
+        }
+
+        public static void InsertTagTagsetRelation(TagTagsetRelation tagTagsetRelation)
+        {
+            using (var context = new ObjectContext())
+            {
+                context.TagTagsetRelations.Add(tagTagsetRelation);
+                context.SaveChanges();
+            }
+        }
+        #endregion
 
     }
 }

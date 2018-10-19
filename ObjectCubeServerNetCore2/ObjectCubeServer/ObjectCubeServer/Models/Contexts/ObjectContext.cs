@@ -27,6 +27,7 @@ namespace ObjectCubeServer.Models.DataAccess
          */ 
         public DbSet<CubeObject> CubeObjects { get; set; }
         public DbSet<Tag> Tags { get; set; }
+        public DbSet<TagTagsetRelation> TagTagsetRelations { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
         
@@ -34,42 +35,25 @@ namespace ObjectCubeServer.Models.DataAccess
         {
             //Specifying keys:
             modelBuilder.Entity<ObjectTagRelation>().HasKey(ot => new { ot.ObjectId, ot.TagId }); //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId.
+            modelBuilder.Entity<ObjectTagRelation>() //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and CubeObject
+                .HasOne(otr => otr.CubeObject)
+                .WithMany(co => co.ObjectTagRelations)
+                .HasForeignKey(otr => otr.ObjectId);
+            modelBuilder.Entity<ObjectTagRelation>() //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and Tag
+                .HasOne(otr => otr.Tag)
+                .WithMany(t => t.ObjectTagRelations)
+                .HasForeignKey(otr => otr.TagId);
+
             modelBuilder.Entity<TagTagsetRelation>().HasKey(ttr => new { ttr.TagId, ttr.TagsetId }); //Tells EF that TagTagsetRelations's primary key is composed of TagId and TagsetId.
-
-            /*
-            //Seeding database:
-            //Creating friends and family tags:
-            var FriendsTag = new Tag("Friends");
-            var AliceTag = new Tag("Alice");
-            var BobTag = new Tag("Bob");
-            var PeterTag = new Tag("Peter");
-            var SaraTag = new Tag("Sara");
+            modelBuilder.Entity<TagTagsetRelation>() //Tells EF that there is a one-to-many relationsship between TagTagsetRelation and Tag
+                .HasOne(ttr => ttr.Tag)
+                .WithMany(t => t.TagTagsetRelations)
+                .HasForeignKey(ttr => ttr.TagId);
+            modelBuilder.Entity<TagTagsetRelation>() //Tells EF that there is a one-to-many relationsship between TagTagsetRelation and Tagset
+                .HasOne(ttr => ttr.Tagset)
+                .WithMany(ts => ts.TagTagsetRelations)
+                .HasForeignKey(ttr => ttr.TagsetId);
             
-            var FamilyTag = new Tag("Family");
-            var CharlieTag = new Tag("Charlie");
-            var DanielTag = new Tag("Daniel");
-
-            //Creating people tagset:
-            var PeopleTagset = new Tagset("People");
-
-            //Creating relations:
-            var FriendsRelations = new TagTagsetRelation[] {
-                new TagTagsetRelation(FriendsTag, PeopleTagset),
-                new TagTagsetRelation(AliceTag, PeopleTagset),
-                new TagTagsetRelation(BobTag, PeopleTagset),
-                new TagTagsetRelation(PeterTag, PeopleTagset),
-                new TagTagsetRelation(SaraTag, PeopleTagset),
-                new TagTagsetRelation(FamilyTag, PeopleTagset),
-                new TagTagsetRelation(CharlieTag, PeopleTagset),
-                new TagTagsetRelation(DanielTag, PeopleTagset),
-            };
-            FriendsTag.TagSets.AddRange(FriendsRelations);
-
-            //Creating hirarchies:
-
-            modelBuilder.Entity<Tagset>().HasData();
-            */
-
             //Calling on model creating:
             base.OnModelCreating(modelBuilder);
         }
