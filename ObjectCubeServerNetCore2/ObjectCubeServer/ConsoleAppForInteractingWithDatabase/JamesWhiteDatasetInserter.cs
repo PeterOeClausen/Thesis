@@ -30,7 +30,7 @@ namespace ConsoleAppForInteractingWithDatabase
                     var cubeObject = new CubeObject();
 
                     //Loading and saving image:
-                    using (Image<Rgba32> image = Image.Load(file))
+                    using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load(file))
                     {
                         MemoryStream ms = new MemoryStream();
                         image.SaveAsJpeg(ms); //Copy to ms

@@ -30,7 +30,8 @@ namespace ObjectCubeServer.Models.DataAccess
         public DbSet<TagTagsetRelation> TagTagsetRelations { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
-        
+        public DbSet<Photo> Photos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Specifying keys:
