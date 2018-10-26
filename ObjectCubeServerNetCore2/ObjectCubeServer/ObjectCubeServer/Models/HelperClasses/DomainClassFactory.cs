@@ -25,10 +25,8 @@ namespace ObjectCubeServer.Models
 
         public static Tagset NewTagSet(string name)
         {
-            return new Tagset()
-            {
+            return new Tagset() {
                 Name = name,
-                Hierarchy = new Hierarchy(),
                 TagTagsetRelations = new List<TagTagsetRelation>()
             };
         }

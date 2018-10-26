@@ -35,7 +35,6 @@ namespace ObjectCubeServer.Controllers
                     return NotFound();
                 }
             }
-
             return File(photo.Image, "image/jpeg");
         }
 

@@ -10,6 +10,7 @@ using System.IO;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.PixelFormats;
+using ObjectCubeServer.Models.HelperClasses;
 
 namespace ConsoleAppForInteractingWithDatabase
 {
@@ -19,10 +20,50 @@ namespace ConsoleAppForInteractingWithDatabase
         {
             using (var context = new ObjectContext())
             {
+                //Creating tagsets:
+                Tagset animals_tagset = DomainClassFactory.NewTagSet("Animals");
+                Tagset artist_tagset = DomainClassFactory.NewTagSet("Artists");
+                Tagset colors_tagset = DomainClassFactory.NewTagSet("Colors");
+                Tagset location_tagset = DomainClassFactory.NewTagSet("Locations");
+                Tagset shapes_tagset = DomainClassFactory.NewTagSet("Shapes");
+                Tagset uncategorizedTags_tagset = DomainClassFactory.NewTagSet("Uncategorized");
+                //Saving tagsets:
+                Tagset[] allTagsets = new Tagset[] {
+                    animals_tagset,
+                    artist_tagset,
+                    colors_tagset,
+                    location_tagset,
+                    shapes_tagset,
+                    uncategorizedTags_tagset
+                };
+                context.Tagsets.AddRange(allTagsets);
+
+                //Creating tags:
+                Tag circleTag = DomainClassFactory.NewTag("Circle");
+                Tag flamingoTag = DomainClassFactory.NewTag("Flamingo");
+                Tag JamesWhiteTag = DomainClassFactory.NewTag("James White");
+                Tag RectangleTag = DomainClassFactory.NewTag("Rectangle");
+                Tag triangleTag = DomainClassFactory.NewTag("Triangle");
+                //Saving tags:
+                Tag[] allTags = new Tag[] {
+                    circleTag,
+                    flamingoTag,
+                    JamesWhiteTag,
+                    RectangleTag,
+                    triangleTag
+                };
+                context.Tags.AddRange(allTags);
+
+                //Adding tagset2tag relations:
+                HelperMethods.AddTagToTagset(JamesWhiteTag, artist_tagset);
+                HelperMethods.AddTagToTagset(flamingoTag, animals_tagset);
+                HelperMethods.AddTagToTagset(circleTag, shapes_tagset);
+
+
+                //Creating cube objects from files:
                 string path = @"C:\Users\peter\Desktop\ImageTestSet";
                 string[] files = Directory.GetFiles(path);
                 List<CubeObject> cubeObjects = new List<CubeObject>();
-                Tagset tagset = new Tagset() { Name = "Stuff on the picture", TagTagsetRelations = new List<TagTagsetRelation>() };
                 foreach (string file in files)
                 {
                     string filename = Path.GetFileName(file);
@@ -43,36 +84,26 @@ namespace ConsoleAppForInteractingWithDatabase
                         };
                     }
 
-                    //Adding tags based on filename:
+                    //Adding tags based on filename:                  
                     switch (filename)
-                    {
+                    {   
                         case "Flamingo.jpg":
-                            Tag tag = new Tag()
-                            {
-                                Name = "Flamingo",
-                                ObjectTagRelations = new List<ObjectTagRelation>(),
-                                TagTagsetRelations = new List<TagTagsetRelation>()
-                            };
-                            tag.ObjectTagRelations.Add(new ObjectTagRelation() { CubeObject = cubeObject, Tag = tag } );
-                            tag.TagTagsetRelations.Add(new TagTagsetRelation() { Tag = tag, Tagset = tagset });
+                            HelperMethods.AddTagToObject(flamingoTag, cubeObject);
+                            HelperMethods.AddTagToObject(JamesWhiteTag, cubeObject);
+                            break;
 
-                            context.Tags.Add(tag);
+                        case "Palm.jpg":
+                            HelperMethods.AddTagToObject(JamesWhiteTag, cubeObject);
                             break;
                     }
 
-                    //Adding cube object to the list (later to be saved):
-                    cubeObjects.Add(cubeObject);
+                    //Saving the cube object we just created.
+                    context.CubeObjects.Add(cubeObject);
                 }
 
-                //Adding tagset and created cubeobjects to the database:
-                context.Tagsets.Add(tagset);
-                context.CubeObjects.AddRange(cubeObjects);
-                
                 //Saving changes:
                 context.SaveChanges();
             }
         }
-
-
     }
 }

@@ -13,7 +13,10 @@ namespace ConsoleAppForInteractingWithDatabase
             Console.WriteLine("Hello World!");
             JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
             //DeleteAllObjects();
+
+            
             Console.WriteLine("Done!");
+            Console.WriteLine("Press any key to shut down.");
             Console.ReadKey();
         }
 

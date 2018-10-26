@@ -93,6 +93,8 @@ namespace ObjectCubeServer.Models.DataAccess
         #endregion GetWhere
 
         #region InsertMethods
+        
+
         public static void InsertTag(Tag tag)
         {
             using (var context = new ObjectContext())
@@ -111,13 +113,15 @@ namespace ObjectCubeServer.Models.DataAccess
             }
         }
 
-        public static void InsertTagset(Tagset tagset)
+        public static Tagset InsertTagset(string name)
         {
+            Tagset tagset = new Tagset() { Name = name, TagTagsetRelations = new List<TagTagsetRelation>() };
             using (var context = new ObjectContext())
             {
                 context.Tagsets.Add(tagset);
                 context.SaveChanges();
             }
+            return tagset;
         }
 
         public static void InsertTagTagsetRelation(TagTagsetRelation tagTagsetRelation)

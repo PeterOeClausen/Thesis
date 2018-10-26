@@ -347,3 +347,6 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+#Migrations folder:
+Migrations/
