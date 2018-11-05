@@ -4,25 +4,128 @@
 		<meta charset=utf-8>
 		<title>Photocube</title>
 		<link rel="stylesheet" href="css/styles.css"/>
-		<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/core.js"></script>-->
-		<!--jquery:-->
+		<link rel="stylesheet" href="css/controlsStyling.css"/>
+		<link rel="stylesheet" href="css/fileCountStyling.css"/>
+		
+		<!--jQuery UI:-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+		<link rel="stylesheet" href="js/jquery-ui-1.12.1/jquery-ui.css">
+		<script src="js/jquery-ui-1.12.1/jquery-ui.js"></script>		
 	</head>
 	<body>
 		<div class="grid-container">
-		  	<div class="grid-item" id="menu">
-		  		<p>Menu</p>
+		  	<!--Menu-->
+		  	<div class="grid-item" id="leftDock" class="controls">
+		  		<div id="menu" class="control">
+					<h4>Menu</h4>
+					<button class="menuButton">New browsing state</button><br/>
+					<button class="menuButton">Save browsing state</button><br/>
+					<button class="menuButton">Load browsing state</button><br/>
+					<button class="menuButton">Edit tags</button>
+		  		</div>
+		  		
+
 	  		</div>
+
+	  		<!--Browser-->
 		  	<div class="grid-item" id="browser">
 		  		<!--Canvas is added in here-->
 		  	</div>
+
+		  	<!--Controls-->
 		  	<div class="grid-item" id="controls">
-		  		<p>Controls</p>
-		  	</div>
+		  		<div id="fileCount" class="control">
+		  			<h4>File count:</h4>
+		  			<p>Currently showing:</p>
+		  			<p id="fileCountValue" class="bold">0</p>
+		  			<p>photos</p>
+		  		</div>
+
+		  		<div id="ChangeBrowsingMode" class="control">
+		  			<h4>Change browsing mode:</h4>
+		  			<select>
+						<option value="Cube">Cube</option>
+						<option value="Grid">Grid</option>
+						<option value="Card">Card</option>
+					</select>
+		  		</div>
+
+		  		<div id="Dimensions" class="control">
+	  				<h4>Dimensions:</h4>
+	  				<div id="DimensionsContent" class="controlContent customScrollbar">
+		  				<div id="X-Dimension">
+			  				<p>X-Axis</p>
+			  				<button class="controlButton">Change</button>
+			  				<ul>
+			  					<li><button class="listButton">- Countries</button>
+			  						<ul>
+			  							<li><button class="listButton">- Argentina</button>
+			  								<ul>
+			  									<li>Buenos Aires</li>
+			  									<li>Rosario</li>
+			  								</ul>
+			  							</li>
+			  							<li><button class="listButton">+ Belgium</button></li>
+			  							<li><button class="listButton">+ Denmark</button></li>
+			  							<li><button class="listButton">+ France</button></li>
+			  						</ul>
+		  				        </li>
+			  				</ul>
+						</div>
+						<div id="Y-Dimension">
+			  				<p>Y-Axis</p>
+			  				<button class="controlButton">Change</button>
+			  				<ul>
+			  					<li><button class="listButton">- People</button>
+			  						<ul>
+			  							<li><button class="listButton">- Friends</button>
+			  								<ul>
+			  									<li>Alice</li>
+			  									<li>Bob</li>
+			  									<li>Peter</li>
+			  									<li class=".unselected">Sara</li>
+			  								</ul>
+			  							</li>
+			  							<li><button class="listButton">- Family</button>
+		  									<ul>
+			  									<li>Charlie</li>
+			  									<li>Daniel</li>
+			  								</ul>
+			  							</li>
+			  						</ul>
+		  				        </li>
+			  				</ul>
+						</div>
+						<div id="Z-Dimension">
+			  				<p>Z-Axis</p>
+			  				<button class="controlButton">Change</button>
+			  				<ul>
+			  					<li><button class="listButton">- Year</button>
+			  						<ul>
+			  							<li>2018</li>
+			  							<li class=".bold">2017</li>
+			  							<li><p class=".bold">2016</p></li>
+			  						</ul>
+		  				        </li>
+			  				</ul>
+						</div>
+					</div>
+				</div>
+
+				<div id="ActiveFilters" class="control">
+					<h4>Active filters:</h3>
+					<div class="controlContent customScrollbar ">
+						<p>Friends != Sara <button class="controlButton">X</button></p><br/>
+						<p>Year != 2016 <button class="controlButton">X</button></p>
+					</div>
+				</div>
+
+		  	</div><!--End of control-->
 		</div>
 
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/threejsCode.js"></script>
+		<script src="js/uiBehavior.js"></script>
 	</body>
 </html>

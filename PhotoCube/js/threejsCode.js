@@ -1,3 +1,16 @@
+//Public variables:
+var camera;
+var renderer;
+
+//Function to resize browser dynamically
+function ResizeBrowser(){
+    var width = document.getElementById('browser').clientWidth;
+    var height = document.getElementById('browser').clientHeight;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+}
+
 $(document).ready(function(){
     //Colors used throughout the document:
     var red = 0xF00000;
@@ -11,11 +24,11 @@ $(document).ready(function(){
     var containerWidth = document.getElementById('browser').clientWidth;
     var containerHeight = document.getElementById('browser').clientHeight;
     //THREE.PerspectiveCamera(fov, aspect, near, far)
-    var camera = new THREE.PerspectiveCamera( 75, containerWidth / containerHeight, 0.1, 1000);
+    camera = new THREE.PerspectiveCamera( 75, containerWidth / containerHeight, 0.01, 1000);
     camera.position.x = -5;
 
     //Setup renderer:
-    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(containerWidth, containerHeight)
 
     //Add the render element to the DOM:
@@ -23,6 +36,7 @@ $(document).ready(function(){
 
     //Window resize listener:
     window.addEventListener( 'resize', function () {
+        console.log("windows resized!");
         var width = document.getElementById('browser').clientWidth;
         var height = document.getElementById('browser').clientHeight;
         renderer.setSize(width, height);
@@ -164,9 +178,8 @@ $(document).ready(function(){
     $(document).keyup( function(e) {
          if (e.keyCode == 27) { // Escape key maps to keycode `27`
             controls.reset();
-            camera.position.x = -3;
+            camera.position.x = -5;
         }
     });
 
 });
-

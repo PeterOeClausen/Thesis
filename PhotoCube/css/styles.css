@@ -12,15 +12,12 @@ canvas {
 
 .grid-container {
   display: grid;
-  grid-template-columns: 200px auto 200px;
+  grid-template-columns: 150px auto 250px;
+  //grid-template-columns: 200px auto 200px;
 }
 
 .grid-item{
 	height: 100vh;
-}
-
-#menu {
-	background-color: green;
 }
 
 #browser {
@@ -28,8 +25,4 @@ canvas {
 	padding: 0;
 	background-color: red;
 	overflow: hidden;
-}
-
-#controls {
-	background-color: blue;
 }
