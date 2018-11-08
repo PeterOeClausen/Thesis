@@ -10,10 +10,9 @@ namespace ConsoleAppForInteractingWithDatabase
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
-            //DeleteAllObjects();
-
+            Console.WriteLine("Started up!");
+            //JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
+            LaugavegurDatasetInserter.InsertLaugavegurDataset();
             
             Console.WriteLine("Done!");
             Console.WriteLine("Press any key to shut down.");

@@ -19,7 +19,8 @@
 }
 
 .control h4 {
-	color: rgb(208, 208, 208);
+	color: rgb(240, 240, 240);
+	text-shadow: 2px 2px black;
 	margin: 2px;
 	margin-left: 0px;
 }
@@ -43,8 +44,7 @@
 	background-color: rgb(37, 37, 38);
 	color: rgb(241, 241, 241);
 	border: none;
-	font-size: 14px;
-	font-family: serif;
+
 }
 
 .controlButton{

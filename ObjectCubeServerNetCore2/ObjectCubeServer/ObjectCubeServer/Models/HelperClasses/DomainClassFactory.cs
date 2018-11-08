@@ -10,7 +10,10 @@ namespace ObjectCubeServer.Models
     {
         public static CubeObject NewCubeObject()
         {
-            return null;
+            return new CubeObject()
+            {
+                ObjectTagRelations = new List<ObjectTagRelation>()
+            };
         }
 
         public static Tag NewTag(string name)
