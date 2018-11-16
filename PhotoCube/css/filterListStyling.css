@@ -1,0 +1,14 @@
+.filter-list-item{
+	display: grid;
+  	grid-template-columns: 90% 10%;
+  	width: 95%;
+  	margin-top: 2px;
+}
+
+.filter-primary-text{
+
+}
+
+.filter-list-control{
+	
+}

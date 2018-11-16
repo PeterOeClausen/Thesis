@@ -1,0 +1,49 @@
+.dimensions-axis{
+	display: inline-grid;	
+  	grid-template-columns: 50% 50%;
+  	width: 90%;
+}
+
+.dimensions-changeButton{
+	
+}
+
+.dimensions-label{
+
+}
+
+.dimensions-list{
+	border: 1px solid rgb(63, 63, 70);
+	width: 97%;
+	margin-bottom: 5px;
+}
+
+/*First level:*/
+.dimensions-list ul {
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
+/*Second level:*/
+.dimensions-list ul ul {
+	padding-left: 20px;
+	margin-left: 0px;
+}
+
+/*Third level:*/
+.dimensions-list ul ul ul {
+	padding-left: 40px;
+	margin-left: 0px;
+}
+
+/*Fourth level:*/
+.dimensions-list ul ul ul ul{
+	padding-left: 60px;
+	margin-left: 0px;
+}
+
+/*Fifth level:*/
+.dimensions-list ul ul ul ul ul {
+	padding-left: 80px;
+	margin-left: 0px;
+}

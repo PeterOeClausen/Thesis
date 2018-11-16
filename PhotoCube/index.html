@@ -11,6 +11,8 @@
 		<link rel="stylesheet" href="css/styles.css"/>
 		<link rel="stylesheet" href="css/controlsStyling.css"/>
 		<link rel="stylesheet" href="css/fileCountStyling.css"/>
+		<link rel="stylesheet" href="css/filterListStyling.css"/>
+		<link rel="stylesheet" href="css/dimensionsStyling.css"/>
 		
 		<!--jQuery UI:-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -61,13 +63,14 @@
 		  				<div id="X-Dimension">
 			  				<p>X-Axis</p>
 			  				<button class="controlButton">Change</button>
+			  				<div class="dimensions-list">
 			  				<ul>
 			  					<li><button class="listButton">- Countries</button>
 			  						<ul>
 			  							<li><button class="listButton">- Argentina</button>
 			  								<ul>
-			  									<li>Buenos Aires</li>
-			  									<li>Rosario</li>
+			  									<li><button class="listButton">Buenos Aires</button></li>
+			  									<li><button class="listButton">Rosario</button></li>
 			  								</ul>
 			  							</li>
 			  							<li><button class="listButton">+ Belgium</button></li>
@@ -76,43 +79,48 @@
 			  						</ul>
 		  				        </li>
 			  				</ul>
+			  				</div>
 						</div>
 						<div id="Y-Dimension">
 			  				<p>Y-Axis</p>
 			  				<button class="controlButton">Change</button>
-			  				<ul>
-			  					<li><button class="listButton">- People</button>
-			  						<ul>
-			  							<li><button class="listButton">- Friends</button>
-			  								<ul>
-			  									<li>Alice</li>
-			  									<li>Bob</li>
-			  									<li>Peter</li>
-			  									<li class=".unselected">Sara</li>
-			  								</ul>
-			  							</li>
-			  							<li><button class="listButton">- Family</button>
-		  									<ul>
-			  									<li>Charlie</li>
-			  									<li>Daniel</li>
-			  								</ul>
-			  							</li>
-			  						</ul>
-		  				        </li>
-			  				</ul>
+			  				<div class="dimensions-list">
+				  				<ul>
+				  					<li><button class="listButton">- People</button>
+				  						<ul>
+				  							<li><button class="listButton">- Friends</button>
+				  								<ul>
+				  									<li><button class="listButton">Alice</button></li>
+				  									<li><button class="listButton">Bob</button></li>
+				  									<li><button class="listButton">Peter</button></li>
+				  									<li><button class="listButton">Sara</button></li>
+				  								</ul>
+				  							</li>
+				  							<li><button class="listButton">- Family</button>
+			  									<ul>
+				  									<li><button class="listButton">Charlie</button></li>
+				  									<li><button class="listButton">Daniel</button></li>
+				  								</ul>
+				  							</li>
+				  						</ul>
+			  				        </li>
+				  				</ul>
+			  				</div>
 						</div>
 						<div id="Z-Dimension">
 			  				<p>Z-Axis</p>
 			  				<button class="controlButton">Change</button>
-			  				<ul>
-			  					<li><button class="listButton">- Year</button>
-			  						<ul>
-			  							<li>2018</li>
-			  							<li class=".bold">2017</li>
-			  							<li><p class=".bold">2016</p></li>
-			  						</ul>
-		  				        </li>
-			  				</ul>
+			  				<div class="dimensions-list">
+				  				<ul>
+				  					<li><button class="listButton">- Year</button>
+				  						<ul>
+				  							<li><button class="listButton">2018</button></li>
+				  							<li><button class="listButton">2017</button></li>
+				  							<li><button class="listButton">2016</button></li>
+				  						</ul>
+			  				        </li>
+				  				</ul>
+			  				</div>
 						</div>
 					</div>
 				</div>
@@ -120,8 +128,8 @@
 				<div id="ActiveFilters" class="control">
 					<h4>Active filters:</h4>
 					<div class="controlContent customScrollbar ">
-						<p>Friends != Sara <button class="controlButton">X</button></p><br/>
-						<p>Year != 2016 <button class="controlButton">X</button></p>
+						<div class="filter-list-item"><div class="filter-primary-text"><p>Friends != Sara</p></div><div class="filter-list-control"><button class="controlButton">X</button></div></div>
+						<div class="filter-list-item"><div class="filter-primary-text"><p>Year != 2016</p></div><div class="filter-list-control"><button class="controlButton">X</button></div></div>
 					</div>
 				</div>
 

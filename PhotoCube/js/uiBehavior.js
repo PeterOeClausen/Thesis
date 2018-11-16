@@ -2,7 +2,7 @@ $(document).ready(function(){
 	
 	$('#leftDock').resizable({
   		handles: 'e',
-  		minWidth: 100,  		
+  		minWidth: 160,  		
   		stop: function( event, ui ) {
   			//Make browser div smaller or bigger according to #menu div change
   			var oldWidth = ui.originalSize.width;
@@ -18,7 +18,7 @@ $(document).ready(function(){
 
 	$('#controls').resizable({
   		handles: 'w',
-  		minWidth: 100,
+  		minWidth: 250,
   		stop: function( event, ui ) {
   			//Make browser div smaller or bigger according to #controls div change
   			var oldWidth = ui.originalSize.width;
