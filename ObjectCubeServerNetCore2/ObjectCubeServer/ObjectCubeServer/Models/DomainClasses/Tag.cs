@@ -6,9 +6,10 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public Tagset Tagset { get; set; }
+        public int TagsetId { get; set; }
         public List<ObjectTagRelation> ObjectTagRelations { get; set; }
-        public List<TagTagsetRelation> TagTagsetRelations { get; set; } //Should be renamed to TagTagsetRelations
-
+       
         /*
         public Tag(string Name)
         {

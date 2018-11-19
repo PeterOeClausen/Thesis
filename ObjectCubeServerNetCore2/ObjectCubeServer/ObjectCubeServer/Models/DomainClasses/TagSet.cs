@@ -9,8 +9,8 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public int Id { get; set; }
         public string Name{ get; set; }
-        public Hierarchy Hierarchy { get; set; }
-        public List<TagTagsetRelation> TagTagsetRelations { get; set; }
+        public List<Tag> Tags { get; set; }
+        public List<Hierarchy> HierarchyRoots { get; set; }
 
         /*
         public Tagset(string name)

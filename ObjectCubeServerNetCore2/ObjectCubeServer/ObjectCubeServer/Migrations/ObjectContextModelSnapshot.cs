@@ -42,7 +42,11 @@ namespace ObjectCubeServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int>("TagId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TagId");
 
                     b.ToTable("Hierarchies");
                 });
@@ -123,6 +127,14 @@ namespace ObjectCubeServer.Migrations
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Photo", "Photo")
                         .WithMany()
                         .HasForeignKey("PhotoId");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
+                {
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTagRelation", b =>

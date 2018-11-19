@@ -10,11 +10,9 @@ namespace ObjectCubeServer.Models.HelperClasses
     {
         public static void AddTagToTagset(Tag tag, Tagset tagset)
         {
-            tag.TagTagsetRelations.Add(new TagTagsetRelation()
-            {
-                Tag = tag,
-                Tagset = tagset
-            });
+            tag.Tagset = tagset;
+            tag.TagsetId = tagset.Id;
+            tagset.Tags.Add(tag);
         }
 
         public static void AddTagToObject(Tag tag, CubeObject cubeObject)
@@ -24,6 +22,17 @@ namespace ObjectCubeServer.Models.HelperClasses
                 CubeObject = cubeObject,
                 Tag = tag
             });
+        }
+
+        public static void AddSubHierarchiesToSuperHierarchy(Hierarchy[] SubHierarchies, Hierarchy SuperHierarchy)
+        {
+            //Adding SubHierarchies to SuperHierarchy's subHierarchies:
+            SuperHierarchy.SubHierarchies.AddRange(SubHierarchies);
+
+            //Adding SuperHierarchies to SubHierarchies' superHierarchies:
+            foreach(Hierarchy subH in SubHierarchies){
+                subH.SuperHierarchies.Add(SuperHierarchy);
+            }
         }
     }
 }

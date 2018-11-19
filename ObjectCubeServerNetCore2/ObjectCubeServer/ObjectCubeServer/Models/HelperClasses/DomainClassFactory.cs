@@ -8,21 +8,24 @@ namespace ObjectCubeServer.Models
 {
     public class DomainClassFactory
     {
-        public static CubeObject NewCubeObject()
+        public static CubeObject NewCubeObject(FileType fileType, Photo photo)
         {
             return new CubeObject()
             {
+                FileType = fileType,
+                Photo = photo,
                 ObjectTagRelations = new List<ObjectTagRelation>()
             };
         }
 
-        public static Tag NewTag(string name)
+        public static Tag NewTag(string name, Tagset tagset)
         {
             return new Tag()
             {
                 Name = name,
-                ObjectTagRelations = new List<ObjectTagRelation>(),
-                TagTagsetRelations = new List<TagTagsetRelation>()
+                Tagset = tagset,
+                TagsetId = tagset.Id,
+                ObjectTagRelations = new List<ObjectTagRelation>()
             };
         }
 
@@ -30,7 +33,21 @@ namespace ObjectCubeServer.Models
         {
             return new Tagset() {
                 Name = name,
-                TagTagsetRelations = new List<TagTagsetRelation>()
+                Tags = new List<Tag>(),
+                HierarchyRoots = new List<Hierarchy>()
+            };
+        }
+
+        public static Hierarchy NewHierarchy(Tag tag, Tagset tagset, Hierarchy parent)
+        {
+            return new Hierarchy()
+            {
+                Name = tag.Name,
+                Tag = tag,
+                Tagset = tagset,
+                TagsetId = tagset.Id,
+                ParentHierarchy = parent,
+                ChildHierarchies = new List<Hierarchy>()
             };
         }
 
@@ -40,6 +57,15 @@ namespace ObjectCubeServer.Models
             {
                 Tag = tag,
                 Tagset = tagset
+            };
+        }
+
+        public static Photo NewPhoto(byte[] image, string fileName)
+        {
+            return new Photo()
+            {
+                Image = image,
+                FileName = fileName
             };
         }
     }
