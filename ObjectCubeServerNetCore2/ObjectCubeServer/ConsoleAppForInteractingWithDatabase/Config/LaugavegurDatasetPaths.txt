@@ -1,0 +1,4 @@
+﻿pathToDataset,D:\LaugavegurData
+pathToTagFile,D:\LaugavegurData\LaugavegurImageTags.csv
+pathToHierarchiesFile,D:\LaugavegurData\LaugavegurHierarchies.csv
+pathToErrorLogFile,C:\Users\peter\Desktop\FileLoadError.txt
