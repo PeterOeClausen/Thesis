@@ -15,7 +15,7 @@ namespace ObjectCubeServer.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
+                .HasAnnotation("ProductVersion", "2.1.3-rtm-32065")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -42,11 +42,21 @@ namespace ObjectCubeServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Name");
+
+                    b.Property<int?>("ParentHierarchyId");
+
                     b.Property<int>("TagId");
+
+                    b.Property<int>("TagsetId");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ParentHierarchyId");
+
                     b.HasIndex("TagId");
+
+                    b.HasIndex("TagsetId");
 
                     b.ToTable("Hierarchies");
                 });
@@ -87,7 +97,11 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("TagsetId");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("TagsetId");
 
                     b.ToTable("Tags");
                 });
@@ -98,28 +112,11 @@ namespace ObjectCubeServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("HierarchyId");
-
                     b.Property<string>("Name");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HierarchyId");
-
                     b.ToTable("Tagsets");
-                });
-
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.TagTagsetRelation", b =>
-                {
-                    b.Property<int>("TagId");
-
-                    b.Property<int>("TagsetId");
-
-                    b.HasKey("TagId", "TagsetId");
-
-                    b.HasIndex("TagsetId");
-
-                    b.ToTable("TagTagsetRelations");
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.CubeObject", b =>
@@ -131,9 +128,18 @@ namespace ObjectCubeServer.Migrations
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
                 {
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Hierarchy", "ParentHierarchy")
+                        .WithMany("ChildHierarchies")
+                        .HasForeignKey("ParentHierarchyId");
+
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
                         .WithMany()
                         .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset", "Tagset")
+                        .WithMany("HierarchyRoots")
+                        .HasForeignKey("TagsetId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -150,22 +156,10 @@ namespace ObjectCubeServer.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Tagset", b =>
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Tag", b =>
                 {
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Hierarchy", "Hierarchy")
-                        .WithMany()
-                        .HasForeignKey("HierarchyId");
-                });
-
-            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.TagTagsetRelation", b =>
-                {
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
-                        .WithMany("TagTagsetRelations")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset", "Tagset")
-                        .WithMany("TagTagsetRelations")
+                        .WithMany("Tags")
                         .HasForeignKey("TagsetId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });

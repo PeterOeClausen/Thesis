@@ -44,19 +44,11 @@ namespace ObjectCubeServer.Models
             {
                 Name = tag.Name,
                 Tag = tag,
+                TagId = tag.Id,
                 Tagset = tagset,
                 TagsetId = tagset.Id,
                 ParentHierarchy = parent,
                 ChildHierarchies = new List<Hierarchy>()
-            };
-        }
-
-        public static TagTagsetRelation NewTagTagsetRelation(Tag tag, Tagset tagset)
-        {
-            return new TagTagsetRelation()
-            {
-                Tag = tag,
-                Tagset = tagset
             };
         }
 

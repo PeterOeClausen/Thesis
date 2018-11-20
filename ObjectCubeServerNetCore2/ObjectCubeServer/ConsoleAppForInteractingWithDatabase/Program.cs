@@ -33,34 +33,6 @@ namespace ConsoleAppForInteractingWithDatabase
             }
         }
 
-        static void InsertManyToManyObjects()
-        {
-            //Creating tags:
-            var friends = DomainClassFactory.NewTag("Friends");
-            var alice = DomainClassFactory.NewTag("Alice");
-            var bob = DomainClassFactory.NewTag("Bob");
-            
-            Tag[] tags = new Tag[] {
-                friends,
-                alice,
-                bob,
-            };
-            
-            //Creating tagset people:
-            var people = DomainClassFactory.NewTagSet("People");
-            
-            //Creating relations:
-
-            
-            //Inserting into database:
-            using (var context = new ObjectContext())
-            {
-                context.Tags.AddRange(tags);
-                context.Tagsets.Add(people);
-                context.SaveChanges();
-            }
-        }
-
         static void GetAllObjects()
         {
             using (var context = new ObjectContext())

@@ -112,26 +112,6 @@ namespace ObjectCubeServer.Models.DataAccess
                 context.SaveChanges();
             }
         }
-
-        public static Tagset InsertTagset(string name)
-        {
-            Tagset tagset = new Tagset() { Name = name, TagTagsetRelations = new List<TagTagsetRelation>() };
-            using (var context = new ObjectContext())
-            {
-                context.Tagsets.Add(tagset);
-                context.SaveChanges();
-            }
-            return tagset;
-        }
-
-        public static void InsertTagTagsetRelation(TagTagsetRelation tagTagsetRelation)
-        {
-            using (var context = new ObjectContext())
-            {
-                context.TagTagsetRelations.Add(tagTagsetRelation);
-                context.SaveChanges();
-            }
-        }
         #endregion
 
     }

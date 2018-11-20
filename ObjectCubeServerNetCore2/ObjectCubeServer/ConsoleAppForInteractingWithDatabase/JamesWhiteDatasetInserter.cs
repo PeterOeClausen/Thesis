@@ -39,11 +39,11 @@ namespace ConsoleAppForInteractingWithDatabase
                 context.Tagsets.AddRange(allTagsets);
 
                 //Creating tags:
-                Tag circleTag = DomainClassFactory.NewTag("Circle");
-                Tag flamingoTag = DomainClassFactory.NewTag("Flamingo");
-                Tag JamesWhiteTag = DomainClassFactory.NewTag("James White");
-                Tag RectangleTag = DomainClassFactory.NewTag("Rectangle");
-                Tag triangleTag = DomainClassFactory.NewTag("Triangle");
+                Tag circleTag = DomainClassFactory.NewTag("Circle", shapes_tagset);
+                Tag flamingoTag = DomainClassFactory.NewTag("Flamingo", animals_tagset);
+                Tag JamesWhiteTag = DomainClassFactory.NewTag("James White", artist_tagset);
+                Tag RectangleTag = DomainClassFactory.NewTag("Rectangle", shapes_tagset);
+                Tag triangleTag = DomainClassFactory.NewTag("Triangle", shapes_tagset);
                 //Saving tags:
                 Tag[] allTags = new Tag[] {
                     circleTag,

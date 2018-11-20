@@ -27,7 +27,6 @@ namespace ObjectCubeServer.Models.DataAccess
          */ 
         public DbSet<CubeObject> CubeObjects { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<TagTagsetRelation> TagTagsetRelations { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
         public DbSet<Photo> Photos { get; set; }
@@ -45,15 +44,12 @@ namespace ObjectCubeServer.Models.DataAccess
                 .WithMany(t => t.ObjectTagRelations)
                 .HasForeignKey(otr => otr.TagId);
 
-            modelBuilder.Entity<TagTagsetRelation>().HasKey(ttr => new { ttr.TagId, ttr.TagsetId }); //Tells EF that TagTagsetRelations's primary key is composed of TagId and TagsetId.
-            modelBuilder.Entity<TagTagsetRelation>() //Tells EF that there is a one-to-many relationsship between TagTagsetRelation and Tag
-                .HasOne(ttr => ttr.Tag)
-                .WithMany(t => t.TagTagsetRelations)
-                .HasForeignKey(ttr => ttr.TagId);
-            modelBuilder.Entity<TagTagsetRelation>() //Tells EF that there is a one-to-many relationsship between TagTagsetRelation and Tagset
-                .HasOne(ttr => ttr.Tagset)
-                .WithMany(ts => ts.TagTagsetRelations)
-                .HasForeignKey(ttr => ttr.TagsetId);
+            modelBuilder.Entity<Hierarchy>() //Tells EF that there is a one-to-many relationship between Hierarchy and TagSet, and that TasetId is a foreign key.
+                .HasOne(h => h.Tagset)
+                .WithMany(ts => ts.HierarchyRoots)
+                .HasForeignKey(h => h.TagsetId);
+
+
             
             //Calling on model creating:
             base.OnModelCreating(modelBuilder);
@@ -62,7 +58,7 @@ namespace ObjectCubeServer.Models.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf"); //Change location if pushed.
+            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf"); //Change location if pushed.
         }
     }
 }

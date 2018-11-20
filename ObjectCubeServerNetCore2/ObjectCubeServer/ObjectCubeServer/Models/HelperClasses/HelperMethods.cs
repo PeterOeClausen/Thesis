@@ -24,15 +24,5 @@ namespace ObjectCubeServer.Models.HelperClasses
             });
         }
 
-        public static void AddSubHierarchiesToSuperHierarchy(Hierarchy[] SubHierarchies, Hierarchy SuperHierarchy)
-        {
-            //Adding SubHierarchies to SuperHierarchy's subHierarchies:
-            SuperHierarchy.SubHierarchies.AddRange(SubHierarchies);
-
-            //Adding SuperHierarchies to SubHierarchies' superHierarchies:
-            foreach(Hierarchy subH in SubHierarchies){
-                subH.SuperHierarchies.Add(SuperHierarchy);
-            }
-        }
     }
 }

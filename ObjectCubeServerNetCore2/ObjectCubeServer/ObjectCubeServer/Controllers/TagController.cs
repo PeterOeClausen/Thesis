@@ -83,7 +83,6 @@ namespace ObjectCubeServer.Controllers
                 tagInDb.Id = inputTag.Id;
                 tagInDb.Name = inputTag.Name;
                 tagInDb.ObjectTagRelations = inputTag.ObjectTagRelations;
-                tagInDb.TagTagsetRelations = inputTag.TagTagsetRelations;
                 context.SaveChanges();
             }
             return Ok();
