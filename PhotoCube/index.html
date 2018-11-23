@@ -13,11 +13,11 @@
 		<link rel="stylesheet" href="css/fileCountStyling.css"/>
 		<link rel="stylesheet" href="css/filterListStyling.css"/>
 		<link rel="stylesheet" href="css/dimensionsStyling.css"/>
-		
+
 		<!--jQuery UI:-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 		<link rel="stylesheet" href="js/jquery-ui-1.12.1/jquery-ui.css">
-		<script src="js/jquery-ui-1.12.1/jquery-ui.js"></script>		
+		<script src="js/jquery-ui-1.12.1/jquery-ui.js"></script>
 	</head>
 	<body>
 		<div class="grid-container">
@@ -62,7 +62,7 @@
 	  				<div id="DimensionsContent" class="controlContent customScrollbar">
 		  				<div id="X-Dimension">
 			  				<p>X-Axis</p>
-			  				<button class="controlButton">Change</button>
+			  				<button class="controlButton" onclick="changeDimensionClicked('x')">Change</button>
 			  				<div class="dimensions-list">
 			  				<ul>
 			  					<li><button class="listButton">- Countries</button>
@@ -136,9 +136,11 @@
 		  	</div><!--End of control-->
 		</div>
 
+		<!--Javascript:-->
 		<script src="js/three.js"></script>
 		<script src="js/OrbitControls.js"></script>
 		<script src="js/threejsCode.js"></script>
 		<script src="js/uiBehavior.js"></script>
+		<script src="js/buttonHandlers.js"></script>
 	</body>
 </html>

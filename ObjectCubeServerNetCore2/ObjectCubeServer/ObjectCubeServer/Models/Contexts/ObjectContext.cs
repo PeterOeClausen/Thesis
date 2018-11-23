@@ -49,8 +49,6 @@ namespace ObjectCubeServer.Models.DataAccess
                 .WithMany(ts => ts.HierarchyRoots)
                 .HasForeignKey(h => h.TagsetId);
 
-
-            
             //Calling on model creating:
             base.OnModelCreating(modelBuilder);
         }
