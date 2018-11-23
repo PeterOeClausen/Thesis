@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ObjectCubeServer.Models.DomainClasses
 {
@@ -6,17 +7,11 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public int Id { get; set; }
         public string Name { get; set; }
+
+        [ForeignKey("TagsetId")]
         public Tagset Tagset { get; set; }
         public int TagsetId { get; set; }
+
         public List<ObjectTagRelation> ObjectTagRelations { get; set; }
-       
-        /*
-        public Tag(string Name)
-        {
-            this.Name = Name;
-            this.ObjectTagRelations = new List<ObjectTagRelation>();
-            this.TagTagsetRelations = new List<TagTagsetRelation>();
-        }
-        */
     }
 }

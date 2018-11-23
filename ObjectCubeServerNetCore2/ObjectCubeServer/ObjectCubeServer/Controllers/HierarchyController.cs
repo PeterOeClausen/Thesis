@@ -22,10 +22,7 @@ namespace ObjectCubeServer.Controllers
             List<Hierarchy> rootHierarchies;
             using (var context = new ObjectContext())
             {
-                rootHierarchies = context.Hierarchies
-                    .Include(h => h.ChildHierarchies)
-                    .Where(h => h.ParentHierarchy == null)
-                    .ToList();
+                rootHierarchies = context.Hierarchies.Include(h => h.RootNode).ToList();
             }
             if(rootHierarchies == null) { return NotFound("No root hierarchies were found. Check the database."); }
 

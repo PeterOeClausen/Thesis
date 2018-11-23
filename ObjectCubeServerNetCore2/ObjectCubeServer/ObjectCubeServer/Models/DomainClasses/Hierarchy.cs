@@ -11,18 +11,12 @@ namespace ObjectCubeServer.Models.DomainClasses
         public int Id { get; set; }
         public string Name { get; set; }
 
-        [ForeignKey("TagId")]
-        public Tag Tag { get; set; }
-        public int TagId { get; set; }
-
         [ForeignKey("TagsetId")]
         public Tagset Tagset { get; set; }
         public int TagsetId { get; set; }
 
-        [ForeignKey("ParentHierarchyId")]
-        public Hierarchy ParentHierarchy { get; set; } //Is null if Hierarchy is null
-        public int? ParentHierarchyId { get; set; } 
-
-        public List<Hierarchy> ChildHierarchies { get; set; }
+        [ForeignKey("RootNodeId")]
+        public Node RootNode { get; set; }
+        public int RootNodeId { get; set; }
     }
 }

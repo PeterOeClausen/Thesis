@@ -18,6 +18,25 @@ namespace ObjectCubeServer.Models
             };
         }
 
+        public static Photo NewPhoto(byte[] image, string fileName)
+        {
+            return new Photo()
+            {
+                Image = image,
+                FileName = fileName
+            };
+        }
+
+        public static Tagset NewTagSet(string name)
+        {
+            return new Tagset()
+            {
+                Name = name,
+                Tags = new List<Tag>(),
+                Hierarchies = new List<Hierarchy>()
+            };
+        }
+
         public static Tag NewTag(string name, Tagset tagset)
         {
             return new Tag()
@@ -27,37 +46,32 @@ namespace ObjectCubeServer.Models
                 TagsetId = tagset.Id,
                 ObjectTagRelations = new List<ObjectTagRelation>()
             };
-        }
+        }        
 
-        public static Tagset NewTagSet(string name)
-        {
-            return new Tagset() {
-                Name = name,
-                Tags = new List<Tag>(),
-                HierarchyRoots = new List<Hierarchy>()
-            };
-        }
-
-        public static Hierarchy NewHierarchy(Tag tag, Tagset tagset, Hierarchy parent)
+        public static Hierarchy NewHierarchy(Tagset tagset)
         {
             return new Hierarchy()
             {
-                Name = tag.Name,
-                Tag = tag,
-                TagId = tag.Id,
                 Tagset = tagset,
                 TagsetId = tagset.Id,
-                ParentHierarchy = parent,
-                ChildHierarchies = new List<Hierarchy>()
+                Name = tagset.Name
             };
         }
 
-        public static Photo NewPhoto(byte[] image, string fileName)
+        public static Node NewRootNode(Tag tag)
         {
-            return new Photo()
+            return new Node()
             {
-                Image = image,
-                FileName = fileName
+                Tag = tag
+            };
+        }
+
+        public static Node NewNode(Tag tag, Node parent)
+        {
+            return new Node()
+            {
+                Tag = tag,
+                Parent = parent
             };
         }
     }

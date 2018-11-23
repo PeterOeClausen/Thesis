@@ -44,21 +44,36 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<int?>("ParentHierarchyId");
-
-                    b.Property<int>("TagId");
+                    b.Property<int>("RootNodeId");
 
                     b.Property<int>("TagsetId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentHierarchyId");
-
-                    b.HasIndex("TagId");
+                    b.HasIndex("RootNodeId");
 
                     b.HasIndex("TagsetId");
 
                     b.ToTable("Hierarchies");
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Node", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("ParentId");
+
+                    b.Property<int>("TagId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("Nodes");
                 });
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.ObjectTagRelation", b =>
@@ -128,18 +143,26 @@ namespace ObjectCubeServer.Migrations
 
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Hierarchy", b =>
                 {
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Hierarchy", "ParentHierarchy")
-                        .WithMany("ChildHierarchies")
-                        .HasForeignKey("ParentHierarchyId");
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Node", "RootNode")
+                        .WithMany()
+                        .HasForeignKey("RootNodeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset", "Tagset")
+                        .WithMany("Hierarchies")
+                        .HasForeignKey("TagsetId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Node", b =>
+                {
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Node", "Parent")
+                        .WithMany()
+                        .HasForeignKey("ParentId");
 
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
                         .WithMany()
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Tagset", "Tagset")
-                        .WithMany("HierarchyRoots")
-                        .HasForeignKey("TagsetId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

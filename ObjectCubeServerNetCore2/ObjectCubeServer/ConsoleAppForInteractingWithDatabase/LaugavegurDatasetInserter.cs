@@ -6,7 +6,6 @@ using ObjectCubeServer.Models.HelperClasses;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -25,9 +24,9 @@ namespace ConsoleAppForInteractingWithDatabase
             
             string[] files = Directory.GetFiles(pathToDataset);
 
-            var insertCubeObjects = false;
-            var insertTags = false;
-            var insertHierarchies = false;
+            var insertCubeObjects = true;
+            var insertTags = true;
+            var insertHierarchies = true;
 
             if (insertCubeObjects)
             {
@@ -57,7 +56,6 @@ namespace ConsoleAppForInteractingWithDatabase
             Console.WriteLine("Inserting photos as CubeObjects:");
             using (var context = new ObjectContext())
             {
-                List<CubeObject> cubeObjects = new List<CubeObject>();
                 int fileCount = 1;
                 foreach (string file in files)
                 {
@@ -66,7 +64,9 @@ namespace ConsoleAppForInteractingWithDatabase
                     {
                         Console.WriteLine("Saving file: " + fileCount++ + " out of " + files.Length + " files. Filename: " + filename);
                         //If Image is already in database (Assuming no two file has the same name):
-                        if (context.CubeObjects.Include(co => co.Photo).FirstOrDefault(co => co.Photo.FileName.Equals(filename)) != null)
+                        if (context.CubeObjects
+                            .Include(co => co.Photo)
+                            .FirstOrDefault(co => co.Photo.FileName.Equals(filename)) != null)
                         {
                             //Don't add it again.
                             Console.WriteLine("Image " + filename + " is already in the database");
@@ -84,6 +84,8 @@ namespace ConsoleAppForInteractingWithDatabase
                                     CubeObject cubeObject = DomainClassFactory.NewCubeObject(FileType.Photo, DomainClassFactory.NewPhoto(ms.ToArray(), Path.GetFileName(file)));
                                     context.CubeObjects.Add(cubeObject);
                                     context.SaveChanges();
+
+                                    //Add thumbnail to cubeobject here.
                                 }
                             }
                         }
@@ -118,6 +120,7 @@ namespace ConsoleAppForInteractingWithDatabase
                         if (tagsetFromDb == null)
                         {
                             tagsetFromDb = DomainClassFactory.NewTagSet(tagsetName);
+                            //Also creates a tag with same name:
                             Tag tagWithSameNameAsTagset = DomainClassFactory.NewTag(tagsetName, tagsetFromDb);
                             HelperMethods.AddTagToTagset(tagWithSameNameAsTagset, tagsetFromDb);
 
@@ -183,51 +186,72 @@ namespace ConsoleAppForInteractingWithDatabase
                 foreach (string line in allLines)
                 {
                     string[] split = line.Split(":");
-                    string parentHierarchyName = split[0];
+                    string parentNodeName = split[0];
                     bool isRoot = Boolean.Parse(split[1]);
 
                     if (isRoot) //Assuming tagset with same name must exist already.
                     {
-                        Tagset tagsetFromDb = context.Tagsets.Include(ts => ts.HierarchyRoots).FirstOrDefault(ts => ts.Name.Equals(parentHierarchyName));
-                        Tag tagFromDb = context.Tags.FirstOrDefault(t => t.Name.Equals(parentHierarchyName));
-                        Hierarchy newRootHierarchy = DomainClassFactory.NewHierarchy(tagFromDb, tagsetFromDb, null);
+                        /*
+                         * Get tagset and tag.
+                         * Create a new Hierarchy and add it to the Tagset.
+                         * Create a new root node and add it to the Hierarchy.
+                         * Loop through child tags, and create new nodes that point to root node.
+                         * If child tag doesn't exist, create it.
+                         */
 
-                        tagsetFromDb.HierarchyRoots.Add(newRootHierarchy);
-                        context.Hierarchies.Add(newRootHierarchy);
+                        Tagset tagsetFromDb = context.Tagsets
+                            .Include(ts => ts.Tags)
+                            .Include(ts => ts.Hierarchies)
+                            .FirstOrDefault(ts => ts.Name.Equals(parentNodeName));
+                        Tag tagFromDb = tagsetFromDb.Tags
+                            .FirstOrDefault(t => t.Name.Equals(parentNodeName));
+
+                        Hierarchy newHierarchy = DomainClassFactory.NewHierarchy(tagsetFromDb);
+                        Node newRootNode = DomainClassFactory.NewRootNode(tagFromDb);
+                        newHierarchy.RootNode = newRootNode;
+
+                        tagsetFromDb.Hierarchies.Add(newHierarchy);
+                        context.Hierarchies.Add(newHierarchy);
 
                         for (int i = 2; i < split.Length; i++)
                         {
-                            var childHierarchyName = split[i];
-                            Tag tagFromDbWithHierarchyName = context.Tags.FirstOrDefault(t => t.Name.Equals(childHierarchyName));
-                            //If tag does not exist:
-                            if (tagFromDbWithHierarchyName == null)
+                            var childNodeName = split[i];
+                            Tag tagFromDbWithChildNodeName = tagsetFromDb.Tags
+                                .FirstOrDefault(t => t.Name.Equals(childNodeName));
+                            //If childTag does not exist:
+                            if (tagFromDbWithChildNodeName == null)
                             {
-                                tagFromDbWithHierarchyName = DomainClassFactory.NewTag(childHierarchyName, tagsetFromDb);
-                                context.Tags.Add(tagFromDbWithHierarchyName);
+                                tagFromDbWithChildNodeName = DomainClassFactory.NewTag(childNodeName, tagsetFromDb);
+                                tagsetFromDb.Tags.Add(tagFromDbWithChildNodeName);
                                 context.SaveChanges();
                             }
-                            Hierarchy newChildHierarchy = DomainClassFactory.NewHierarchy(tagFromDbWithHierarchyName, tagsetFromDb, newRootHierarchy);
-                            newRootHierarchy.ChildHierarchies.Add(newChildHierarchy);
-                            context.Hierarchies.Add(newChildHierarchy);
+                            Node newChildNode = DomainClassFactory.NewNode(tagFromDbWithChildNodeName, newRootNode);
+                            context.Nodes.Add(newChildNode);
                         }
                         context.SaveChanges();
                     }
                     else
                     {
-                        Hierarchy rootHierarchyFromDb = context.Hierarchies.Include(h => h.Tagset).Include(h => h.ChildHierarchies).FirstOrDefault(h => h.Name.Equals(parentHierarchyName));
+                        //This can break...
+                        Node parentNodeFromDb = context.Nodes
+                            .Include(n => n.Tag)
+                            .FirstOrDefault(n => n.Tag.Name.Equals(parentNodeName));
+                        Tag tagFromDb = context.Tags
+                            .Include(t => t.Tagset)
+                            .FirstOrDefault(t => t.Id == parentNodeFromDb.TagId);
                         for (int i = 2; i < split.Length; i++)
                         {
-                            var childHierarchyName = split[i];
-                            Tag tagFromDbWithHierarchyName = context.Tags.FirstOrDefault(t => t.Name.Equals(childHierarchyName));
-                            if (tagFromDbWithHierarchyName == null)
+                            var childTagName = split[i];
+                            Tag childTagFromDb = context.Tags.FirstOrDefault(t => t.Name.Equals(childTagName));
+                            //If childTag doesn't exist, create it:
+                            if (childTagFromDb == null)
                             {
-                                tagFromDbWithHierarchyName = DomainClassFactory.NewTag(childHierarchyName, rootHierarchyFromDb.Tagset);
-                                context.Tags.Add(tagFromDbWithHierarchyName);
+                                childTagFromDb = DomainClassFactory.NewTag(childTagName, tagFromDb.Tagset);
+                                context.Tags.Add(childTagFromDb);
                                 context.SaveChanges();
                             }
-                            Hierarchy newChildHierarchy = DomainClassFactory.NewHierarchy(tagFromDbWithHierarchyName, rootHierarchyFromDb.Tagset, rootHierarchyFromDb);
-                            rootHierarchyFromDb.ChildHierarchies.Add(newChildHierarchy);
-                            context.Hierarchies.Add(newChildHierarchy);
+                            Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, parentNodeFromDb);
+                            context.Nodes.Add(newChildNode);
                         }
                         context.SaveChanges();
                     }

@@ -26,11 +26,12 @@ namespace ObjectCubeServer.Models.DataAccess
          * Exposing which DBSets are available to be manipulated with
          */ 
         public DbSet<CubeObject> CubeObjects { get; set; }
+        public DbSet<Photo> Photos { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
-        public DbSet<Photo> Photos { get; set; }
-
+        public DbSet<Node> Nodes { get; set; }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Specifying keys:
@@ -44,10 +45,12 @@ namespace ObjectCubeServer.Models.DataAccess
                 .WithMany(t => t.ObjectTagRelations)
                 .HasForeignKey(otr => otr.TagId);
 
+            /*
             modelBuilder.Entity<Hierarchy>() //Tells EF that there is a one-to-many relationship between Hierarchy and TagSet, and that TasetId is a foreign key.
                 .HasOne(h => h.Tagset)
-                .WithMany(ts => ts.HierarchyRoots)
+                .WithMany(ts => ts.Hierarchies)
                 .HasForeignKey(h => h.TagsetId);
+            */
 
             //Calling on model creating:
             base.OnModelCreating(modelBuilder);
