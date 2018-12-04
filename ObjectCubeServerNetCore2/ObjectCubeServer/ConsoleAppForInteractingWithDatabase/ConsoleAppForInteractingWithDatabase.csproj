@@ -14,4 +14,8 @@
     <ProjectReference Include="..\ObjectCubeServer\ObjectCubeServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handy SQL Scripts\" />
+  </ItemGroup>
+
 </Project>

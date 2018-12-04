@@ -1,0 +1,1 @@
+﻿delete from dbo.Tagsets;

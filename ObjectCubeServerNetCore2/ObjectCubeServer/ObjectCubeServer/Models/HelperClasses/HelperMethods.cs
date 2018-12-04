@@ -11,7 +11,6 @@ namespace ObjectCubeServer.Models.HelperClasses
         public static void AddTagToTagset(Tag tag, Tagset tagset)
         {
             tag.Tagset = tagset;
-            tag.TagsetId = tagset.Id;
             tagset.Tags.Add(tag);
         }
 

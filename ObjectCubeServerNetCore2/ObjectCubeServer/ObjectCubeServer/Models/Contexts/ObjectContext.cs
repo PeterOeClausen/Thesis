@@ -22,35 +22,81 @@ namespace ObjectCubeServer.Models.DataAccess
 {
     public class ObjectContext : DbContext
     {
+        public ObjectContext()
+        {
+
+        }
+
+        public ObjectContext(DbContextOptions<ObjectContext> options) : base(options)
+        {
+
+        }
+
         /*
          * Exposing which DBSets are available to be manipulated with
-         */ 
+         */
         public DbSet<CubeObject> CubeObjects { get; set; }
         public DbSet<Photo> Photos { get; set; }
-        public DbSet<Tag> Tags { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<ObjectTagRelation> ObjectTagRelations { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
         public DbSet<Node> Nodes { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //Specifying keys:
-            modelBuilder.Entity<ObjectTagRelation>().HasKey(ot => new { ot.ObjectId, ot.TagId }); //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId.
-            modelBuilder.Entity<ObjectTagRelation>() //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and CubeObject
+            //If CubeObject is deleted, then photo is also deleted.
+            modelBuilder.Entity<Photo>()
+                .HasOne<CubeObject>()
+                .WithOne(co => co.Photo)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId:
+            modelBuilder.Entity<ObjectTagRelation>()
+                .HasKey(ot => new { ot.ObjectId, ot.TagId });
+            //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and CubeObject:
+            modelBuilder.Entity<ObjectTagRelation>() 
                 .HasOne(otr => otr.CubeObject)
                 .WithMany(co => co.ObjectTagRelations)
                 .HasForeignKey(otr => otr.ObjectId);
-            modelBuilder.Entity<ObjectTagRelation>() //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and Tag
+            //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and Tag:
+            modelBuilder.Entity<ObjectTagRelation>()
                 .HasOne(otr => otr.Tag)
                 .WithMany(t => t.ObjectTagRelations)
                 .HasForeignKey(otr => otr.TagId);
 
-            /*
-            modelBuilder.Entity<Hierarchy>() //Tells EF that there is a one-to-many relationship between Hierarchy and TagSet, and that TasetId is a foreign key.
-                .HasOne(h => h.Tagset)
-                .WithMany(ts => ts.Hierarchies)
-                .HasForeignKey(h => h.TagsetId);
-            */
+            //Tells EF Core that tagset's name should be unique.
+            modelBuilder.Entity<Tagset>()
+                .HasIndex(ts => ts.Name)
+                .IsUnique();
+
+            //Many-to-one relationship, if tagset is deleted, then tags are also deleted.
+            modelBuilder.Entity<Tagset>()
+                .HasMany(ts => ts.Tags)
+                .WithOne(t => t.Tagset)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Tag>()
+               .Property(t => t.Id)
+               .ValueGeneratedOnAdd();
+
+            //Many-to-one relationship, if tagset is deleted, then hierarchies are also deleted.
+            modelBuilder.Entity<Tagset>()
+                .HasMany(ts => ts.Hierarchies)
+                .WithOne(h => h.Tagset)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Many-to-one relationship, if hierarchy is deleted, then nodes are also deleted.
+            modelBuilder.Entity<Hierarchy>()
+                .HasMany(h => h.Nodes)
+                .WithOne(n => n.Hierarchy)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //If a tag is deleted, then so is the node:
+            modelBuilder.Entity<Node>()
+                .HasOne(n => n.Tag)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
 
             //Calling on model creating:
             base.OnModelCreating(modelBuilder);
@@ -59,7 +105,9 @@ namespace ObjectCubeServer.Models.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf"); //Change location if pushed.
+            optionsBuilder
+                .UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf"); //Change location if pushed.
+                //.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
         }
     }
 }

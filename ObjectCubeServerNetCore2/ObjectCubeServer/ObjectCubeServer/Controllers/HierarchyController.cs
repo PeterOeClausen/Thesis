@@ -19,6 +19,9 @@ namespace ObjectCubeServer.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            throw new NotImplementedException();
+            return null;
+            /*
             List<Hierarchy> rootHierarchies;
             using (var context = new ObjectContext())
             {
@@ -31,6 +34,7 @@ namespace ObjectCubeServer.Controllers
                 {
                     ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 }));
+                */
         }
 
         // GET: api/Hierarchy/5

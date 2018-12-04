@@ -43,34 +43,48 @@ namespace ObjectCubeServer.Models
             {
                 Name = name,
                 Tagset = tagset,
-                TagsetId = tagset.Id,
                 ObjectTagRelations = new List<ObjectTagRelation>()
             };
-        }        
+        }
+
+        public static ObjectTagRelation NewObjectTagRelation(Tag tag, CubeObject cubeObject)
+        {
+            return new ObjectTagRelation()
+            {
+                CubeObject = cubeObject,
+                Tag = tag
+            };
+        }
 
         public static Hierarchy NewHierarchy(Tagset tagset)
         {
             return new Hierarchy()
             {
+                Name = tagset.Name,
                 Tagset = tagset,
-                TagsetId = tagset.Id,
-                Name = tagset.Name
+                Nodes = new List<Node>()
             };
         }
 
-        public static Node NewRootNode(Tag tag)
+        public static Node NewRootNode(Tag tag, Hierarchy hierarchy)
         {
-            return new Node()
-            {
-                Tag = tag
-            };
-        }
-
-        public static Node NewNode(Tag tag, Node parent)
-        {
+            if (tag == null) { throw new Exception("Tag is null!"); }
+            if (hierarchy == null) { throw new Exception("Hierarchy is null!"); }
             return new Node()
             {
                 Tag = tag,
+                Hierarchy = hierarchy
+            };
+        }
+
+        public static Node NewNode(Tag tag, Hierarchy hierarchy, Node parent)
+        {
+            if(tag == null) { throw new Exception("Tag is null!"); }
+            if (hierarchy == null) { throw new Exception("Hierarchy is null!"); }
+            return new Node()
+            {
+                Tag = tag,
+                Hierarchy = hierarchy,
                 Parent = parent
             };
         }

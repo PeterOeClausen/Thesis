@@ -18,13 +18,13 @@ namespace ConsoleAppForInteractingWithDatabase
             //Loading in images from dataset:
             string pathToDataset = @"D:\LaugavegurData"; //@"C:\ThesisDatasets\LaugavegurData";
             string pathToTagFile = @"D:\LaugavegurData\LaugavegurImageTags.csv";
-            string pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchies.csv";
+            string pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
             string pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
             File.AppendAllText(pathToErrorLogFile, "Errors goes here:\n");
             
             string[] files = Directory.GetFiles(pathToDataset);
 
-            var insertCubeObjects = true;
+            var insertCubeObjects = false;
             var insertTags = true;
             var insertHierarchies = true;
 
@@ -97,8 +97,9 @@ namespace ConsoleAppForInteractingWithDatabase
         static void InsertTags(string pathToTagFile, string pathToErrorLogFile)
         {
             Console.WriteLine("Inserting TagsSets and Tags:");
-            string[] linesInFile = File.ReadAllLines(pathToTagFile);
             int lineCount = 1;
+            string[] linesInFile = File.ReadAllLines(pathToTagFile);
+            //Looping over each line in the tag file.
             foreach (string line in linesInFile)
             {
                 Console.WriteLine("Inserting line: " + lineCount++ + " out of " + linesInFile.Length);
@@ -106,66 +107,78 @@ namespace ConsoleAppForInteractingWithDatabase
                 string[] split = line.Split(":");
                 string fileName = split[0];
                 int numTagPairs = (split.Length - 2) / 2;
+                //Looping over each pair of tags:
                 for (int i = 0; i < numTagPairs; i++)
                 {
                     string tagsetName = split[(i * 2) + 1];
                     string tagName = split[(i * 2) + 2];
+
                     using (var context = new ObjectContext())
                     {
                         //Adding tagset to db:
                         Tagset tagsetFromDb = context.Tagsets
+                            .Where(ts => ts.Name.Equals(tagsetName))
                             .Include(ts => ts.Tags)
-                            .FirstOrDefault(ts => ts.Name == tagsetName);
+                            .FirstOrDefault();
+                        
                         //If tagset doesn't exist in db, add it:
                         if (tagsetFromDb == null)
                         {
                             tagsetFromDb = DomainClassFactory.NewTagSet(tagsetName);
+                            context.Tagsets.Add(tagsetFromDb);
+                            context.SaveChanges();
+
                             //Also creates a tag with same name:
                             Tag tagWithSameNameAsTagset = DomainClassFactory.NewTag(tagsetName, tagsetFromDb);
                             HelperMethods.AddTagToTagset(tagWithSameNameAsTagset, tagsetFromDb);
-
-                            context.Tagsets.Add(tagsetFromDb);
                             context.Tags.Add(tagWithSameNameAsTagset);
                             context.SaveChanges();
                         }
 
                         //Checking if tag exists, and creates it if it doesn't exist.
                         Tag tagFromDb = context.Tags
+                            .Where(t => t.TagsetId == tagsetFromDb.Id && t.Name.Equals(tagName))
                             .Include(t => t.ObjectTagRelations)
-                            .Where(t => t.TagsetId == tagsetFromDb.Id)
-                            .FirstOrDefault(t => t.Name == tagName);
+                            .FirstOrDefault();
+                        
                         //If tag doesn't exist in db, add it
                         if (tagFromDb == null)
                         {
                             tagFromDb = DomainClassFactory.NewTag(tagName, tagsetFromDb);
-                            //Tag does not have id yet, so we need to save it before adding it to tagsetFromDb's collection...
-
                             context.Tags.Add(tagFromDb);
                             context.SaveChanges();
                         }
 
                         //Add tag to tagset if tagset doesn't have it:
-                        if (!tagsetFromDb.Tags.Any(t => t.TagsetId == tagFromDb.Id)) //If tag does not exist in tagset, add it
+                        if (!tagsetFromDb.Tags
+                            .Any(t => t.TagsetId == tagFromDb.Id)) //If tag does not exist in tagset, add it
                         {
-                            HelperMethods.AddTagToTagset(tagFromDb, tagsetFromDb);
+                            tagsetFromDb.Tags.Add(tagFromDb);
+                            tagFromDb.Tagset = tagsetFromDb;
+                            context.Update(tagsetFromDb);
+                            context.Update(tagFromDb);
                             context.SaveChanges();
                         }
 
                         //Adding tag to cube object with FileName:
                         CubeObject cubeObjectFromDb = context.CubeObjects
+                            .Where(co => co.Photo.FileName.Equals(fileName))
                             .Include(co => co.Photo)
                             .Include(co => co.ObjectTagRelations)
-                            .FirstOrDefault(co => co.Photo.FileName.Equals(fileName));
+                            .FirstOrDefault();
 
                         if (cubeObjectFromDb == null)
                         {
-                            File.AppendAllText(pathToErrorLogFile, "Cube object with filename: " + fileName + " does not exist. Error occured while parsing line: " + lineCount + " in csv\n");
+                            File.AppendAllText(pathToErrorLogFile, "File " + fileName + " was not found while parsing line " + lineCount);
+                            //throw new Exception("Expected cubeobject to be in the DB already, but it isn't!");
                         }
                         else
                         {
-                            if (cubeObjectFromDb.ObjectTagRelations.FirstOrDefault(otr => otr.TagId == tagFromDb.Id) == null) //If Cubeobject does not already have tag asscociated with it, add it
+                            if (cubeObjectFromDb.ObjectTagRelations
+                                .FirstOrDefault(otr => otr.TagId == tagFromDb.Id) == null) //If Cubeobject does not already have tag asscociated with it, add it
                             {
-                                HelperMethods.AddTagToObject(tagFromDb, cubeObjectFromDb);
+                                ObjectTagRelation newObjectTagRelation = DomainClassFactory.NewObjectTagRelation(tagFromDb, cubeObjectFromDb);
+                                context.ObjectTagRelations.Add(newObjectTagRelation);
                                 context.SaveChanges();
                             }
                         }
@@ -180,84 +193,107 @@ namespace ConsoleAppForInteractingWithDatabase
             string[] allLines = File.ReadAllLines(pathToHierarchiesFile)
                 .Skip(1) //Skipping the first line cause it's documentation
                 .ToArray();
-            //File format: Parrent:IsRoot?:Child:Child:Child:(...)
-            using (var context = new ObjectContext())
+
+            int lineCount = 1;
+            foreach (string line in allLines)
             {
-                foreach (string line in allLines)
+                Console.WriteLine("Inserting line number: " + lineCount);
+
+                //File format: Tagset:Parrent:Child:Child:Child:(...)
+                string[] split = line.Split(":");
+                string tagsetName = split[0];
+                string hierarchyName = split[1];
+                string parentTagName = split[2];
+
+                using (var context = new ObjectContext())
                 {
-                    string[] split = line.Split(":");
-                    string parentNodeName = split[0];
-                    bool isRoot = Boolean.Parse(split[1]);
-
-                    if (isRoot) //Assuming tagset with same name must exist already.
-                    {
-                        /*
-                         * Get tagset and tag.
-                         * Create a new Hierarchy and add it to the Tagset.
-                         * Create a new root node and add it to the Hierarchy.
-                         * Loop through child tags, and create new nodes that point to root node.
-                         * If child tag doesn't exist, create it.
-                         */
-
-                        Tagset tagsetFromDb = context.Tagsets
+                    Tagset tagsetFromDb = context.Tagsets
+                            .Where(ts => ts.Name.Equals(tagsetName))
                             .Include(ts => ts.Tags)
                             .Include(ts => ts.Hierarchies)
-                            .FirstOrDefault(ts => ts.Name.Equals(parentNodeName));
-                        Tag tagFromDb = tagsetFromDb.Tags
-                            .FirstOrDefault(t => t.Name.Equals(parentNodeName));
+                            .FirstOrDefault();
 
-                        Hierarchy newHierarchy = DomainClassFactory.NewHierarchy(tagsetFromDb);
-                        Node newRootNode = DomainClassFactory.NewRootNode(tagFromDb);
-                        newHierarchy.RootNode = newRootNode;
+                    Hierarchy hierarchyFromDb = context.Hierarchies
+                        .Include(h => h.Nodes)
+                        .Where(h => h.Name.Equals(hierarchyName))
+                        .FirstOrDefault();
 
-                        tagsetFromDb.Hierarchies.Add(newHierarchy);
-                        context.Hierarchies.Add(newHierarchy);
-
-                        for (int i = 2; i < split.Length; i++)
-                        {
-                            var childNodeName = split[i];
-                            Tag tagFromDbWithChildNodeName = tagsetFromDb.Tags
-                                .FirstOrDefault(t => t.Name.Equals(childNodeName));
-                            //If childTag does not exist:
-                            if (tagFromDbWithChildNodeName == null)
-                            {
-                                tagFromDbWithChildNodeName = DomainClassFactory.NewTag(childNodeName, tagsetFromDb);
-                                tagsetFromDb.Tags.Add(tagFromDbWithChildNodeName);
-                                context.SaveChanges();
-                            }
-                            Node newChildNode = DomainClassFactory.NewNode(tagFromDbWithChildNodeName, newRootNode);
-                            context.Nodes.Add(newChildNode);
-                        }
+                    //If hierarchyFromDb does not exist, create it:
+                    if (hierarchyFromDb == null)
+                    {
+                        hierarchyFromDb = DomainClassFactory.NewHierarchy(tagsetFromDb);
+                        tagsetFromDb.Hierarchies.Add(hierarchyFromDb);
+                        hierarchyFromDb.Tagset = tagsetFromDb;
+                        context.Update(tagsetFromDb);
+                        context.Update(hierarchyFromDb);
                         context.SaveChanges();
                     }
-                    else
+
+                    Tag parentTagFromDb = context.Tags
+                        .Where(t => t.TagsetId == tagsetFromDb.Id && t.Name.Equals(parentTagName))
+                        .FirstOrDefault();
+
+                    //If parentTag does not exist, create it:
+                    if(parentTagFromDb == null)
                     {
-                        //This can break...
-                        Node parentNodeFromDb = context.Nodes
-                            .Include(n => n.Tag)
-                            .FirstOrDefault(n => n.Tag.Name.Equals(parentNodeName));
-                        Tag tagFromDb = context.Tags
-                            .Include(t => t.Tagset)
-                            .FirstOrDefault(t => t.Id == parentNodeFromDb.TagId);
-                        for (int i = 2; i < split.Length; i++)
-                        {
-                            var childTagName = split[i];
-                            Tag childTagFromDb = context.Tags.FirstOrDefault(t => t.Name.Equals(childTagName));
-                            //If childTag doesn't exist, create it:
-                            if (childTagFromDb == null)
-                            {
-                                childTagFromDb = DomainClassFactory.NewTag(childTagName, tagFromDb.Tagset);
-                                context.Tags.Add(childTagFromDb);
-                                context.SaveChanges();
-                            }
-                            Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, parentNodeFromDb);
-                            context.Nodes.Add(newChildNode);
-                        }
+                        parentTagFromDb = DomainClassFactory.NewTag(parentTagName, tagsetFromDb);
+                        tagsetFromDb.Tags.Add(parentTagFromDb);
+                        context.Tags.Add(parentTagFromDb);
+                        context.Update(tagsetFromDb);
                         context.SaveChanges();
+                    }
+
+                    Node parentNodeFromDb = context.Nodes
+                        .Where(n => n.HierarchyId == hierarchyFromDb.Id && n.TagId == parentTagFromDb.Id)
+                        .FirstOrDefault();
+
+                    //If parent node does not exist, create it:
+                    if(parentNodeFromDb == null)
+                    {
+                        if (hierarchyName.Equals(parentTagName)) //Root node:
+                        {
+                            parentNodeFromDb = DomainClassFactory.NewRootNode(parentTagFromDb, hierarchyFromDb);
+                            if(parentTagFromDb == null) { throw new Exception("Parent tag is null!"); }
+                            hierarchyFromDb.Nodes.Add(parentNodeFromDb);
+                            context.Update(hierarchyFromDb);
+                            context.SaveChanges();
+                        }
+                        else
+                        {
+                            Console.WriteLine("parentNodeFromDb is null!");
+                            throw new Exception("ParentNodeFromDb was null!");
+                        }
+                    }
+
+                    //Adding child nodes:
+                    for (int i = 2; i < split.Length; i++)
+                    {
+                        string childTagName = split[i];
+
+                        Tag childTagFromDb = context.Tags
+                            .Where(t => t.TagsetId == tagsetFromDb.Id && t.Name.Equals(childTagName))
+                            .FirstOrDefault();
+
+                        //If child tag does not exist, create it:
+                        if(childTagFromDb == null)
+                        {
+                            childTagFromDb = DomainClassFactory.NewTag(childTagName, tagsetFromDb);
+                            childTagFromDb.Tagset = tagsetFromDb;
+                            tagsetFromDb.Tags.Add(childTagFromDb);
+                            context.Update(tagsetFromDb);
+                            context.SaveChanges();
+                        }
+
+                        Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, hierarchyFromDb, parentNodeFromDb);
+                        if (childTagFromDb == null) { throw new Exception("Parent tag is null!"); }
+                        hierarchyFromDb.Nodes.Add(newChildNode);
+                        context.Update(hierarchyFromDb);
+                        context.SaveChanges();
+                        //Todo: Fix that nodes have null tagId?
                     }
                 }
+                lineCount++;
             }
         }
-
     }
 }
