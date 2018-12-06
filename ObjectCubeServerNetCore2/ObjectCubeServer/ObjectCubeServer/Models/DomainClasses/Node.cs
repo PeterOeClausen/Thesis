@@ -10,7 +10,7 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public int Id { get; set; }
 
-        public int TagId { get; set; } //If tag is deleted, then this is null. And this requires a fix by a programmer.
+        public int TagId { get; set; }
         [ForeignKey("TagId")]
         public Tag Tag { get; set; }
 
