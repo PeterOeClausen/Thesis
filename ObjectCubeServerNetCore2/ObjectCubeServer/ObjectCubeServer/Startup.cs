@@ -26,6 +26,10 @@ namespace ObjectCubeServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+            /* To enable calls from other origins:
+             * https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-2.2 */
+            //services.EnableCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
