@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Cors;
 
 namespace ObjectCubeServer
 {
@@ -29,12 +30,19 @@ namespace ObjectCubeServer
 
             /* To enable calls from other origins:
              * https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-2.2 */
-            //services.EnableCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowRequestsFromLocalhost",
+                    builder => builder.WithOrigins(@"http://localhost", @"https://localhost"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            // Shows UseCors with named policy.
+            app.UseCors("AllowRequestsFromLocalhost");
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
