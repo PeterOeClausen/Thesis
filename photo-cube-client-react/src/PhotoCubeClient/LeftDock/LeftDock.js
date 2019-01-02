@@ -4,7 +4,7 @@ import './LeftDock.css'
 class LeftDock extends Component{
     render() {
         return (
-            <div className="grid-item" id="leftDock" className="controls">
+            <div className="grid-item controls" id="leftDock">
 		  		<div id="menu" className="control">
 					<h4>Menu</h4>
 					<button className="menuButton">New browsing state</button>
