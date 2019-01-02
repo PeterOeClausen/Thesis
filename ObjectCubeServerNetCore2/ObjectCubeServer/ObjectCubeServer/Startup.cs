@@ -28,7 +28,7 @@ namespace ObjectCubeServer
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            /* To enable calls from other origins:
+            /* CORS: To enable calls from other origins:
              * https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-2.2 */
             services.AddCors(options =>
             {

@@ -25,7 +25,8 @@ $(document).ready(function(){
     var containerHeight = document.getElementById('browser').clientHeight;
     //THREE.PerspectiveCamera(fov, aspect, near, far)
     camera = new THREE.PerspectiveCamera( 75, containerWidth / containerHeight, 0.01, 1000);
-    camera.position.x = -5;
+    camera.position.z = 5;
+    camera.rotation.y = 90 * Math.PI;
 
     //Setup renderer:
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -94,6 +95,7 @@ $(document).ready(function(){
     //Examples of use:
     newCube('images/download.jpg', { x:2, y:2, z:2 } );
     newCube('images/download.jpg', { x:4, y:4, z:4 } );
+    newCube('images/download.jpg', { x:1, y:1, z:0 } );
 
     //Function that given two Vector3's (from and to points), and a color, creates these and add them to scene.
     function newLine(from, to, _color) {
@@ -164,7 +166,7 @@ $(document).ready(function(){
 
         //camera.position.x += 0.01;
         pointTextToCamera();
-        cube.rotation.y += 0.05;
+        //cube.rotation.y += 0.05;
         requestAnimationFrame( animate );
         renderer.render( scene, camera );
     }
@@ -178,8 +180,8 @@ $(document).ready(function(){
     $(document).keyup( function(e) {
          if (e.keyCode == 27) { // Escape key maps to keycode `27`
             controls.reset();
-            camera.position.x = -5;
+            camera.position.z = 5;
+            camera.rotation.y = 90 * Math.PI;   
         }
     });
-
 });

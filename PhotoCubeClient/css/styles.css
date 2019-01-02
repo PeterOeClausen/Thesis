@@ -8,6 +8,8 @@ html, body {
 * {
 	font-family: 'Roboto', sans-serif;
 	font-size: 16px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 canvas {
@@ -18,7 +20,7 @@ canvas {
 .grid-container {
   display: grid;
   grid-template-columns: 160px auto 250px;
-  //grid-template-columns: 200px auto 200px;
+  /*grid-template-columns: 200px auto 200px;*/
 }
 
 .grid-item{
@@ -28,6 +30,6 @@ canvas {
 #browser {
 	margin: 0;
 	padding: 0;
-	background-color: red;
+	background-color: black;
 	overflow: hidden;
 }

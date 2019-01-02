@@ -1,17 +1,24 @@
 //This file loads the initial data needed when opening the site.
-const baseUrl = "https://localhost:44317/api/";
 
 $( document ).ready(function() {
-	//Get hierarchies and add them to the dimentsions:
+	//Get hierarchies and add them to the dimensions:
+	//UpdateDimensions();
+});
+
+function UpdateDimensions(){
 	$.ajax({
-		url: baseUrl+"tag", 
+		url: baseUrl + "tagset",
 		success: function(result){
-            console.log(result);
+			console.log(result);
+			var modalContainer = $('#ModalContainer');
+			modalContainer.innerHTML = "<p>InsideModalContainer</p>";
+			var listOfTagsets = JSON.parse(result);
+			listOfTagsets.forEach(tagset => {
+				console.log(tagset.Name);
+			});
     	},
     	error: function(xhr, status, error){
-    		console.log(status + "\n" + error);
-    	}
+    		console.log("Error: Please check that Web API is running on: " + baseUrl);
+		}
 	});
-
-    console.log( "ready!" );
-});
+}

@@ -10,7 +10,6 @@
 		<!--CSS:-->
 		<link rel="stylesheet" href="css/styles.css"/>
 		<link rel="stylesheet" href="css/controlsStyling.css"/>
-		<link rel="stylesheet" href="css/fileCountStyling.css"/>
 		<link rel="stylesheet" href="css/filterListStyling.css"/>
 		<link rel="stylesheet" href="css/dimensionsStyling.css"/>
 		<link rel="stylesheet" href="css/modalStyling.css"/>
@@ -64,68 +63,66 @@
 		  		<div id="Dimensions" class="control">
 	  				<h4>Dimensions:</h4>
 	  				<div id="DimensionsContent" class="controlContent customScrollbar">
-		  				<div id="X-Dimension">
-			  				<p>X-Axis</p>
-			  				<button id="myBtn" class="controlButton" onclick="changeDimensionClicked('x')">Change</button>
-			  				<div class="dimensions-list">
-			  				<ul>
-			  					<li><button class="listButton">- Countries</button>
-			  						<ul>
-			  							<li><button class="listButton">- Argentina</button>
-			  								<ul>
-			  									<li><button class="listButton">Buenos Aires</button></li>
-			  									<li><button class="listButton">Rosario</button></li>
-			  								</ul>
-			  							</li>
-			  							<li><button class="listButton">+ Belgium</button></li>
-			  							<li><button class="listButton">+ Denmark</button></li>
-			  							<li><button class="listButton">+ France</button></li>
-			  						</ul>
-		  				        </li>
-			  				</ul>
-			  				</div>
+		  				<p>X-Axis</p>
+						<button id="opener" class="controlButton" onclick="buttonHandlers.changeDimensionClicked('x')">Change</button>
+						<div id="x-axis-dimension-list" class="dimensions-list">
+							<ul>
+								<li><button class="listButton">- Countries</button>
+									<ul>
+										<li><button class="listButton">- Argentina</button>
+											<ul>
+												<li><button class="listButton">Buenos Aires</button></li>
+												<li><button class="listButton">Rosario</button></li>
+											</ul>
+										</li>
+										<li><button class="listButton">+ Belgium</button></li>
+										<li><button class="listButton">+ Denmark</button></li>
+										<li><button class="listButton">+ France</button></li>
+									</ul>
+								</li>
+							</ul>
 						</div>
-						<div id="Y-Dimension">
-			  				<p>Y-Axis</p>
-			  				<button class="controlButton">Change</button>
-			  				<div class="dimensions-list">
-				  				<ul>
-				  					<li><button class="listButton">- People</button>
-				  						<ul>
-				  							<li><button class="listButton">- Friends</button>
-				  								<ul>
-				  									<li><button class="listButton">Alice</button></li>
-				  									<li><button class="listButton">Bob</button></li>
-				  									<li><button class="listButton">Peter</button></li>
-				  									<li><button class="listButton">Sara</button></li>
-				  								</ul>
-				  							</li>
-				  							<li><button class="listButton">- Family</button>
-			  									<ul>
-				  									<li><button class="listButton">Charlie</button></li>
-				  									<li><button class="listButton">Daniel</button></li>
-				  								</ul>
-				  							</li>
-				  						</ul>
-			  				        </li>
-				  				</ul>
-			  				</div>
+						
+					
+						<p>Y-Axis</p>
+						<button class="controlButton">Change</button>
+						<div class="dimensions-list">
+							<ul>
+								<li><button class="listButton">- People</button>
+									<ul>
+										<li><button class="listButton">- Friends</button>
+											<ul>
+												<li><button class="listButton">Alice</button></li>
+												<li><button class="listButton">Bob</button></li>
+												<li><button class="listButton">Peter</button></li>
+												<li><button class="listButton">Sara</button></li>
+											</ul>
+										</li>
+										<li><button class="listButton">- Family</button>
+											<ul>
+												<li><button class="listButton">Charlie</button></li>
+												<li><button class="listButton">Daniel</button></li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
 						</div>
-						<div id="Z-Dimension">
-			  				<p>Z-Axis</p>
-			  				<button class="controlButton">Change</button>
-			  				<div class="dimensions-list">
-				  				<ul>
-				  					<li><button class="listButton">- Year</button>
-				  						<ul>
-				  							<li><button class="listButton">2018</button></li>
-				  							<li><button class="listButton">2017</button></li>
-				  							<li><button class="listButton">2016</button></li>
-				  						</ul>
-			  				        </li>
-				  				</ul>
-			  				</div>
+	
+						<p>Z-Axis</p>
+						<button class="controlButton">Change</button>
+						<div class="dimensions-list">
+							<ul>
+								<li><button class="listButton">- Year</button>
+									<ul>
+										<li><button class="listButton">2018</button></li>
+										<li><button class="listButton">2017</button></li>
+										<li><button class="listButton">2016</button></li>
+									</ul>
+								</li>
+							</ul>
 						</div>
+					
 					</div>
 				</div>
 
@@ -140,6 +137,14 @@
 		  	</div><!--End of control-->
 		</div>
 
+		<div id="dialog" title="Dialog Title">
+			<p>Tagsets:</p>
+			<ul id="tagsetLists">
+
+			</ul>
+			<p>Hierarchies:</p>
+		</div>
+		<!--<div id="ModalContainer"></div>-->
 		<!--<object data="html/modal.html"></object>-->
 		<!--<div id="modalPlacement"></div>-->
 
@@ -148,6 +153,7 @@
 		<script src="js/orbitControls.js"></script>
 		<script src="js/canvasThreejsCode.js"></script>
 		<script src="js/sideDockBehavior.js"></script>
+		<script src="js/buttonHandlers.js"></script>
 		<script src="js/init.js"></script>
 	</body>
 </html>
