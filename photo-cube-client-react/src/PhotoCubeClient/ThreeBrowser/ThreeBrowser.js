@@ -33,11 +33,9 @@ class ThreeBrowser extends Component{
         this.camera.position.y = 5;
         this.camera.position.z = 5;
         
-        this.camera.rotation.y = 90 * Math.PI;
-        
         //ADD RENDERER
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        //this.renderer.setClearColor('#000000')
+        //this.renderer.setClearColor('#000000') //Black clear color, default white.
         this.renderer.setSize(width, height)
         this.mount.appendChild(this.renderer.domElement)
         
@@ -56,9 +54,14 @@ class ThreeBrowser extends Component{
         this.textLoader = new THREE.FontLoader();
 
         //ADDING X, Y, Z AXIS:
-        this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), Colors.red); //x is red
-        this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), Colors.green); //y is green
-        this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), Colors.blue); //z is blue
+        this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), Colors.red);
+        this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), Colors.green);
+        this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), Colors.blue);
+
+        //ADDING X, Y, Z LABELS:
+        this.xLabel = this.addText("x", Colors.red, 5,0,0);
+        this.yLabel = this.addText("y", Colors.green, 0,5,0);
+        this.zLabel = this.addText("z", Colors.blue, 0,0,5);
 
         //ADDING EXAMPLE SCENE:
         //this.showExampleScene1();
