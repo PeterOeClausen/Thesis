@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './ThreeBrowser.css';
-/* Using tutorial to use ThreeJS with React: https://itnext.io/how-to-use-plain-three-js-in-your-react-apps-417a79d926e0 */
-/* https://medium.com/@colesayershapiro/using-three-js-in-react-6cb71e87bdf4 */
+import stockImage from './../../images/download.jpg';
+import helveticaRegular from './../../fonts/helvetiker_regular.typeface.json';
+
 const THREE = require('three');
 const OrbitControls = require('three-orbitcontrols')
 
@@ -9,13 +10,11 @@ const OrbitControls = require('three-orbitcontrols')
  TODO: 
 - Add own Threejs code
 - Continue with tutorial: https://reactjs.org/tutorial/tutorial.html#completing-the-game
-- 
 */
-
-/*import './canvasThreejsCode.js';*/
 
 class ThreeBrowser extends Component{
     componentDidMount(){
+        //Get tempirary width and height
         const width = this.mount.clientWidth
         const height = this.mount.clientHeight
 
@@ -41,6 +40,9 @@ class ThreeBrowser extends Component{
         //SET CONTROLS TO ORBITCONTROL
         this.controls = new OrbitControls( this.camera, this.renderer.domElement);
 
+        //START ANIMATION
+        this.start()
+
         //CREATE IMAGETEXTURELOADER:
         this.textureLoader = new THREE.TextureLoader();
         this.textureLoader.crossOrigin = true;
@@ -49,25 +51,11 @@ class ThreeBrowser extends Component{
         this.textMeshes = [];
         this.textLoader = new THREE.FontLoader();
 
-        //CREATE COLORS:
-        const red = 0xF00000;
-        const green = 0x00F000;
-        const blue = 0x0000F0;
-
         //ADDING X, Y, Z axis:
-        this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), red); //x is red
-        this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), green); //y is green
-        this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), blue); //z is blue
+        this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), Colors.red); //x is red
+        this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), Colors.green); //y is green
+        this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), Colors.blue); //z is blue
 
-        
-
-        //ADD CUBE
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
-        const material = new THREE.MeshBasicMaterial({ color: '#433F81'     })
-        this.cube = new THREE.Mesh(geometry, material)
-        this.scene.add(this.cube)
-        this.start()
-        
         //this.showExampleScene1();
 
         //Filling out available space:
@@ -75,75 +63,71 @@ class ThreeBrowser extends Component{
         window.addEventListener("resize", (event) => this.resizeBrowser());
     }
 
+    /* Add cubes to scene with given imageURL and a position */
     addCube(imageUrl, aPosition) {
         //Load image as material:
-        var anImageMaterial = new THREE.MeshBasicMaterial({
+        var imageMaterial = new THREE.MeshBasicMaterial({
             map : this.textureLoader.load(imageUrl)
         });
         //Make box geometry:
-        var box = new THREE.BoxGeometry( 1, 1, 1 );
+        var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         //Create mesh:
-        var cube = new THREE.Mesh( box, anImageMaterial );
+        var boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
         //Position in (x,y,z):
-        cube.position.x = aPosition.x;
-        cube.position.y = aPosition.y;
-        cube.position.z = aPosition.z;
+        boxMesh.position.x = aPosition.x;
+        boxMesh.position.y = aPosition.y;
+        boxMesh.position.z = aPosition.z;
         //Add to scene:
-        this.scene.add( cube );
-        return cube;
+        this.scene.add( boxMesh );
+        return boxMesh;
     }
 
-    addLine(from, to, _color) {
-        var aLineMaterial = new THREE.LineBasicMaterial( { color: _color } );
-        var aline = new THREE.Geometry();
-        aline.vertices.push( from );
-        aline.vertices.push( to );
-        var aline = new THREE.Line( aline, aLineMaterial );
-        this.scene.add( aline );
-        return aline;
+    /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
+    addLine(from, to, aColor) {
+        var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
+        var lineGeometry = new THREE.Geometry();
+        lineGeometry.vertices.push( from );
+        lineGeometry.vertices.push( to );
+        var lineMesh = new THREE.Line( lineGeometry, lineMaterial );
+        this.scene.add( lineMesh );
+        return lineMesh;
     }
 
-    addText(someText, aColor, aPosition){
-        
-        this.textLoader.load( 'qwe', function ( font ) {
-            //Define text geometry:
-            var textGeo = new THREE.TextGeometry( 
-                someText, 
-                {
-                    font: font,
-                    size: 0.2,  //height
-                    height: 0.1 //depth
-                    //curveSegments: 1,
-                    //bevelThickness: 1,
-                    //bevelSize: 1
-                    //bevelEnabled: true
-                } );
-            //Define the material:
-            var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
-            //Create the text mesh:
-            var text = new THREE.Mesh( textGeo, textMaterial );
-            //Position the text:
-            text.position.set( aPosition.x, aPosition.y, aPosition.z );
-            //Add text to collection that get updated to look at camera
-            this.textMeshes.push(text);
-            //Add text to scene:
-            this.scene.add( text );
+    /* Add some text with a color located on x, y, z */
+    addText(someText, aColor, xPos, yPos, zPos){
+        var loader = new THREE.FontLoader();
+        var font = loader.parse(helveticaRegular);
+        var textGeometry = new THREE.TextGeometry( someText, {
+            font: font,
+            size: 0.5,
+            height: 0.1,
+            curveSegments: 20
         } );
+        var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
+        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        textMesh.position.x = xPos;
+        textMesh.position.y = yPos;
+        textMesh.position.z = zPos;
+        this.textMeshes.push(textMesh);
+        this.scene.add( textMesh );
+        return textMesh;
     }
 
+    /* Example scene: */
     showExampleScene1(){
         //Examples of inserting text:
-        this.addText("1", this.green, { x: 0, y: 1, z: 0 } );
-        this.addText("2", this.green, { x: 0, y: 2, z: 0 } );
-        this.addText("3", this.green, { x: 0, y: 3, z: 0 } );
+        this.addText("1", Colors.red, 1, 0, 0 );
+        this.addText("2", Colors.red, 2, 0, 0 );
+        this.addText("3", Colors.red, 3, 0, 0 );
+        this.addText("1", Colors.green, 0, 1, 0 );
+        this.addText("2", Colors.green, 0, 2, 0);
+        this.addText("3", Colors.green, 0, 3, 0 );
+        this.addText("1", Colors.blue, 0, 0, 1 );
+        this.addText("2", Colors.blue, 0, 0, 2 );
+        this.addText("3", Colors.blue, 0, 0, 3 );
 
-        this.addText("1", this.red, { x: 1, y: 0, z: 0 } );
-        this.addText("2", this.red, { x: 2, y: 0, z: 0 } );
-        this.addText("3", this.red, { x: 3, y: 0, z: 0 } );
-
-        this.addText("1", this.blue, { x: 0, y: 0, z: 1 } );
-        this.addText("2", this.blue, { x: 0, y: 0, z: 2 } );
-        this.addText("3", this.blue, { x: 0, y: 0, z: 3 } );
+        //Add an image at pos 2,2,2
+        this.addCube(stockImage, { x:2, y:2, z:2 } );
     }
         
     componentWillUnmount(){
@@ -162,10 +146,10 @@ class ThreeBrowser extends Component{
     }
         
     animate = () => {
-        this.cube.rotation.x += 0.01
-        this.cube.rotation.y += 0.01
         this.renderScene()
         this.frameId = window.requestAnimationFrame(this.animate)
+        //Point text to camera:
+        this.textMeshes.forEach(t => t.lookAt( this.camera.position ) );
     }
         
     renderScene = () => {
@@ -173,7 +157,6 @@ class ThreeBrowser extends Component{
     }
 
     resizeBrowser = () => {
-        console.log("Browser resize!");
         var width = document.getElementById('ThreeBrowser').clientWidth;
         var height = document.getElementById('ThreeBrowser').clientHeight;
         this.renderer.setSize(width, height);
@@ -195,6 +178,13 @@ class ThreeBrowser extends Component{
             </div>
         );
     }
+}
+
+//CREATE COLORS:
+const Colors = {
+    red: 0xF00000,
+    green: 0x00F000,
+    blue: 0x0000F0
 }
         
 export default ThreeBrowser;
