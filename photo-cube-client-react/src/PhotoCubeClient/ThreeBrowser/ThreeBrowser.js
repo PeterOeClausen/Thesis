@@ -8,11 +8,12 @@ const OrbitControls = require('three-orbitcontrols')
 
 /*
  TODO: 
-- Add own Threejs code
+- Add own Threejs code (Done except for key presses)
 - Continue with tutorial: https://reactjs.org/tutorial/tutorial.html#completing-the-game
 */
 
 class ThreeBrowser extends Component{
+    
     componentDidMount(){
         //Get tempirary width and height
         const width = this.mount.clientWidth
@@ -28,7 +29,10 @@ class ThreeBrowser extends Component{
             0.1,
             1000
             )
+        this.camera.position.x = 5;
+        this.camera.position.y = 5;
         this.camera.position.z = 5;
+        
         this.camera.rotation.y = 90 * Math.PI;
         
         //ADD RENDERER
@@ -51,11 +55,12 @@ class ThreeBrowser extends Component{
         this.textMeshes = [];
         this.textLoader = new THREE.FontLoader();
 
-        //ADDING X, Y, Z axis:
+        //ADDING X, Y, Z AXIS:
         this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), Colors.red); //x is red
         this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), Colors.green); //y is green
         this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), Colors.blue); //z is blue
 
+        //ADDING EXAMPLE SCENE:
         //this.showExampleScene1();
 
         //Filling out available space:
@@ -151,6 +156,15 @@ class ThreeBrowser extends Component{
         //Point text to camera:
         this.textMeshes.forEach(t => t.lookAt( this.camera.position ) );
     }
+
+    render(){
+        return(
+            <div className="grid-item" id="ThreeBrowser">
+                <div style={{ width: '400px', height: '400px' }}
+                ref = {(mount) => { this.mount = mount }}/>
+            </div>
+        );
+    }
         
     renderScene = () => {
         this.renderer.render(this.scene, this.camera)
@@ -168,15 +182,6 @@ class ThreeBrowser extends Component{
         if(event.key === 'Enter'){
             console.log('enter press here! ')
         }
-    }
-        
-    render(){
-        return(
-            <div className="grid-item" id="ThreeBrowser">
-                <div style={{ width: '400px', height: '400px' }}
-                ref = {(mount) => { this.mount = mount }}/>
-            </div>
-        );
     }
 }
 

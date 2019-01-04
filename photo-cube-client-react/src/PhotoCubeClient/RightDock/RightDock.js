@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import './RightDock.css'
+import FileCount from './FileCount/FileCount';
+import BrowsingMode from './BrowsingMode/BrowsingMode';
 
 class RightDock extends Component{
     render(){
         return(
-            <p>Right dock</p>
+            <div id="RightDock">
+                <FileCount/>
+                <BrowsingMode/>
+            </div>
         );
     }
 }

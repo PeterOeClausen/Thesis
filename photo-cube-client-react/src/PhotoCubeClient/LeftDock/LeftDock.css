@@ -1,3 +1,18 @@
-#leftDock{
-    
+#LeftDock{
+    background-color: rgb(20, 20, 20);
+}
+
+.MenuButton{
+    padding: 3%;
+    width: 100%;
+    border: none;
+    background-color: rgb(20, 20, 20);
+    color: rgb(200, 200, 200);
+    text-align: left;
+}
+
+.MenuHeader{
+    padding: 3%;
+    color: rgb(200, 200, 200);
+    background-color: rgb(40, 40, 40);
 }
