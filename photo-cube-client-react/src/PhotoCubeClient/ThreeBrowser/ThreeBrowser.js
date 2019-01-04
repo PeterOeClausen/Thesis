@@ -39,6 +39,10 @@ class ThreeBrowser extends Component{
         this.cube = new THREE.Mesh(geometry, material)
         this.scene.add(this.cube)
         this.start()
+        
+        //Filling out available space:
+        this.resizeBrowser();
+        window.addEventListener("resize", (event) => this.resizeBrowser());
     }
         
     componentWillUnmount(){
@@ -68,6 +72,7 @@ class ThreeBrowser extends Component{
     }
 
     resizeBrowser = () => {
+        console.log("Browser resize!");
         var width = document.getElementById('ThreeBrowser').clientWidth;
         var height = document.getElementById('ThreeBrowser').clientHeight;
         this.renderer.setSize(width, height);
@@ -91,4 +96,4 @@ class ThreeBrowser extends Component{
     }
 }
         
-    export default ThreeBrowser;
+export default ThreeBrowser;
