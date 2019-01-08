@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
+import './Dimensions.css'
+import DimensionPickerModal from './DimensionPickerModal/DimensionPickerModal';
 
 class Dimension extends Component{
     constructor(props){
         super(props);
         this.state = {
+            DimensionType: null,
             DimensionId: null,
-            DimensionName: "null",
-            TagSets: []
+            DimensionName: null,
         };
     }
     
@@ -14,26 +16,43 @@ class Dimension extends Component{
         return(
             <div>
                 <p>{this.props.xyz}-Axis:</p><br/>
-                <p>Showing: {this.state.DimensionName}</p>
-                <button onClick={() => this.changeDimensionClicked()}>Change</button>
-                <ul id="DimensionList">
-                    <li>qwerty</li>
-                </ul>
+                {this.renderDimensionTypeAndName()}
+                <DimensionPickerModal onDimensionPicked={this.dimensionPicked}/>
             </div>
         );
     }
 
+    renderDimensionTypeAndName(){
+        if(this.state.DimensionType != null){
+            return (<p>{this.state.DimensionType}:{this.state.DimensionName}</p>);
+        }else{
+            return (<p>Choose a dimension...</p>)
+        }
+    }
+
+    dimensionPicked = (dimension) => {
+        console.log(dimension);
+        this.setState({
+            DimensionType:  dimension.type, 
+            DimensionId:    dimension.id, 
+            DimensionName:  dimension.name
+        });
+    }
+
+    /* NOT IN USE
     changeDimensionClicked(){
         //Using this guide: https://blog.hellojs.org/fetching-api-data-with-react-js-460fe8bbf8f2
         //Fetching tagsets:
         fetch("https://localhost:44317/api/tagset")
         .then(result => {return result.json();})
-        .then(data =>{
+        .then(data => {
             //Use map instead
             this.setState({TagSets: data});
             console.log(this.state.TagSets);
+            let listOfNames = data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id} });
+            console.log(listOfNames);
         });
-    }
+    }*/
 }
 
 export default Dimension;
