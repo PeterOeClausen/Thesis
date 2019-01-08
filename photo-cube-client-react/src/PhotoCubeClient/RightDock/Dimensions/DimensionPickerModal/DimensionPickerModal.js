@@ -1,6 +1,20 @@
 import React, { Component } from 'react';
 import Modal from "react-responsive-modal"; //https://www.npmjs.com/package/react-responsive-modal
 
+/**
+ * A component containing a Modal for picking Dimensions.
+ * 
+ * The user can choose between tagsets or hierarchies.
+ * 
+ * It returns an object to given callback-function called onDimensionPicked().
+ * The object given to onDimensionPicked contains either:
+ * 
+ * - Tagset: {type:"tagset", id:ts.TagsetId, name:ts.Name}
+ * 
+ * - Hierarchy: {type:"hierarchy", id:h.HirarchyId, name:h.Name}.
+ * 
+ * The Dimension is then to be shown in the ThreeBrowser.
+ */
 class DimensionPickerModal extends Component{
     state = {
         open: false,

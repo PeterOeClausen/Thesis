@@ -12,6 +12,11 @@ const OrbitControls = require('three-orbitcontrols')
 - Continue with tutorial: https://reactjs.org/tutorial/tutorial.html#completing-the-game
 */
 
+/**
+ * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
+ * 
+ * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
+ */
 class ThreeBrowser extends Component{
     
     componentDidMount(){

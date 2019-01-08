@@ -2,6 +2,11 @@ import React, { Component } from 'react';
 import './Dimensions.css'
 import DimensionPickerModal from './DimensionPickerModal/DimensionPickerModal';
 
+/**
+ * Component repressenting a Dimension, can be either X, Y or Z.
+ * 
+ * Used in RightDock to choose values for dimensions.
+ */
 class Dimension extends Component{
     constructor(props){
         super(props);

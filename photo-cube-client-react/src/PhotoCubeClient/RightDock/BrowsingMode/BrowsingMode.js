@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import './BrowsingMode.css';
 
+/**
+ * BrowserModeChanger is a Component where the user can pick the current browsingmode.
+ */
 class BrowserModeChanger extends Component{
     
     render(){

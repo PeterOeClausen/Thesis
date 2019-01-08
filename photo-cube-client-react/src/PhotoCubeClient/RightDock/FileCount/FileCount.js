@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import './FileCount.css';
 
+/**
+ * FileCount is a Component that shows how many objects the ThreeBrowser is currently showing.
+ */
 class FileCount extends Component{
     
     render(){
         return(
-            <div id="FileCount" className="rightDock">
+            <div id="FileCount">
                 <h4 className="Header">File count</h4>
                 <div className="Content">
                     <p>Showing: </p>
