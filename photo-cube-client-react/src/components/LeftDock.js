@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import './LeftDock.css'
-import BrowsingState from './BrowsingState/BrowsingState';
+import '../css/LeftDock.css'
+import BrowsingStateLoader from './BrowsingStateLoader';
 
 class LeftDock extends Component{
     render() {
         return (
             <div id="LeftDock">
-		  		<BrowsingState/>
+		  		<BrowsingStateLoader/>
 				<button className="MenuButton">Edit tags</button>
 	  		</div>
         );

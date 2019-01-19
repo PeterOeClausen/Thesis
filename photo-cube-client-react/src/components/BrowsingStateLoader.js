@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import './BrowsingState.css'
+import '../css/BrowsingState.css'
 
-class BrowsingState extends Component{
+class BrowsingStateLoader extends Component{
     render() {
         return (
             <div id="BrowsingState">
@@ -14,4 +14,4 @@ class BrowsingState extends Component{
     }
 }
 
-export default BrowsingState;
+export default BrowsingStateLoader;

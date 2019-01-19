@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './FileCount.css';
+import '../css/FileCount.css';
 
 /**
  * FileCount is a Component that shows how many objects the ThreeBrowser is currently showing.

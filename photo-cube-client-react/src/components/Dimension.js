@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './Dimensions.css'
-import DimensionPickerModal from './DimensionPickerModal/DimensionPickerModal';
+import '../css/Dimensions.css'
+import DimensionPickerModal from './DimensionPickerModal';
 
 /**
  * Component repressenting a Dimension, can be either X, Y or Z.

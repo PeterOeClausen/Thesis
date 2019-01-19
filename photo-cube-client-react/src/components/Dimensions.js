@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import './Dimensions.js';
+import '../css/Dimensions.css';
 import Dimension from './Dimension';
-import ThreeBrowserController from './../../ThreeBrowser/ThreeBrowserController';
-import {MyContext} from '../../../components/PhotoCubeClient';
+import ThreeBrowserController from './ThreeBrowserController';
+import {MyContext} from './PhotoCubeClient';
 
 class Dimensions extends Component{
     render(){
