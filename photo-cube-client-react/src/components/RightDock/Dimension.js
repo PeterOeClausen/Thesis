@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../css/Dimensions.css'
+import '../../css/Dimensions.css'
 import DimensionPickerModal from './DimensionPickerModal';
 
 /**

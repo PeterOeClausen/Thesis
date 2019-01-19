@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../css/BrowsingState.css'
+import '../../css/BrowsingState.css'
 
 class BrowsingStateLoader extends Component{
     render() {

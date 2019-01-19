@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import '../css/PhotoCubeClient.css';
-import LeftDock from './LeftDock';
+import '../../css/PhotoCubeClient.css';
+import LeftDock from '../LeftDock/LeftDock';
 import ThreeBrowser from './ThreeBrowser';
-import RightDock from './RightDock';
+import RightDock from '../RightDock/RightDock';
 
 export const MyContext = React.createContext();
 

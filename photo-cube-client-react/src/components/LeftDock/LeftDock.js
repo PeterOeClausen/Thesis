@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../css/LeftDock.css'
+import '../../css/LeftDock.css'
 import BrowsingStateLoader from './BrowsingStateLoader';
 
 class LeftDock extends Component{

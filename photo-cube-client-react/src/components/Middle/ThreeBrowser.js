@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import '../css/ThreeBrowser.css';
+import '../../css/ThreeBrowser.css';
 import ThreeBrowserController from './ThreeBrowserController';
-import stockImage from '../images/download.jpg';
-import helveticaRegular from '../fonts/helvetiker_regular.typeface.json';
+import stockImage from '../../images/download.jpg';
+import helveticaRegular from '../../fonts/helvetiker_regular.typeface.json';
 
 const THREE = require('three');
 const OrbitControls = require('three-orbitcontrols')
