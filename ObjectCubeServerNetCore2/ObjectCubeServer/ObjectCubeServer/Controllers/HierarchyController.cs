@@ -19,8 +19,14 @@ namespace ObjectCubeServer.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            throw new NotImplementedException();
-            return null;
+            List<Hierarchy> allHierarchies;
+            using (var context = new ObjectContext())
+            {
+                allHierarchies = context.Hierarchies
+                    .ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allHierarchies));
+           
             /*
             List<Hierarchy> rootHierarchies;
             using (var context = new ObjectContext())

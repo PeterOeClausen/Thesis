@@ -16,20 +16,22 @@ import Modal from "react-responsive-modal"; //https://www.npmjs.com/package/reac
  * The Dimension is then to be shown in the ThreeBrowser.
  */
 class DimensionPickerModal extends Component{
+    
     state = {
         open: false,
-        listOfTagsetNames: []
+        fetchedTagsets: [],
+        fetchedHierarchies: []
     };
 
     onOpenModal = () => {
+        this.fetchTagsets();
+        this.fetchHierarchies();
         this.setState({ open: true });
     };
 
     onCloseModal = () => {
         this.setState({ open: false });
     };
-
-    //<button onClick={this.onOpenModal}>Open modal</button>
 
     render() {
         const { open } = this.state;
@@ -39,25 +41,18 @@ class DimensionPickerModal extends Component{
                 <Modal open={open} onClose={this.onCloseModal} center>
                     <h2>Pick a tagset or a hierarchy to show as a dimension</h2>
                     <h3>Tagsets</h3>
-                    { this.getAndRenderTagsets() }
+                    { this.renderTagsets() }
                     <h3>Hierarchies</h3>
+                    { this.renderHierachies() }
                 </Modal>
             </div>
         );
     }
 
-    getAndRenderTagsets(){
-        //Using this guide: https://blog.hellojs.org/fetching-api-data-with-react-js-460fe8bbf8f2
-        //Fetching tagsets:
-        fetch("https://localhost:44317/api/tagset")
-        .then(result => {return result.json();})
-        .then(data => {
-            //Use map instead
-            this.setState( {listOfTagsetNames: data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id} }) } );
-        });
+    renderTagsets(){
         return (
             <ul>
-                {this.state.listOfTagsetNames.map(ts => {
+                {this.state.fetchedTagsets.map(ts => {
                     return( 
                         <li key={ts.TagsetId}>
                             <button onClick={() => {
@@ -69,6 +64,43 @@ class DimensionPickerModal extends Component{
                 })}
             </ul>
         );
+    }
+
+    renderHierachies(){
+        return (
+            <ul>
+                {this.state.fetchedHierarchies.map(h => {
+                    return( 
+                        <li key={h.HierarchyId}>
+                            <button onClick={() => {
+                                this.props.onDimensionPicked({type:"hierarchy", id:h.HierarchyId, name:h.Name});
+                                this.onCloseModal();
+                            }}>{h.Name}</button>
+                        </li> 
+                    )
+                })}
+            </ul>
+        );
+    }
+
+    fetchTagsets(){
+        //Using this guide: https://blog.hellojs.org/fetching-api-data-with-react-js-460fe8bbf8f2
+        //Fetching tagsets:
+        fetch("https://localhost:44317/api/tagset")
+        .then(result => {return result.json();})
+        .then(data => {
+            //Use map instead
+            this.setState( {fetchedTagsets: data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id} }) } );
+        });
+    }
+
+    fetchHierarchies(){
+        fetch("https://localhost:44317/api/hierarchy")
+        .then(result => {return result.json();})
+        .then(data => {
+            //Use map instead
+            this.setState( {fetchedHierarchies: data.map((h) => { return {"Name": h.Name, "HierarchyId": h.Id} }) } );
+        });
     }
 }
 

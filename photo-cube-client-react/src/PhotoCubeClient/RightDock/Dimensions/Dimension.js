@@ -42,6 +42,7 @@ class Dimension extends Component{
             DimensionId:    dimension.id, 
             DimensionName:  dimension.name
         });
+        this.props.onDimensionChanged(this.props.xyz, dimension);
     }
 
     /* NOT IN USE

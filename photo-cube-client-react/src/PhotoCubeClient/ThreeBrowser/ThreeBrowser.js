@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './ThreeBrowser.css';
 import stockImage from './../../images/download.jpg';
 import helveticaRegular from './../../fonts/helvetiker_regular.typeface.json';
+import ThreeBrowserController from './ThreeBrowserController';
 
 const THREE = require('three');
 const OrbitControls = require('three-orbitcontrols')
@@ -59,14 +60,14 @@ class ThreeBrowser extends Component{
         this.textLoader = new THREE.FontLoader();
 
         //ADDING X, Y, Z AXIS:
-        this.xAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(5,0,0), Colors.red);
-        this.yAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,5,0), Colors.green);
-        this.zAxis = this.addLine(new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,5), Colors.blue);
+        this.xAxis = this.addLine(0,0,0, 5,0,0, Colors.red);
+        this.yAxis = this.addLine(0,0,0, 0,5,0, Colors.green);
+        this.zAxis = this.addLine(0,0,0, 0,0,5, Colors.blue);
 
         //ADDING X, Y, Z LABELS:
-        this.xLabel = this.addText("x", Colors.red, 5,0,0);
-        this.yLabel = this.addText("y", Colors.green, 0,5,0);
-        this.zLabel = this.addText("z", Colors.blue, 0,0,5);
+        this.xLabel = this.addText("x", 5,0,0, Colors.red);
+        this.yLabel = this.addText("y", 0,5,0, Colors.green);
+        this.zLabel = this.addText("z", 0,0,5, Colors.blue);
 
         //ADDING EXAMPLE SCENE:
         //this.showExampleScene1();
@@ -74,80 +75,15 @@ class ThreeBrowser extends Component{
         //Filling out available space:
         this.resizeBrowser();
         window.addEventListener("resize", (event) => this.resizeBrowser());
+
+        ThreeBrowserController.getInstance().setThreeBrowserInstance(this);
     }
 
-    /* Add cubes to scene with given imageURL and a position */
-    addCube(imageUrl, aPosition) {
-        //Load image as material:
-        var imageMaterial = new THREE.MeshBasicMaterial({
-            map : this.textureLoader.load(imageUrl)
-        });
-        //Make box geometry:
-        var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-        //Create mesh:
-        var boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
-        //Position in (x,y,z):
-        boxMesh.position.x = aPosition.x;
-        boxMesh.position.y = aPosition.y;
-        boxMesh.position.z = aPosition.z;
-        //Add to scene:
-        this.scene.add( boxMesh );
-        return boxMesh;
-    }
-
-    /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
-    addLine(from, to, aColor) {
-        var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
-        var lineGeometry = new THREE.Geometry();
-        lineGeometry.vertices.push( from );
-        lineGeometry.vertices.push( to );
-        var lineMesh = new THREE.Line( lineGeometry, lineMaterial );
-        this.scene.add( lineMesh );
-        return lineMesh;
-    }
-
-    /* Add some text with a color located on x, y, z */
-    addText(someText, aColor, xPos, yPos, zPos){
-        var loader = new THREE.FontLoader();
-        var font = loader.parse(helveticaRegular);
-        var textGeometry = new THREE.TextGeometry( someText, {
-            font: font,
-            size: 0.5,
-            height: 0.1,
-            curveSegments: 20
-        } );
-        var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
-        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
-        textMesh.position.x = xPos;
-        textMesh.position.y = yPos;
-        textMesh.position.z = zPos;
-        this.textMeshes.push(textMesh);
-        this.scene.add( textMesh );
-        return textMesh;
-    }
-
-    /* Example scene: */
-    showExampleScene1(){
-        //Examples of inserting text:
-        this.addText("1", Colors.red, 1, 0, 0 );
-        this.addText("2", Colors.red, 2, 0, 0 );
-        this.addText("3", Colors.red, 3, 0, 0 );
-        this.addText("1", Colors.green, 0, 1, 0 );
-        this.addText("2", Colors.green, 0, 2, 0);
-        this.addText("3", Colors.green, 0, 3, 0 );
-        this.addText("1", Colors.blue, 0, 0, 1 );
-        this.addText("2", Colors.blue, 0, 0, 2 );
-        this.addText("3", Colors.blue, 0, 0, 3 );
-
-        //Add an image at pos 2,2,2
-        this.addCube(stockImage, { x:2, y:2, z:2 } );
-    }
-        
     componentWillUnmount(){
         this.stop()
         this.mount.removeChild(this.renderer.domElement)
     }
-        
+
     start = () => {
         if (!this.frameId) {
             this.frameId = requestAnimationFrame(this.animate)
@@ -190,6 +126,84 @@ class ThreeBrowser extends Component{
         if(event.key === 'Enter'){
             console.log('enter press here! ')
         }
+    }
+
+    /* Add cubes to scene with given imageURL and a position */
+    addCube(imageUrl, aPosition) {
+        //Load image as material:
+        var imageMaterial = new THREE.MeshBasicMaterial({
+            map : this.textureLoader.load(imageUrl)
+        });
+        //Make box geometry:
+        var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+        //Create mesh:
+        var boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
+        //Position in (x,y,z):
+        boxMesh.position.x = aPosition.x;
+        boxMesh.position.y = aPosition.y;
+        boxMesh.position.z = aPosition.z;
+        //Add to scene:
+        this.scene.add( boxMesh );
+        return boxMesh;
+    }
+
+    /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
+    addLine(fromX, fromY, fromZ, toX, toY, toZ, aColor) {
+        var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
+        var lineGeometry = new THREE.Geometry();
+        var from = new THREE.Vector3(fromX,fromY,fromZ);
+        var to = new THREE.Vector3(toX,toY,toZ);
+        lineGeometry.vertices.push( from );
+        lineGeometry.vertices.push( to );
+        var lineMesh = new THREE.Line( lineGeometry, lineMaterial );
+        this.scene.add( lineMesh );
+        return lineMesh;
+    }
+
+    /* Add some text with a color located on x, y, z */
+    addText(someText, xPos, yPos, zPos, aColor){
+        var loader = new THREE.FontLoader();
+        var font = loader.parse(helveticaRegular);
+        var textGeometry = new THREE.TextGeometry( someText, {
+            font: font,
+            size: 0.5,
+            height: 0.1,
+            curveSegments: 20
+        } );
+        var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
+        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        textMesh.position.x = xPos;
+        textMesh.position.y = yPos;
+        textMesh.position.z = zPos;
+        this.textMeshes.push(textMesh);
+        this.scene.add( textMesh );
+        return textMesh;
+    }
+
+    /* Example scene: */
+    showExampleScene1(){
+        //Examples of inserting text:
+        this.addText("1", 1, 0, 0, Colors.red );
+        this.addText("2", 2, 0, 0, Colors.red );
+        this.addText("3", 3, 0, 0, Colors.red );
+        this.addText("1", 0, 1, 0, Colors.green );
+        this.addText("2", 0, 2, 0, Colors.green );
+        this.addText("3", 0, 3, 0, Colors.green );
+        this.addText("1", 0, 0, 1, Colors.blue );
+        this.addText("2", 0, 0, 2, Colors.blue );
+        this.addText("3", 0, 0, 3, Colors.blue );
+
+        //Add an image at pos 2,2,2
+        this.addCube(stockImage, { x:2, y:2, z:2 } );
+    }
+        
+    fetchDataAndUpdateDimension(dimName, dimData){
+        fetch("https://localhost:44317/api/" + dimData.type + "/" + dimData.id)
+        .then(result => {return result.json();})
+        .then(data => {
+            data.forEach((r) => console.log(r))
+            
+        });
     }
 }
 
