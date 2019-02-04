@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using ObjectCubeServer.Models.DataAccess;
+using ObjectCubeServer.Models.DomainClasses;
 
 namespace ObjectCubeServer.Controllers
 {
@@ -13,16 +17,49 @@ namespace ObjectCubeServer.Controllers
     {
         // GET: api/CubeObject
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    .Include(co => co.ObjectTagRelations)
+                    .ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allCubeObjects,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+        }
+
+        // GET: api/CubeObject/FromTagId/1
+        [HttpGet("[action]/{tagId}")]
+        public IActionResult FromTagId(int tagId)
+        {
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    //.Include(co => co.ObjectTagRelations)
+                    .Where(co => co.ObjectTagRelations.Where(otr => otr.TagId == tagId).Count() > 0)
+                    .ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allCubeObjects,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         // GET: api/CubeObject/5
         [HttpGet("{id}", Name = "GetCubeObject")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            CubeObject cubeObjectFound;
+            using (var context = new ObjectContext())
+            {
+                cubeObjectFound = context.CubeObjects.Where(co => co.Id == id).FirstOrDefault();
+            }
+            if (cubeObjectFound != null)
+            {
+                return Ok(JsonConvert.SerializeObject(cubeObjectFound));
+            }
+            else return NotFound();
         }
 
         // POST: api/CubeObject
