@@ -3,12 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/jest": "^23.3.13",
+    "@types/node": "^10.12.18",
+    "@types/react": "^16.7.20",
+    "@types/react-dom": "^16.0.11",
+    "mobx": "^5.8.0",
+    "mobx-react": "^5.4.3",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-responsive-modal": "^3.5.1",
     "react-scripts": "2.1.2",
     "three": "^0.100.0",
-    "three-orbitcontrols": "^2.99.1"
+    "three-orbitcontrols": "^2.99.1",
+    "typescript": "^3.2.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -25,5 +32,7 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "devDependencies": {}
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.2.3"
+  }
 }

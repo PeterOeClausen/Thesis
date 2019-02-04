@@ -36,7 +36,6 @@ class Dimension extends Component{
     }
 
     dimensionPicked = (dimension) => {
-        console.log(dimension);
         this.setState({
             DimensionType:  dimension.type, 
             DimensionId:    dimension.id, 

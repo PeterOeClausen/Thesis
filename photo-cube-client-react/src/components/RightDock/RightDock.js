@@ -8,11 +8,16 @@ class RightDock extends Component{
     render(){
         return(
             <div id="RightDock">
-                <FileCount/>
+                <FileCount appState={this.props.appState}/>
                 <BrowsingModeChanger/>
-                <Dimensions/>
+                <Dimensions onDimensionChanged={this.onDimensionChanged}/>
             </div>
         );
+    }
+
+    onDimensionChanged = (dimName, dimension) => {
+        this.props.onDimensionChanged(dimName, dimension);
+        //ThreeBrowserController.getInstance().sayHello();
     }
 }
 
