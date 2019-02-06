@@ -5,6 +5,7 @@ using ObjectCubeServer.Models.DomainClasses;
 using ObjectCubeServer.Models.HelperClasses;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
 using System.Linq;
@@ -16,13 +17,38 @@ namespace ConsoleAppForInteractingWithDatabase
     {
         public static void InsertLaugavegurDataset()
         {
-            //Loading in images from dataset:
-            string pathToDataset = @"D:\LaugavegurData"; //@"C:\ThesisDatasets\LaugavegurData";
-            string pathToTagFile = @"D:\LaugavegurData\LaugavegurImageTags.csv";
-            string pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
-            string pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
+            string pathToDataset;
+            string pathToTagFile;
+            string pathToHierarchiesFile;
+            string pathToErrorLogFile;
+
+            string computerName = System.Environment.MachineName;
+            switch (computerName)
+            {
+                case "DESKTOP-T7BC3Q4":
+                    pathToDataset = @"D:\LaugavegurData";
+                    pathToTagFile = @"D:\LaugavegurData\LaugavegurImageTags.csv";
+                    pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
+                    pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
+                    break;
+                case "Laptop":
+                    pathToDataset = @"?";
+                    pathToTagFile = @"?";
+                    pathToHierarchiesFile = @"?";
+                    pathToErrorLogFile = @"?";
+                    break;
+                default:
+                    throw new Exception("ComputerName is unknown, please specify paths!");
+                    pathToDataset = @"?";
+                    pathToTagFile = @"?";
+                    pathToHierarchiesFile = @"?";
+                    pathToErrorLogFile = @"?";
+                    break;
+            }
+
             File.AppendAllText(pathToErrorLogFile, "Errors goes here:\n");
             
+            //Loading in images from dataset:
             string[] files = Directory.GetFiles(pathToDataset);
 
             var insertCubeObjects = true;
@@ -63,7 +89,10 @@ namespace ConsoleAppForInteractingWithDatabase
                     string filename = Path.GetFileName(file);
                     if (!filename.EndsWith(".csv"))
                     {
-                        Console.WriteLine("Saving file: " + fileCount++ + " out of " + files.Length + " files. Filename: " + filename);
+                        Console.WriteLine("Saving file: " + fileCount++ + 
+                            " out of " + files.Length + " files. " +
+                            "Filename: " + filename + 
+                            ". (" + (((double)fileCount / (double)files.Length)*100).ToString("0.0") + @"%)");
                         //If Image is already in database (Assuming no two file has the same name):
                         if (context.CubeObjects
                             .Include(co => co.Photo)
@@ -81,12 +110,32 @@ namespace ConsoleAppForInteractingWithDatabase
                                 using (MemoryStream ms = new MemoryStream())
                                 {
                                     image.SaveAsJpeg(ms); //Copy to ms
-                                                          //Create and save cubeObject:
-                                    CubeObject cubeObject = DomainClassFactory.NewCubeObject(FileType.Photo, DomainClassFactory.NewPhoto(ms.ToArray(), Path.GetFileName(file)));
+                                    
+                                    //Create Cube and Photo objects:
+                                    CubeObject cubeObject = DomainClassFactory.NewCubeObject(
+                                        FileType.Photo, 
+                                        DomainClassFactory.NewPhoto(
+                                            ms.ToArray(), 
+                                            Path.GetFileName(file)
+                                        )
+                                    );
+
+                                    //Creating and saving thumbnail:
+                                    int destinationWidth = 200; //200px
+                                    decimal downscaleFactor = Decimal.Parse(destinationWidth+"") / Decimal.Parse(image.Width+"");
+                                    int newWidth = (int)(image.Width * downscaleFactor);
+                                    int newHeight = (int)(image.Height * downscaleFactor);
+                                    image.Mutate(i => i
+                                        .Resize(newWidth, newHeight));
+                                    using (MemoryStream ms2 = new MemoryStream())
+                                    {
+                                        image.SaveAsJpeg(ms2); //Copy to ms
+                                        cubeObject.Thumbnail = new Thumbnail() { Image = ms2.ToArray() };
+                                    }
+
+                                    //Save cube object: 
                                     context.CubeObjects.Add(cubeObject);
                                     context.SaveChanges();
-
-                                    //Add thumbnail to cubeobject here.
                                 }
                             }
                         }

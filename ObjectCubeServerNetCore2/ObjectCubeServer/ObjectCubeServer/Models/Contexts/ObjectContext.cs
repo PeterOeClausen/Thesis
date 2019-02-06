@@ -37,6 +37,7 @@ namespace ObjectCubeServer.Models.DataAccess
          */
         public DbSet<CubeObject> CubeObjects { get; set; }
         public DbSet<Photo> Photos { get; set; }
+        public DbSet<Thumbnail> Thumbnails { get; set; }
         public DbSet<Tagset> Tagsets { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<ObjectTagRelation> ObjectTagRelations { get; set; }
@@ -46,10 +47,15 @@ namespace ObjectCubeServer.Models.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //If CubeObject is deleted, then photo is also deleted.
-            modelBuilder.Entity<Photo>()
-                .HasOne<CubeObject>()
-                .WithOne(co => co.Photo)
-                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<CubeObject>()
+                .HasOne<Photo>(co => co.Photo)
+                .WithOne(p => p.CubeObject)
+                .HasForeignKey<CubeObject>(co => co.PhotoId);
+
+            modelBuilder.Entity<CubeObject>()
+                .HasOne<Thumbnail>(co => co.Thumbnail)
+                .WithOne(t => t.CubeObject)
+                .HasForeignKey<CubeObject>(co => co.ThumbnailId);
 
             //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId:
             modelBuilder.Entity<ObjectTagRelation>()

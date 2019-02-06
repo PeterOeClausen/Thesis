@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 
-class Cell{
+export default class Cell{
     x: number;
     y: number;
     z: number;
 
-    data: object[] = [];
+    cubeObjectData: object[] = [];
 
     constructor(x: number, y: number, z: number){
         this.x = x;

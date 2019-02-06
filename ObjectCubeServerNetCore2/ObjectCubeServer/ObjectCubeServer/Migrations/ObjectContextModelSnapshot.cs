@@ -29,11 +29,16 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<int?>("PhotoId");
 
+                    b.Property<int>("ThumbnailId");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PhotoId")
                         .IsUnique()
                         .HasFilter("[PhotoId] IS NOT NULL");
+
+                    b.HasIndex("ThumbnailId")
+                        .IsUnique();
 
                     b.ToTable("CubeObjects");
                 });
@@ -140,11 +145,28 @@ namespace ObjectCubeServer.Migrations
                     b.ToTable("Tagsets");
                 });
 
+            modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.Thumbnail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<byte[]>("Image");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Thumbnails");
+                });
+
             modelBuilder.Entity("ObjectCubeServer.Models.DomainClasses.CubeObject", b =>
                 {
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Photo", "Photo")
-                        .WithOne()
-                        .HasForeignKey("ObjectCubeServer.Models.DomainClasses.CubeObject", "PhotoId")
+                        .WithOne("CubeObject")
+                        .HasForeignKey("ObjectCubeServer.Models.DomainClasses.CubeObject", "PhotoId");
+
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Thumbnail", "Thumbnail")
+                        .WithOne("CubeObject")
+                        .HasForeignKey("ObjectCubeServer.Models.DomainClasses.CubeObject", "ThumbnailId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
