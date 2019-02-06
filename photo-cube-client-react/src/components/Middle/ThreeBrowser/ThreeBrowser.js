@@ -3,7 +3,9 @@ import '../../../css/ThreeBrowser.css';
 import ThreeBrowserController from '../ThreeBrowserController';
 import stockImage from '../../../images/download.jpg';
 import helveticaRegular from '../../../fonts/helvetiker_regular.typeface.json';
-import Axis from './Axis';
+import Axis, {AxisTypeEnum} from './Axis';
+import Cell from './Cell';
+import Fetcher from './Fetcher';
 
 const THREE = require('three');
 const OrbitControls = require('three-orbitcontrols')
@@ -35,6 +37,7 @@ class ThreeBrowser extends Component{
     }
 
     componentDidMount(){
+
         //Get tempirary width and height
         const width = this.mount.clientWidth
         const height = this.mount.clientHeight
@@ -79,17 +82,17 @@ class ThreeBrowser extends Component{
 
         //XYZ-AXIS:
         //Creating X-Axis:
-        let newXAxis = new Axis("X");
+        let newXAxis = new Axis("X", AxisTypeEnum.Tagset);
         newXAxis.TitleThreeObject = this.addText("X", 5,0,0, Colors.red, 0.5);
         newXAxis.LineThreeObject = this.addLine(0,0,0, 5,0,0, Colors.red);
         this.setState( {xAxis: newXAxis} );
         //Creating Y-Axis:
-        let newYAxis = new Axis("Y");
+        let newYAxis = new Axis("Y", AxisTypeEnum.Tagset);
         newYAxis.TitleThreeObject = this.addText("y", 0,5,0, Colors.green, 0.5);
         newYAxis.LineThreeObject = this.addLine(0,0,0, 0,5,0, Colors.green);
         this.setState( {yAxis: newYAxis} );
         //Creating Z-Axis:
-        let newZAxis = new Axis("Z");
+        let newZAxis = new Axis("Z", AxisTypeEnum.Tagset);
         newZAxis.TitleThreeObject = this.addText("z", 0,0,5, Colors.blue, 0.5);
         newZAxis.LineThreeObject = this.addLine(0,0,0, 0,0,5, Colors.blue);
         this.setState( {zAxis: newZAxis} );
@@ -97,7 +100,8 @@ class ThreeBrowser extends Component{
         //ADDING EXAMPLE SCENE:
         //this.showExampleScene1();
 
-        this.addCube(stockImage, { x:1, y:1, z:1 } );
+        //this.addCube(stockImage, { x:1, y:1, z:1 } );
+        //this.addCube("https://localhost:44317/api/thumbnail/1", { x:1, y:1, z:1 } );
     }
 
     componentWillUnmount(){
@@ -229,23 +233,26 @@ class ThreeBrowser extends Component{
         
     }
 
+    //TODO: Rewrite to make shorter.
     updateDimension(dimName, tagset){
         //Sort tags alphabethically:
         tagset.Tags.sort((a,b) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
 
+        const offsetFromCenter = 1;
         switch(dimName){
             case "X":
                 //Add new labels to scene and state:
                 let newXLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newXLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, i,0,0, Colors.red, 0.1),
+                        object: this.addText(tagset.Tags[i].Name, i + offsetFromCenter,0,0, Colors.red, 0.1),
                         tagInfo: tagset.Tags[i] 
                     });
                 }
                 //Fetch old state:
                 let newXAxis = this.state.xAxis;
-                
+                newXAxis.AxisType = AxisTypeEnum.Tagset;
+
                 //Remove objects from scene:
                 newXAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
                 this.scene.remove(newXAxis.TitleThreeObject);
@@ -256,7 +263,7 @@ class ThreeBrowser extends Component{
                 newXAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
-                newXAxis.TitleThreeObject = this.addText(tagset.Name, tagset.Tags.length,0,0, Colors.red, 0.5);
+                newXAxis.TitleThreeObject = this.addText(tagset.Name, tagset.Tags.length + offsetFromCenter,0,0, Colors.red, 0.5);
                 newXAxis.LineThreeObject = this.addLine(0,0,0, newXAxis.LabelThreeObjectsAndTags.length,0,0, Colors.red);
                 
                 //Update xAxis in state:
@@ -264,20 +271,19 @@ class ThreeBrowser extends Component{
 
                 //Rewrite:
                 this.setState( {xAxisHasDimension: true} );
-                //Add cube objects:
-                //this.fetchAndAddCubeObjects();
             break;
             case "Y":
                 //Add new labels to scene and state:
                 let newYLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newYLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, 0,i,0, Colors.green, 0.1),
+                        object: this.addText(tagset.Tags[i].Name, 0,i + offsetFromCenter,0, Colors.green, 0.1),
                         tagInfo: tagset.Tags[i] 
                     });
                 }
                 //Fetch old state:
                 let newYAxis = this.state.yAxis;
+                newYAxis.AxisType = AxisTypeEnum.Tagset;
                 
                 //Remove objects from scene:
                 newYAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
@@ -289,19 +295,97 @@ class ThreeBrowser extends Component{
                 newYAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
-                newYAxis.TitleThreeObject = this.addText(tagset.Name, 0,tagset.Tags.length,0, Colors.green, 0.5);
+                newYAxis.TitleThreeObject = this.addText(tagset.Name, 0,tagset.Tags.length + offsetFromCenter,0, Colors.green, 0.5);
                 newYAxis.LineThreeObject = this.addLine(0,0,0, 0,newYAxis.LabelThreeObjectsAndTags.length,0, Colors.green);
                 
                 //Update yAxis in state:
                 this.setState( {yAxis: newYAxis} );
 
                 //Rewrite:
-                this.setState( {xAxisHasDimension: true} );
+                this.setState( {yAxisHasDimension: true} );
+            break;
+            case "Z":
+                //Add new labels to scene and state:
+                let newZLabelObjectsAndTags = [];
+                for(let i = 0; i < tagset.Tags.length; i++){
+                    newZLabelObjectsAndTags.push({ 
+                        object: this.addText(tagset.Tags[i].Name, 0,0,i + offsetFromCenter, Colors.blue, 0.1),
+                        tagInfo: tagset.Tags[i] 
+                    });
+                }
+                //Fetch old state:
+                let newZAxis = this.state.zAxis;
+                newZAxis.AxisType = AxisTypeEnum.Tagset;
+                
+                //Remove objects from scene:
+                newZAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
+                this.scene.remove(newZAxis.TitleThreeObject);
+                this.scene.remove(newZAxis.LineThreeObject);
+                
+                //Update values:
+                newZAxis.LabelThreeObjectsAndTags = newZLabelObjectsAndTags;
+                newZAxis.TitleString = tagset.Name;
+                
+                //Add objects to scene and values:
+                newZAxis.TitleThreeObject = this.addText(tagset.Name, 0,0,tagset.Tags.length + offsetFromCenter, Colors.blue, 0.5);
+                newZAxis.LineThreeObject = this.addLine(0,0,0, 0,0,newZAxis.LabelThreeObjectsAndTags.length, Colors.blue);
+                
+                //Update zAxis in state:
+                this.setState( {zAxis: newZAxis} );
+
+                //Rewrite:
+                this.setState( {zAxisHasDimension: true} );
             break;
         }
+        
+        this.fetchAndAddCubeObjects();
     }
 
     fetchAndAddCubeObjects(){
+        let NewCellsAndCoordinates = [];
+
+        let addCubeCallback = (imageUrl, aPosition) => this.addCube(imageUrl, aPosition);
+
+        
+
+        let result = Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
+
+        result.forEach(elem => {
+            console.log("Hello?");
+            console.log(elem);
+            if(elem.cubeObjectArr.length > 0){
+                this.addCube("https://localhost:44317/api/thumbnail/" + elem.cubeObjectArr[0].ThumbnailId ,
+                    {x:elem.coordinate, y:1, z:0});
+            }
+        });
+        console.log("Done!");
+
+        /*
+        //Make cells:
+        for(let i = 0; i < this.state.xAxis.LabelThreeObjectsAndTags.length; i++){
+            let newCell = new Cell(i, 0, 0);
+            
+            fetch("https://localhost:44317/api/cubeobject/FromTagId/" + this.state.xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id)
+            .then(result => {return result.json();})
+            .then(cubeObjectDataArray =>{
+                newCell.cubeObjectData = cubeObjectDataArray;
+                //console.log(this.state.xAxis.LabelThreeObjectsAndTags[i].tagInfo);
+                //console.log(cubeObjectDataArray);
+                //cubeObjectDataArray.forEach(cubeObject => console.log(cubeObject))
+            });
+
+            NewCellsAndCoordinates.push(newCell);
+
+            for(let j = 0; j < this.state.yAxis.length; j++){
+                for(let k = 0; k < this.state.zAxis.length; k++){
+                    
+                    
+                }
+            }  
+        }
+        */
+
+        /*
         //Remove previous cube objects:
         this.state.cubeObjects.forEach(co => this.scene.remove(co));
         let newCubeObjects = [];
@@ -318,6 +402,7 @@ class ThreeBrowser extends Component{
         }
         this.setState( {cubeObjects: newCubeObjects} );
         console.log(this.state.cubeObjects);
+        */
     }
 }
 
