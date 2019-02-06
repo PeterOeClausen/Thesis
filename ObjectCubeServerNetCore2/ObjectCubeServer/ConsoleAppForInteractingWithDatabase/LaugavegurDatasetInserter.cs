@@ -25,17 +25,17 @@ namespace ConsoleAppForInteractingWithDatabase
             string computerName = System.Environment.MachineName;
             switch (computerName)
             {
-                case "DESKTOP-T7BC3Q4":
+                case "DESKTOP-T7BC3Q4": //Desktop
                     pathToDataset = @"D:\LaugavegurData";
                     pathToTagFile = @"D:\LaugavegurData\LaugavegurImageTags.csv";
                     pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
                     pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
                     break;
-                case "Laptop":
-                    pathToDataset = @"?";
-                    pathToTagFile = @"?";
-                    pathToHierarchiesFile = @"?";
-                    pathToErrorLogFile = @"?";
+                case "DESKTOP - EO6T94J": //Laptop
+                    pathToDataset = @"C:\LaugavegurData";
+                    pathToTagFile = @"C:\LaugavegurData\LaugavegurImageTags.csv";
+                    pathToHierarchiesFile = @"C:\LaugavegurData\LaugavegurHierarchiesV2.csv";
+                    pathToErrorLogFile = @"C:\LaugavegurData\ErrorLogFiles\FileLoadError.txt";
                     break;
                 default:
                     throw new Exception("ComputerName is unknown, please specify paths!");
@@ -45,7 +45,7 @@ namespace ConsoleAppForInteractingWithDatabase
                     pathToErrorLogFile = @"?";
                     break;
             }
-
+            
             File.AppendAllText(pathToErrorLogFile, "Errors goes here:\n");
             
             //Loading in images from dataset:

@@ -43,7 +43,7 @@ namespace ObjectCubeServer.Models.DataAccess
         public DbSet<ObjectTagRelation> ObjectTagRelations { get; set; }
         public DbSet<Hierarchy> Hierarchies { get; set; }
         public DbSet<Node> Nodes { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //If CubeObject is deleted, then photo is also deleted.
@@ -61,7 +61,7 @@ namespace ObjectCubeServer.Models.DataAccess
             modelBuilder.Entity<ObjectTagRelation>()
                 .HasKey(ot => new { ot.ObjectId, ot.TagId });
             //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and CubeObject:
-            modelBuilder.Entity<ObjectTagRelation>() 
+            modelBuilder.Entity<ObjectTagRelation>()
                 .HasOne(otr => otr.CubeObject)
                 .WithMany(co => co.ObjectTagRelations)
                 .HasForeignKey(otr => otr.ObjectId);
@@ -111,9 +111,22 @@ namespace ObjectCubeServer.Models.DataAccess
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //base.OnConfiguring(optionsBuilder);
-            optionsBuilder
-                .UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf"); //Change location if pushed.
-                //.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
+            string computerName = System.Environment.MachineName;
+            switch (computerName)
+            {
+                case "DESKTOP-T7BC3Q4": //Desktop
+                    optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf");
+                    break;
+                case "DESKTOP - EO6T94J": //Laptop
+                    optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf");
+                    break;
+                default:
+                    throw new System.Exception("Please specify the path to the database");
+                    optionsBuilder.UseSqlServer("?");
+                    break;
+            }
+
+            //.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
         }
     }
 }
