@@ -31,7 +31,7 @@ namespace ConsoleAppForInteractingWithDatabase
                     pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
                     pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
                     break;
-                case "DESKTOP - EO6T94J": //Laptop
+                case "DESKTOP-EO6T94J": //Laptop
                     pathToDataset = @"C:\LaugavegurData";
                     pathToTagFile = @"C:\LaugavegurData\LaugavegurImageTags.csv";
                     pathToHierarchiesFile = @"C:\LaugavegurData\LaugavegurHierarchiesV2.csv";

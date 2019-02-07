@@ -117,7 +117,7 @@ namespace ObjectCubeServer.Models.DataAccess
                 case "DESKTOP-T7BC3Q4": //Desktop
                     optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=D:\\Databases\\ObjectDB.mdf");
                     break;
-                case "DESKTOP - EO6T94J": //Laptop
+                case "DESKTOP-EO6T94J": //Laptop
                     optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf");
                     break;
                 default:
