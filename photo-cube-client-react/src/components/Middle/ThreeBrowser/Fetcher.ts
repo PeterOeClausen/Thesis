@@ -21,11 +21,12 @@ export default class Fetcher{
                     //coordinateObjectPairs.push({coordinate : i, cubeObjectArr: cubeObjectDataArray});
                     
                     if(cubeObjectDataArray.length > 0){
-                        addCubeCallBack("https://localhost:44317/api/photo/" + cubeObjectDataArray[0].ThumbnailId ,
+                        addCubeCallBack("https://localhost:44317/api/photo/" + cubeObjectDataArray[0].PhotoId ,
                             {x:i+1, y:1, z:0}
                         );
                     }
-                }));
+                })
+            );
         }
 
         return await Promise.all(promises);
