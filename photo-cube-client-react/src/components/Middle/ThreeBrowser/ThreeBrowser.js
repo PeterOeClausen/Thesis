@@ -230,7 +230,6 @@ class ThreeBrowser extends Component{
             //data.((r) => console.log(r))
             this.updateDimension(dimName, tagset);
         });
-        
     }
 
     //TODO: Rewrite to make shorter.
@@ -341,15 +340,18 @@ class ThreeBrowser extends Component{
         this.fetchAndAddCubeObjects();
     }
 
-    fetchAndAddCubeObjects(){
+    async fetchAndAddCubeObjects(){
         let NewCellsAndCoordinates = [];
 
-        let addCubeCallback = (imageUrl, aPosition) => this.addCube(imageUrl, aPosition);
+        //Removing previous cube objects from scene:
+        this.state.cubeObjects.forEach(co => this.scene.remove(co));
 
-        
+        let newCubeObjectArray = [];
+        let addCubeCallback = (imageUrl, aPosition) => newCubeObjectArray.push(this.addCube(imageUrl, aPosition));
+        let result = await Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
+        this.setState({cubeObjects: newCubeObjectArray});
 
-        let result = Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
-
+        /*
         result.forEach(elem => {
             console.log("Hello?");
             console.log(elem);
@@ -359,6 +361,7 @@ class ThreeBrowser extends Component{
             }
         });
         console.log("Done!");
+        */
 
         /*
         //Make cells:
