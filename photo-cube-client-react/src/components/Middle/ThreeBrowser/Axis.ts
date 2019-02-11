@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
 import Tag from './Tag';
+import * as THREE from 'three';
+import Position from "./Position";
 
 export enum AxisTypeEnum {
     Tagset,
@@ -24,6 +25,12 @@ export default class Axis{
         this.AxisType = axisType;
     }
 
+    RemoveObjectsFromScene(scene: THREE.Scene){
+        this.LabelThreeObjectsAndTags.forEach((labelObject:{object:THREE.Mesh, tagInfo:Tag}) => scene.remove(labelObject.object));
+        scene.remove(this.TitleThreeObject);
+        scene.remove(this.LineThreeObject);
+    }
+
     GetLength(){
         return this.LabelThreeObjectsAndTags.length;
     }
@@ -32,5 +39,7 @@ export default class Axis{
         return this.LabelThreeObjectsAndTags.concat(this.TitleThreeObject);
     }
 
-    
+    SetAxisType(axisType: AxisTypeEnum){
+        this.AxisType = axisType;
+    }
 }

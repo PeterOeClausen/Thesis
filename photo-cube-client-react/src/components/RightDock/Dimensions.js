@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import '../../css/Dimensions.css';
 import Dimension from './Dimension';
-import ThreeBrowserController from '../Middle/ThreeBrowserController';
 //import {MyContext} from '../Middle/PhotoCubeClient';
 
 class Dimensions extends Component{

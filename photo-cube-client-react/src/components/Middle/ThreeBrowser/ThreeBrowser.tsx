@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import * as React from 'react';
+import * as THREE from 'three';
+import Position from './Position';
 import '../../../css/ThreeBrowser.css';
 import ThreeBrowserController from '../ThreeBrowserController';
 import stockImage from '../../../images/download.jpg';
@@ -6,8 +8,8 @@ import helveticaRegular from '../../../fonts/helvetiker_regular.typeface.json';
 import Axis, {AxisTypeEnum} from './Axis';
 import Cell from './Cell';
 import Fetcher from './Fetcher';
+import Tag from './Tag';
 
-const THREE = require('three');
 const OrbitControls = require('three-orbitcontrols')
 
 /*
@@ -21,9 +23,9 @@ const OrbitControls = require('three-orbitcontrols')
  * 
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
-class ThreeBrowser extends Component{
-    
-    state = {
+class ThreeBrowser extends React.Component{
+   
+    state: React.ComponentState = {
         xAxis: null,
         yAxis: null,
         zAxis: null,
@@ -36,14 +38,33 @@ class ThreeBrowser extends Component{
         cubeObjects: [],
     }
 
+    mount: HTMLDivElement|null = this.mount!;
+    //ADD SCENE
+    scene: THREE.Scene = new THREE.Scene();
+    camera: any;
+    renderer: any;
+    controls: any;
+    textureLoader: any;
+    textMeshes: any;
+    textLoader: any;
+    frameId: any;
+    
+    Colors = {
+        red: 0xF00000,
+        green: 0x00F000,
+        blue: 0x0000F0
+    }
+
+    constructor(props: any){
+        super(props);
+        this.textMeshes = []
+    }
+    
     componentDidMount(){
 
-        //Get tempirary width and height
-        const width = this.mount.clientWidth
-        const height = this.mount.clientHeight
-
-        //ADD SCENE
-        this.scene = new THREE.Scene();
+        //Get temporary width and height
+        let width = this.mount!.clientWidth
+        let height = this.mount!.clientHeight
 
         //ADD CAMERA
         this.camera = new THREE.PerspectiveCamera(
@@ -60,7 +81,7 @@ class ThreeBrowser extends Component{
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
         //this.renderer.setClearColor('#000000') //Black clear color, default white.
         this.renderer.setSize(width, height)
-        this.mount.appendChild(this.renderer.domElement)
+        this.mount!.appendChild(this.renderer.domElement)
         
         //SET CONTROLS TO ORBITCONTROL
         this.controls = new OrbitControls( this.camera, this.renderer.domElement);
@@ -73,7 +94,7 @@ class ThreeBrowser extends Component{
         this.textureLoader.crossOrigin = true;
 
         //CREATE TEXTLOADERS:
-        this.textMeshes = [];
+        
         this.textLoader = new THREE.FontLoader();
 
         //Filling out available space:
@@ -83,18 +104,18 @@ class ThreeBrowser extends Component{
         //XYZ-AXIS:
         //Creating X-Axis:
         let newXAxis = new Axis("X", AxisTypeEnum.Tagset);
-        newXAxis.TitleThreeObject = this.addText("X", 5,0,0, Colors.red, 0.5);
-        newXAxis.LineThreeObject = this.addLine(0,0,0, 5,0,0, Colors.red);
+        newXAxis.TitleThreeObject = this.addText("X", {x:5,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
+        newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:5,y:0,z:0}, new THREE.Color(0xF00000));
         this.setState( {xAxis: newXAxis} );
         //Creating Y-Axis:
-        let newYAxis = new Axis("Y", AxisTypeEnum.Tagset);
-        newYAxis.TitleThreeObject = this.addText("y", 0,5,0, Colors.green, 0.5);
-        newYAxis.LineThreeObject = this.addLine(0,0,0, 0,5,0, Colors.green);
+        let newYAxis = new Axis("Y", AxisTypeEnum.Tagset);  
+        newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:5,z:0}, new THREE.Color(0x00F000), 0.5);
+        newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:5,z:0}, new THREE.Color(0x00F000));
         this.setState( {yAxis: newYAxis} );
         //Creating Z-Axis:
         let newZAxis = new Axis("Z", AxisTypeEnum.Tagset);
-        newZAxis.TitleThreeObject = this.addText("z", 0,0,5, Colors.blue, 0.5);
-        newZAxis.LineThreeObject = this.addLine(0,0,0, 0,0,5, Colors.blue);
+        newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:5}, new THREE.Color(0x0000F0), 0.5);
+        newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:5}, new THREE.Color(0x0000F0));
         this.setState( {zAxis: newZAxis} );
 
         //ADDING EXAMPLE SCENE:
@@ -106,7 +127,7 @@ class ThreeBrowser extends Component{
 
     componentWillUnmount(){
         this.stop()
-        this.mount.removeChild(this.renderer.domElement)
+        this.mount!.removeChild(this.renderer.domElement)
     }
 
     start = () => {
@@ -123,7 +144,7 @@ class ThreeBrowser extends Component{
         this.renderScene()
         this.frameId = window.requestAnimationFrame(this.animate)
         //Point text to camera:
-        this.textMeshes.forEach(t => t.lookAt( this.camera.position ) );
+        this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ) );
     }
 
     render(){
@@ -140,22 +161,23 @@ class ThreeBrowser extends Component{
     }
 
     resizeBrowser = () => {
-        var width = document.getElementById('ThreeBrowser').clientWidth;
-        var height = document.getElementById('ThreeBrowser').clientHeight;
+        const browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
+        var width = browserElement.clientWidth;
+        var height = browserElement.clientHeight;
         this.renderer.setSize(width, height);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
     }
 
-    handleKeyPress = (event) => {
+    handleKeyPress = (event: any) => {
         console.log(event);
         if(event.key === 'Enter'){
           console.log('enter press here! ')
         }
-      }
+    }
 
     /* Add cubes to scene with given imageURL and a position */
-    addCube(imageUrl, aPosition) {
+    addCube(imageUrl: string, aPosition: Position) {
         //Load image as material:
         var imageMaterial = new THREE.MeshBasicMaterial({
             map : this.textureLoader.load(imageUrl)
@@ -174,11 +196,11 @@ class ThreeBrowser extends Component{
     }
 
     /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
-    addLine(fromX, fromY, fromZ, toX, toY, toZ, aColor) {
+    addLine(fromPosition: Position, toPosition: Position, aColor:any) {
         var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
         var lineGeometry = new THREE.Geometry();
-        var from = new THREE.Vector3(fromX,fromY,fromZ);
-        var to = new THREE.Vector3(toX,toY,toZ);
+        var from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
+        var to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
         lineGeometry.vertices.push( from );
         lineGeometry.vertices.push( to );
         var lineMesh = new THREE.Line( lineGeometry, lineMaterial );
@@ -187,7 +209,7 @@ class ThreeBrowser extends Component{
     }
 
     /* Add some text with a color located on x, y, z */
-    addText(someText, xPos, yPos, zPos, aColor, aSize){
+    addText(someText: string, aPosition:Position, aColor:THREE.Color, aSize:number){
         var loader = new THREE.FontLoader();
         var font = loader.parse(helveticaRegular);
         var textGeometry = new THREE.TextGeometry( someText, {
@@ -198,15 +220,16 @@ class ThreeBrowser extends Component{
         } );
         var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
         var textMesh = new THREE.Mesh( textGeometry, textMaterial );
-        textMesh.position.x = xPos;
-        textMesh.position.y = yPos;
-        textMesh.position.z = zPos;
+        textMesh.position.x = aPosition.x;
+        textMesh.position.y = aPosition.y;
+        textMesh.position.z = aPosition.z;
         this.textMeshes.push(textMesh);
         this.scene.add( textMesh );
         return textMesh; //Returns ThreeObject
     }
 
     /* Example scene: */
+    /*
     showExampleScene1(){
         //Examples of inserting text:
         this.addText("1", 1, 0, 0, Colors.red );
@@ -221,9 +244,9 @@ class ThreeBrowser extends Component{
 
         //Add an image at pos 2,2,2
         this.addCube(stockImage, { x:2, y:2, z:2 } );
-    }
+    }*/
         
-    fetchDataAndUpdateDimensionWithTagset(dimName, dimension){
+    fetchDataAndUpdateDimensionWithTagset(dimName:string, dimension:any){
         fetch("https://localhost:44317/api/" + dimension.type + "/" + dimension.id)
         .then(result => {return result.json();})
         .then(tagset => {
@@ -233,9 +256,9 @@ class ThreeBrowser extends Component{
     }
 
     //TODO: Rewrite to make shorter.
-    updateDimension(dimName, tagset){
+    updateDimension(dimName:string, tagset:any){
         //Sort tags alphabethically:
-        tagset.Tags.sort((a,b) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
+        tagset.Tags.sort((a:Tag,b:Tag) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
 
         const offsetFromCenter = 1;
         switch(dimName){
@@ -244,26 +267,24 @@ class ThreeBrowser extends Component{
                 let newXLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newXLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, i + offsetFromCenter,0,0, Colors.red, 0.1),
+                        object: this.addText(tagset.Tags[i].Name, {x:i + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.1),
                         tagInfo: tagset.Tags[i] 
                     });
                 }
                 //Fetch old state:
-                let newXAxis = this.state.xAxis;
-                newXAxis.AxisType = AxisTypeEnum.Tagset;
+                let newXAxis:Axis = this.state.xAxis;
+                newXAxis.SetAxisType(AxisTypeEnum.Tagset);
 
                 //Remove objects from scene:
-                newXAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
-                this.scene.remove(newXAxis.TitleThreeObject);
-                this.scene.remove(newXAxis.LineThreeObject);
+                newXAxis.RemoveObjectsFromScene(this.scene);
                 
                 //Update values:
                 newXAxis.LabelThreeObjectsAndTags = newXLabelObjectsAndTags;
                 newXAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
-                newXAxis.TitleThreeObject = this.addText(tagset.Name, tagset.Tags.length + offsetFromCenter,0,0, Colors.red, 0.5);
-                newXAxis.LineThreeObject = this.addLine(0,0,0, newXAxis.LabelThreeObjectsAndTags.length,0,0, Colors.red);
+                newXAxis.TitleThreeObject = this.addText(tagset.Name, {x:tagset.Tags.length + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.5);
+                newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:newXAxis.LabelThreeObjectsAndTags.length,y:0,z:0}, this.Colors.red);
                 
                 //Update xAxis in state:
                 this.setState( {xAxis: newXAxis} );
@@ -276,16 +297,18 @@ class ThreeBrowser extends Component{
                 let newYLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newYLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, 0,i + offsetFromCenter,0, Colors.green, 0.1),
+                        object: this.addText(tagset.Tags[i].Name, {x:0,y:i + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.1),
                         tagInfo: tagset.Tags[i] 
                     });
                 }
                 //Fetch old state:
-                let newYAxis = this.state.yAxis;
-                newYAxis.AxisType = AxisTypeEnum.Tagset;
+                let newYAxis: Axis = this.state.yAxis;
+
+                //Set axis type:
+                newYAxis.SetAxisType(AxisTypeEnum.Tagset);
                 
                 //Remove objects from scene:
-                newYAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
+                newYAxis.LabelThreeObjectsAndTags.forEach((labelObject:any) => this.scene.remove(labelObject.object));
                 this.scene.remove(newYAxis.TitleThreeObject);
                 this.scene.remove(newYAxis.LineThreeObject);
                 
@@ -294,8 +317,8 @@ class ThreeBrowser extends Component{
                 newYAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
-                newYAxis.TitleThreeObject = this.addText(tagset.Name, 0,tagset.Tags.length + offsetFromCenter,0, Colors.green, 0.5);
-                newYAxis.LineThreeObject = this.addLine(0,0,0, 0,newYAxis.LabelThreeObjectsAndTags.length,0, Colors.green);
+                newYAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:tagset.Tags.length + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.5);
+                newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:newYAxis.LabelThreeObjectsAndTags.length,z:0}, this.Colors.green);
                 
                 //Update yAxis in state:
                 this.setState( {yAxis: newYAxis} );
@@ -308,7 +331,7 @@ class ThreeBrowser extends Component{
                 let newZLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newZLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, 0,0,i + offsetFromCenter, Colors.blue, 0.1),
+                        object: this.addText(tagset.Tags[i].Name, {x:0,y:0,z:i + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.1),
                         tagInfo: tagset.Tags[i] 
                     });
                 }
@@ -317,7 +340,7 @@ class ThreeBrowser extends Component{
                 newZAxis.AxisType = AxisTypeEnum.Tagset;
                 
                 //Remove objects from scene:
-                newZAxis.LabelThreeObjectsAndTags.forEach(labelObject => this.scene.remove(labelObject.object));
+                newZAxis.LabelThreeObjectsAndTags.forEach((labelObject:any) => this.scene.remove(labelObject.object));
                 this.scene.remove(newZAxis.TitleThreeObject);
                 this.scene.remove(newZAxis.LineThreeObject);
                 
@@ -326,8 +349,8 @@ class ThreeBrowser extends Component{
                 newZAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
-                newZAxis.TitleThreeObject = this.addText(tagset.Name, 0,0,tagset.Tags.length + offsetFromCenter, Colors.blue, 0.5);
-                newZAxis.LineThreeObject = this.addLine(0,0,0, 0,0,newZAxis.LabelThreeObjectsAndTags.length, Colors.blue);
+                newZAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:0,z:tagset.Tags.length + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.5);
+                newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:newZAxis.LabelThreeObjectsAndTags.length}, this.Colors.blue);
                 
                 //Update zAxis in state:
                 this.setState( {zAxis: newZAxis} );
@@ -344,10 +367,10 @@ class ThreeBrowser extends Component{
         let NewCellsAndCoordinates = [];
 
         //Removing previous cube objects from scene:
-        this.state.cubeObjects.forEach(co => this.scene.remove(co));
+        this.state.cubeObjects.forEach((co:THREE.Mesh) => this.scene.remove(co));
 
-        let newCubeObjectArray = [];
-        let addCubeCallback = (imageUrl, aPosition) => newCubeObjectArray.push(this.addCube(imageUrl, aPosition));
+        let newCubeObjectArray: THREE.Mesh[] = [];
+        let addCubeCallback = (imageUrl:string, aPosition:Position) => newCubeObjectArray.push(this.addCube(imageUrl, aPosition));
         let result = await Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
         this.setState({cubeObjects: newCubeObjectArray});
 
@@ -407,13 +430,6 @@ class ThreeBrowser extends Component{
         console.log(this.state.cubeObjects);
         */
     }
-}
-
-//CREATE COLORS:
-const Colors = {
-    red: 0xF00000,
-    green: 0x00F000,
-    blue: 0x0000F0
 }
         
 export default ThreeBrowser;

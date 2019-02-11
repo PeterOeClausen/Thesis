@@ -1,7 +1,6 @@
 import Axis from "./Axis";
 import CubeObject from './CubeObject';
-
-const baseUrl: string = "https://localhost:44317/api/";
+import Position from './Position';
 
 export interface CoordinateObjectPair{
     coordinate: number,
@@ -9,13 +8,14 @@ export interface CoordinateObjectPair{
 }
 
 export default class Fetcher{
+    static baseUrl: string = "https://localhost:44317/api/";
 
-    static async FetchCubeObjectsFromAxis(xAxis: Axis, addCubeCallBack: (url: string, position: object) => any){
+    static async FetchCubeObjectsFromAxis(xAxis: Axis, addCubeCallBack: (url: string, position: Position) => any){
         //let coordinateObjectPairs : Array<CoordinateObjectPair> = [];
         let promises = [];
         
         for(let i = 0; i < xAxis.LabelThreeObjectsAndTags.length ; i++){
-            promises.push(fetch(baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id)
+            promises.push(fetch(this.baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id)
                 .then(result => {return result.json();})
                 .then(cubeObjectDataArray => {
                     //coordinateObjectPairs.push({coordinate : i, cubeObjectArr: cubeObjectDataArray});
@@ -33,10 +33,15 @@ export default class Fetcher{
         //return coordinateObjectPairs;
     }
 
+    static async FetchPhoto(PhotoId: number){
+        return await fetch(this.baseUrl + "photo" + PhotoId)
+            .then(result => {return result.json();});
+    }
+
     static FetchThumbnail(thumbnailId: number){
         let thumbnailImage = null;
 
-        fetch(baseUrl + "thumbnail/" + thumbnailId)
+        fetch(this.baseUrl + "thumbnail/" + thumbnailId)
         .then(result => {return result.json();})
         .then(thumbnail => {
             thumbnailImage = thumbnail.Image;
@@ -49,7 +54,7 @@ export default class Fetcher{
 
         for(let i = 0; i < xAxis.LabelThreeObjectsAndTags.length ; i++){
             for(let j = 0; j < yAxis.LabelThreeObjectsAndTags.length ; j++){
-                fetch(baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id) //Add second axis tagInfo
+                fetch(this.baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id) //Add second axis tagInfo
                 .then(result => {return result.json();})
                 .then(cubeObjectDataArray => {
                     let result = cubeObjectDataArray as CubeObject[];

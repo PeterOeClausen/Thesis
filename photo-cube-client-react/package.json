@@ -5,8 +5,9 @@
   "dependencies": {
     "@types/jest": "^23.3.13",
     "@types/node": "^10.12.18",
-    "@types/react": "^16.7.20",
+    "@types/react": "^16.8.2",
     "@types/react-dom": "^16.0.11",
+    "@types/three": "^0.93.19",
     "mobx": "^5.8.0",
     "mobx-react": "^5.4.3",
     "react": "^16.7.0",
