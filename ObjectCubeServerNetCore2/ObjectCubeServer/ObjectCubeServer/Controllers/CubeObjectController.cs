@@ -30,7 +30,7 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
-        // GET: api/CubeObject/FromTagId/1
+        // GET: api/CubeObject/fromTagId/1
         [HttpGet("[action]/{tagId}")]
         public IActionResult FromTagId(int tagId)
         {
@@ -39,8 +39,43 @@ namespace ObjectCubeServer.Controllers
             {
                 allCubeObjects = context.CubeObjects
                     //.Include(co => co.ObjectTagRelations)
-                    .Where(co => co.ObjectTagRelations.Where(otr => otr.TagId == tagId).Count() > 0)
+                    .Where(co => co.ObjectTagRelations.Where(otr => otr.TagId == tagId).Count() > 0) //Is tagged with tagId at least once
                     .ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allCubeObjects,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+        }
+
+        // GET: api/CubeObject/from2TagIds/1/2
+        [HttpGet("[action]/{tagId1}/{tagId2}")]
+        public IActionResult From2TagIds(int tagId1, int tagId2)
+        {
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    .Where(co => 
+                        co.ObjectTagRelations.Where(otr => otr.TagId == tagId1).Count() > 0 &&  //Is tagged with tag1
+                        co.ObjectTagRelations.Where(otr => otr.TagId == tagId2).Count() > 0     //Is tagged with tag2
+                    ).ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allCubeObjects,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+        }
+
+        // GET: api/CubeObject/from3TagIds/1/2/3
+        [HttpGet("[action]/{tagId1}/{tagId2}/{tagId3}")]
+        public IActionResult From3TagIds(int tagId1, int tagId2, int tagId3)
+        {
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    .Where(co =>
+                        co.ObjectTagRelations.Where(otr => otr.TagId == tagId1).Count() > 0 &&  //Is tagged with tag1
+                        co.ObjectTagRelations.Where(otr => otr.TagId == tagId2).Count() > 0 &&  //Is tagged with tag2
+                        co.ObjectTagRelations.Where(otr => otr.TagId == tagId3).Count() > 0     //Is tagged with tag3
+                    ).ToList();
             }
             return Ok(JsonConvert.SerializeObject(allCubeObjects,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
@@ -60,6 +95,22 @@ namespace ObjectCubeServer.Controllers
                 return Ok(JsonConvert.SerializeObject(cubeObjectFound));
             }
             else return NotFound();
+        }
+
+        // GET: api/CubeObject/fromTagIdWithOTR/1
+        [HttpGet("[action]/{tagId}")]
+        public IActionResult FromTagIdWithOTR(int tagId)
+        {
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    .Include(co => co.ObjectTagRelations)
+                    .Where(co => co.ObjectTagRelations.Where(otr => otr.TagId == tagId).Count() > 0) //Is tagged with tagId at least once
+                    .ToList();
+            }
+            return Ok(JsonConvert.SerializeObject(allCubeObjects,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         // POST: api/CubeObject

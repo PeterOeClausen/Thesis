@@ -7,26 +7,34 @@ export enum AxisTypeEnum {
     Hierarchy
 };
 
-interface ObjectTagPairs{
-    object: any,
-    tagInfo: Tag
+export interface ObjectTagPair{
+    object: THREE.Mesh,
+    tag: Tag
+}
+
+export enum AxisDirection{
+    x,
+    y,
+    z
 }
 
 export default class Axis{
     TitleString: string = "";
     AxisType: AxisTypeEnum;
+    AxisDirection: AxisDirection
     TitleThreeObject: any = null;
     LineThreeObject: any;
     LabelStrings: string[] = [];
-    LabelThreeObjectsAndTags: ObjectTagPairs[] = [];
+    LabelThreeObjectsAndTags: ObjectTagPair[] = [];
 
-    constructor(title: string, axisType: AxisTypeEnum){
+    constructor(axisDirection:AxisDirection, title: string, axisType: AxisTypeEnum){
+        this.AxisDirection = axisDirection;
         this.TitleString = title;
         this.AxisType = axisType;
     }
 
     RemoveObjectsFromScene(scene: THREE.Scene){
-        this.LabelThreeObjectsAndTags.forEach((labelObject:{object:THREE.Mesh, tagInfo:Tag}) => scene.remove(labelObject.object));
+        this.LabelThreeObjectsAndTags.forEach((labelObject:{object:THREE.Mesh, tag:Tag}) => scene.remove(labelObject.object));
         scene.remove(this.TitleThreeObject);
         scene.remove(this.LineThreeObject);
     }

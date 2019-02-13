@@ -5,7 +5,7 @@ import '../../../css/ThreeBrowser.css';
 import ThreeBrowserController from '../ThreeBrowserController';
 import stockImage from '../../../images/download.jpg';
 import helveticaRegular from '../../../fonts/helvetiker_regular.typeface.json';
-import Axis, {AxisTypeEnum} from './Axis';
+import Axis, {AxisTypeEnum, AxisDirection, ObjectTagPair} from './Axis';
 import Cell from './Cell';
 import Fetcher from './Fetcher';
 import Tag from './Tag';
@@ -20,22 +20,20 @@ const OrbitControls = require('three-orbitcontrols')
 
 /**
  * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
- * 
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
 class ThreeBrowser extends React.Component{
-   
     state: React.ComponentState = {
+        //The three axis:
         xAxis: null,
         yAxis: null,
         zAxis: null,
 
-        //X-AxisData:
-        xAxisHasDimension: false,
-        xAxisLabelThreeObjects: [],
-
         //Cube data:
         cubeObjects: [],
+
+        //Cells:
+        cells: []
     }
 
     mount: HTMLDivElement|null = this.mount!;
@@ -44,10 +42,11 @@ class ThreeBrowser extends React.Component{
     camera: any;
     renderer: any;
     controls: any;
-    textureLoader: any;
+    textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
     textMeshes: any;
     textLoader: any;
     frameId: any;
+    
     
     Colors = {
         red: 0xF00000,
@@ -61,7 +60,6 @@ class ThreeBrowser extends React.Component{
     }
     
     componentDidMount(){
-
         //Get temporary width and height
         let width = this.mount!.clientWidth
         let height = this.mount!.clientHeight
@@ -72,7 +70,7 @@ class ThreeBrowser extends React.Component{
             width / height,
             0.1,
             1000
-            )
+        );
         this.camera.position.x = 5;
         this.camera.position.y = 5;
         this.camera.position.z = 5;
@@ -89,12 +87,7 @@ class ThreeBrowser extends React.Component{
         //START ANIMATION
         this.start()
 
-        //CREATE IMAGETEXTURELOADER:
-        this.textureLoader = new THREE.TextureLoader();
-        this.textureLoader.crossOrigin = true;
-
         //CREATE TEXTLOADERS:
-        
         this.textLoader = new THREE.FontLoader();
 
         //Filling out available space:
@@ -103,26 +96,43 @@ class ThreeBrowser extends React.Component{
 
         //XYZ-AXIS:
         //Creating X-Axis:
-        let newXAxis = new Axis("X", AxisTypeEnum.Tagset);
+        let newXAxis = new Axis(AxisDirection.x, "X", AxisTypeEnum.Tagset);
         newXAxis.TitleThreeObject = this.addText("X", {x:5,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
         newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:5,y:0,z:0}, new THREE.Color(0xF00000));
         this.setState( {xAxis: newXAxis} );
         //Creating Y-Axis:
-        let newYAxis = new Axis("Y", AxisTypeEnum.Tagset);  
+        let newYAxis = new Axis(AxisDirection.y, "Y", AxisTypeEnum.Tagset);  
         newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:5,z:0}, new THREE.Color(0x00F000), 0.5);
         newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:5,z:0}, new THREE.Color(0x00F000));
         this.setState( {yAxis: newYAxis} );
         //Creating Z-Axis:
-        let newZAxis = new Axis("Z", AxisTypeEnum.Tagset);
+        let newZAxis = new Axis(AxisDirection.z, "Z", AxisTypeEnum.Tagset);
         newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:5}, new THREE.Color(0x0000F0), 0.5);
         newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:5}, new THREE.Color(0x0000F0));
         this.setState( {zAxis: newZAxis} );
 
-        //ADDING EXAMPLE SCENE:
-        //this.showExampleScene1();
+        //Add keydown handler:
+        document.addEventListener('keydown', this.handleKeyPress);
+
+        THREE.DefaultLoadingManager.onProgress = (item:any, loaded: number, total: number) => {
+            console.log(item);
+            console.log((loaded / total * 100));
+        };
 
         //this.addCube(stockImage, { x:1, y:1, z:1 } );
         //this.addCube("https://localhost:44317/api/thumbnail/1", { x:1, y:1, z:1 } );
+
+        /*
+        let cell = new Cell(this.scene, this.textLoader, {x:0, y:0, z:0}, [{
+            Id: 42,
+            FileType: 42,
+            PhotoId: 5,
+            Photo: null,
+            ObjectTagRelations: null,
+            ThumbnailId: 1,
+            Thumbnail: 1
+        }]);
+        */
     }
 
     componentWillUnmount(){
@@ -147,17 +157,17 @@ class ThreeBrowser extends React.Component{
         this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ) );
     }
 
+    //TODO: Add progressbar
     render(){
         return(
             <div className="grid-item" id="ThreeBrowser">
-                <div style={{ width: '400px', height: '400px' }}
-                ref = {(mount) => { this.mount = mount }}/>
+                <div style={{ width: '400px', height: '400px' }} ref = {(mount) => { this.mount = mount }}/>
             </div>
         );
     }
         
     renderScene = () => {
-        this.renderer.render(this.scene, this.camera)
+        this.renderer.render(this.scene, this.camera);
     }
 
     resizeBrowser = () => {
@@ -169,10 +179,18 @@ class ThreeBrowser extends React.Component{
         this.camera.updateProjectionMatrix();
     }
 
-    handleKeyPress = (event: any) => {
-        console.log(event);
-        if(event.key === 'Enter'){
-          console.log('enter press here! ')
+    handleKeyPress = (event: KeyboardEvent) => {
+        if(event.code === "Space"){
+            //Move camera up in the y direction:
+            this.camera.position.y += 0.1;
+            this.controls.target.y += 0.1;
+            this.controls.update();
+        }
+        else if(event.code === "ControlLeft"){
+            //Move camera down in the y direction:
+            this.camera.position.y -= 0.1;
+            this.controls.target.y -= 0.1;
+            this.controls.update();
         }
     }
 
@@ -196,7 +214,7 @@ class ThreeBrowser extends React.Component{
     }
 
     /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
-    addLine(fromPosition: Position, toPosition: Position, aColor:any) {
+    addLine(fromPosition: Position, toPosition: Position, aColor:THREE.Color) {
         var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
         var lineGeometry = new THREE.Geometry();
         var from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
@@ -227,24 +245,6 @@ class ThreeBrowser extends React.Component{
         this.scene.add( textMesh );
         return textMesh; //Returns ThreeObject
     }
-
-    /* Example scene: */
-    /*
-    showExampleScene1(){
-        //Examples of inserting text:
-        this.addText("1", 1, 0, 0, Colors.red );
-        this.addText("2", 2, 0, 0, Colors.red );
-        this.addText("3", 3, 0, 0, Colors.red );
-        this.addText("1", 0, 1, 0, Colors.green );
-        this.addText("2", 0, 2, 0, Colors.green );
-        this.addText("3", 0, 3, 0, Colors.green );
-        this.addText("1", 0, 0, 1, Colors.blue );
-        this.addText("2", 0, 0, 2, Colors.blue );
-        this.addText("3", 0, 0, 3, Colors.blue );
-
-        //Add an image at pos 2,2,2
-        this.addCube(stockImage, { x:2, y:2, z:2 } );
-    }*/
         
     fetchDataAndUpdateDimensionWithTagset(dimName:string, dimension:any){
         fetch("https://localhost:44317/api/" + dimension.type + "/" + dimension.id)
@@ -263,109 +263,201 @@ class ThreeBrowser extends React.Component{
         const offsetFromCenter = 1;
         switch(dimName){
             case "X":
+                //Fetch old state:
+                let newXAxis: Axis = this.state.xAxis;
+
+                //Remove objects from scene:
+                newXAxis.RemoveObjectsFromScene(this.scene);
+
                 //Add new labels to scene and state:
                 let newXLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newXLabelObjectsAndTags.push({ 
                         object: this.addText(tagset.Tags[i].Name, {x:i + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.1),
-                        tagInfo: tagset.Tags[i] 
+                        tag: tagset.Tags[i] 
                     });
                 }
-                //Fetch old state:
-                let newXAxis:Axis = this.state.xAxis;
-                newXAxis.SetAxisType(AxisTypeEnum.Tagset);
-
-                //Remove objects from scene:
-                newXAxis.RemoveObjectsFromScene(this.scene);
                 
                 //Update values:
                 newXAxis.LabelThreeObjectsAndTags = newXLabelObjectsAndTags;
+                newXAxis.SetAxisType(AxisTypeEnum.Tagset);
                 newXAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
                 newXAxis.TitleThreeObject = this.addText(tagset.Name, {x:tagset.Tags.length + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.5);
-                newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:newXAxis.LabelThreeObjectsAndTags.length,y:0,z:0}, this.Colors.red);
+                newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:newXAxis.LabelThreeObjectsAndTags.length,y:0,z:0}, new THREE.Color(this.Colors.red));
                 
                 //Update xAxis in state:
                 this.setState( {xAxis: newXAxis} );
-
-                //Rewrite:
-                this.setState( {xAxisHasDimension: true} );
             break;
             case "Y":
+                //Fetch old state:
+                let newYAxis: Axis = this.state.yAxis;
+
+                //Remove objects from scene:
+                newYAxis.RemoveObjectsFromScene(this.scene);
+
                 //Add new labels to scene and state:
                 let newYLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newYLabelObjectsAndTags.push({ 
                         object: this.addText(tagset.Tags[i].Name, {x:0,y:i + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.1),
-                        tagInfo: tagset.Tags[i] 
+                        tag: tagset.Tags[i] 
                     });
                 }
-                //Fetch old state:
-                let newYAxis: Axis = this.state.yAxis;
-
-                //Set axis type:
-                newYAxis.SetAxisType(AxisTypeEnum.Tagset);
-                
-                //Remove objects from scene:
-                newYAxis.LabelThreeObjectsAndTags.forEach((labelObject:any) => this.scene.remove(labelObject.object));
-                this.scene.remove(newYAxis.TitleThreeObject);
-                this.scene.remove(newYAxis.LineThreeObject);
                 
                 //Update values:
                 newYAxis.LabelThreeObjectsAndTags = newYLabelObjectsAndTags;
+                newYAxis.SetAxisType(AxisTypeEnum.Tagset);
                 newYAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
                 newYAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:tagset.Tags.length + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.5);
-                newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:newYAxis.LabelThreeObjectsAndTags.length,z:0}, this.Colors.green);
+                newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:newYAxis.LabelThreeObjectsAndTags.length,z:0}, new THREE.Color(this.Colors.green));
                 
                 //Update yAxis in state:
                 this.setState( {yAxis: newYAxis} );
-
-                //Rewrite:
-                this.setState( {yAxisHasDimension: true} );
             break;
             case "Z":
+                //Fetch old state:
+                let newZAxis: Axis = this.state.zAxis;
+
+                //Remove objects from scene:
+                newZAxis.RemoveObjectsFromScene(this.scene);
+
                 //Add new labels to scene and state:
                 let newZLabelObjectsAndTags = [];
                 for(let i = 0; i < tagset.Tags.length; i++){
                     newZLabelObjectsAndTags.push({ 
                         object: this.addText(tagset.Tags[i].Name, {x:0,y:0,z:i + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.1),
-                        tagInfo: tagset.Tags[i] 
+                        tag: tagset.Tags[i] 
                     });
                 }
-                //Fetch old state:
-                let newZAxis = this.state.zAxis;
-                newZAxis.AxisType = AxisTypeEnum.Tagset;
-                
-                //Remove objects from scene:
-                newZAxis.LabelThreeObjectsAndTags.forEach((labelObject:any) => this.scene.remove(labelObject.object));
-                this.scene.remove(newZAxis.TitleThreeObject);
-                this.scene.remove(newZAxis.LineThreeObject);
                 
                 //Update values:
                 newZAxis.LabelThreeObjectsAndTags = newZLabelObjectsAndTags;
+                newZAxis.SetAxisType(AxisTypeEnum.Tagset);
                 newZAxis.TitleString = tagset.Name;
                 
                 //Add objects to scene and values:
                 newZAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:0,z:tagset.Tags.length + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.5);
-                newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:newZAxis.LabelThreeObjectsAndTags.length}, this.Colors.blue);
+                newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:newZAxis.LabelThreeObjectsAndTags.length}, new THREE.Color(this.Colors.blue));
                 
                 //Update zAxis in state:
                 this.setState( {zAxis: newZAxis} );
-
-                //Rewrite:
-                this.setState( {zAxisHasDimension: true} );
             break;
         }
         
         this.fetchAndAddCubeObjects();
     }
 
-    async fetchAndAddCubeObjects(){
-        let NewCellsAndCoordinates = [];
+    async fetchAndAddCubeObjectsForOneAxis(axis: Axis){
+        let cells: Cell[] = [];
+        let promises = axis.LabelThreeObjectsAndTags.map(async (otp: ObjectTagPair, index) => {
+            let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(otp.tag, null, null);
+            let coordinate = {x:0, y:0, z:0};
+            switch(axis.AxisDirection){
+                case AxisDirection.x: //If axis is xAxis
+                    coordinate.x += 1 + index;
+                    coordinate.y += 1;
+                    break;
+                case AxisDirection.y:
+                    coordinate.y += 1 + index;
+                    coordinate.z += 0.5;
+                    break;
+                case AxisDirection.z:
+                    coordinate.z += 1 + index;
+                    coordinate.y += 1;
+                    break;
+            }
 
+            let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
+            cells.push(cell);
+        })
+        await Promise.all(promises); //Wait for all cells to be added:
+        this.setState({cells: cells});
+    }
+
+    async fetchAndAddCubeObjectsForTwoAxis(axis1: Axis, axis2:Axis){
+        let cells: Cell[] = [];
+        let promises = axis1.LabelThreeObjectsAndTags.map(async (otp1: ObjectTagPair, index1) => {
+            axis2.LabelThreeObjectsAndTags.map(async (otp2: ObjectTagPair, index2) => {
+                let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(otp1.tag, otp2.tag, null);
+                let coordinate = {x:0, y:0, z:0};
+                switch((axis1.AxisDirection, axis2.AxisDirection)){
+                    case (AxisDirection.x, AxisDirection.y):    //x and y
+                        coordinate.x += 1 + index1;
+                        coordinate.y += 1 + index2;
+                        break;
+                    case (AxisDirection.x, AxisDirection.z):    //x and z
+                        coordinate.x += 1 + index1;
+                        coordinate.z += 1 + index2;
+                        break;
+                    case (AxisDirection.y, AxisDirection.z):    //y and z
+                        coordinate.y += 1 + index1;
+                        coordinate.z += 1 + index2;
+                        break;
+                }
+                let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
+                cells.push(cell);
+            });
+        });
+        await Promise.all(promises); //Wait for all cells to be added:
+        this.setState({cells: cells});
+    }
+
+    async fetchAndAddCubeObjectsForThreeAxis(axis1: Axis, axis2:Axis, axis3:Axis){
+        console.log(axis1.LabelThreeObjectsAndTags.length + ", " + 
+            axis2.LabelThreeObjectsAndTags.length + ", " +
+            axis3.LabelThreeObjectsAndTags.length);
+        let cells: Cell[] = [];
+        let promises = axis1.LabelThreeObjectsAndTags.map(async (otp1: ObjectTagPair, index1) => {
+            axis2.LabelThreeObjectsAndTags.map(async (otp2: ObjectTagPair, index2) => {
+                axis3.LabelThreeObjectsAndTags.map(async (otp3: ObjectTagPair, index3) => {
+                    let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(otp1.tag, otp2.tag, otp3.tag);
+                    let coordinate = {x:0, y:0, z:0};
+                    //x and y and z:
+                    coordinate.x += 1 + index1;
+                    coordinate.y += 1 + index2;
+                    coordinate.z += 1 + index3;
+                    let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
+                    cells.push(cell);
+                });
+            });
+        });
+        await Promise.all(promises); //Wait for all cells to be added:
+        this.setState({cells: cells});
+    }
+
+    async fetchAndAddCubeObjects(){
+        //Remove previous cells:
+        this.state.cells.forEach((cell: Cell) => cell.RemoveFromScene());
+        this.setState({cells: []});
+
+        //Fetch and add new cells:
+        let xDefined : boolean = this.state.xAxis.TitleString != "X";
+        let yDefined : boolean = this.state.yAxis.TitleString != "Y";
+        let zDefined : boolean = this.state.zAxis.TitleString != "Z";
+        if(xDefined && yDefined && zDefined){   //X and Y and Z
+            //Render all three axis
+            this.fetchAndAddCubeObjectsForThreeAxis(this.state.xAxis, this.state.yAxis, this.state.zAxis);
+        }else if(xDefined && yDefined){         //X and Y
+            this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.yAxis);
+        }else if(xDefined && zDefined){         //X and Z
+            this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.zAxis);
+        }else if(yDefined && zDefined){         //Y and Z
+            this.fetchAndAddCubeObjectsForTwoAxis(this.state.yAxis, this.state.zAxis);
+        }else if(xDefined){                     //X
+            this.fetchAndAddCubeObjectsForOneAxis(this.state.xAxis);
+        }else if(yDefined){                     //Y
+            this.fetchAndAddCubeObjectsForOneAxis(this.state.yAxis);
+        }else if(zDefined){                     //Z
+            this.fetchAndAddCubeObjectsForOneAxis(this.state.zAxis);
+        }
+
+        //One axis is defined.. Two axis is defined.. Three axis is defined.
+
+        /*
         //Removing previous cube objects from scene:
         this.state.cubeObjects.forEach((co:THREE.Mesh) => this.scene.remove(co));
 
@@ -373,6 +465,7 @@ class ThreeBrowser extends React.Component{
         let addCubeCallback = (imageUrl:string, aPosition:Position) => newCubeObjectArray.push(this.addCube(imageUrl, aPosition));
         let result = await Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
         this.setState({cubeObjects: newCubeObjectArray});
+        */
 
         /*
         result.forEach(elem => {
