@@ -2,18 +2,36 @@ import React, { Component } from 'react';
 import '../../css/PhotoCubeClient.css';
 import LeftDock from '../LeftDock/LeftDock';
 import ThreeBrowser from './ThreeBrowser/ThreeBrowser';
+import GridBrowser from './GridBrowser/GridBrowser';
+import CardBrowser from './CardBrowser/CardBrowser';
 import RightDock from '../RightDock/RightDock';
+import { BrowsingModes } from '../RightDock/BrowsingModeChanger';
 
 export default class PhotoCubeClient extends React.Component {
   threeBrowser = React.createRef<ThreeBrowser>();
   rightDock = React.createRef<RightDock>();
+  
+  state = {
+    BrowsingMode: BrowsingModes.Cube //Check selected value in BrowsingModeChanger
+  }
 
   render() {
+    //Conditional rendering:
+    let currentBrowser = null;
+    if(this.state.BrowsingMode == BrowsingModes.Cube){
+      currentBrowser = <ThreeBrowser ref={this.threeBrowser} onFileCountChanged={this.onFileCountChanged}/>
+    }else if(this.state.BrowsingMode == BrowsingModes.Grid){
+      currentBrowser = <GridBrowser/>
+    }else if(this.state.BrowsingMode == BrowsingModes.Card){
+      currentBrowser = <CardBrowser/>
+    }
+
     return (
         <div className="App grid-container">
           <LeftDock/>
-          <ThreeBrowser ref={this.threeBrowser} onFileCountChanged={this.onFileCountChanged}/>
-          <RightDock ref={this.rightDock} onDimensionChanged={this.onDimensionChanged}/>
+          {currentBrowser}
+          <RightDock ref={this.rightDock} onDimensionChanged={this.onDimensionChanged} 
+            onBrowsingModeChanged={this.onBrowsingModeChanged}/>
         </div>
     );
   }
@@ -27,6 +45,10 @@ export default class PhotoCubeClient extends React.Component {
     console.log(dimension);
     this.threeBrowser.current!.fetchDataAndUpdateDimensionWithTagset(dimName, dimension);
     //ThreeBrowserController.getInstance().sayHello();
+  }
+
+  onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
+    this.setState({BrowsingMode: browsingMode});
   }
 }
 

@@ -44,6 +44,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
     textMeshes: any = [];
     textLoader: any;
+    font:any;
     frameId: any;
     distinctPhotoObjects: Object = new Object();
     
@@ -88,10 +89,11 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
         //CREATE TEXTLOADERS:
         this.textLoader = new THREE.FontLoader();
+        this.font = this.textLoader.parse(helveticaRegular);
 
         //Filling out available space:
         this.resizeBrowser();
-        window.addEventListener("resize", (event) => this.resizeBrowser());
+        window.addEventListener("resize", this.resizeBrowser);
 
         //XYZ-AXIS:
         //Creating X-Axis:
@@ -137,6 +139,12 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     componentWillUnmount(){
         this.stop()
         this.mount!.removeChild(this.renderer.domElement)
+        this.unsubscribeToDocumentEvents();
+    }
+
+    unsubscribeToDocumentEvents(){
+        document.removeEventListener('keydown', this.handleKeyPress);
+        window.removeEventListener("resize", this.resizeBrowser);
     }
 
     start = () => {
@@ -170,9 +178,9 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     }
 
     resizeBrowser = () => {
-        const browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
-        var width = browserElement.clientWidth;
-        var height = browserElement.clientHeight;
+        let browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
+        let width = browserElement.clientWidth;
+        let height = browserElement.clientHeight;
         this.renderer.setSize(width, height);
         this.camera.aspect = width / height;
         this.camera.updateProjectionMatrix();
@@ -182,13 +190,13 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         if(event.code === "Space"){
             //Move camera up in the y direction:
             this.camera.position.y += 0.1;
-            //this.controls.target.y += 0.1;
+            this.controls.target.y += 0.1;
             this.controls.update();
         }
         else if(event.code === "ControlLeft"){
             //Move camera down in the y direction:
             this.camera.position.y -= 0.1;
-            //this.controls.target.y -= 0.1;
+            this.controls.target.y -= 0.1;
             this.controls.update();
         }
     }
@@ -196,13 +204,13 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     /* Add cubes to scene with given imageURL and a position */
     addCube(imageUrl: string, aPosition: Position) {
         //Load image as material:
-        var imageMaterial = new THREE.MeshBasicMaterial({
+        let imageMaterial = new THREE.MeshBasicMaterial({
             map : this.textureLoader.load(imageUrl)
         });
         //Make box geometry:
-        var boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         //Create mesh:
-        var boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
+        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
         //Position in (x,y,z):
         boxMesh.position.x = aPosition.x;
         boxMesh.position.y = aPosition.y;
@@ -214,29 +222,27 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
     /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
     addLine(fromPosition: Position, toPosition: Position, aColor:THREE.Color) {
-        var lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
-        var lineGeometry = new THREE.Geometry();
-        var from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
-        var to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
+        let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
+        let lineGeometry = new THREE.Geometry();
+        let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
+        let to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
         lineGeometry.vertices.push( from );
         lineGeometry.vertices.push( to );
-        var lineMesh = new THREE.Line( lineGeometry, lineMaterial );
+        let lineMesh = new THREE.Line( lineGeometry, lineMaterial );
         this.scene.add( lineMesh );
         return lineMesh;
     }
 
     /* Add some text with a color located on x, y, z */
     addText(someText: string, aPosition:Position, aColor:THREE.Color, aSize:number){
-        var loader = new THREE.FontLoader();
-        var font = loader.parse(helveticaRegular);
-        var textGeometry = new THREE.TextGeometry( someText, {
-            font: font,
+        let textGeometry = new THREE.TextGeometry( someText, {
+            font: this.font,
             size: aSize,
             height: 0.1,
             curveSegments: 20
         } );
-        var textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
-        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        let textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
+        let textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.x = aPosition.x;
         textMesh.position.y = aPosition.y;
         textMesh.position.z = aPosition.z;
@@ -430,6 +436,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     async fetchAndAddCubeObjects(){
         //Remove previous cells:
         this.state.cells.forEach((cell: Cell) => cell.RemoveFromScene());
+        
         this.setState({cells: []});
 
         //Fetch and add new cells:

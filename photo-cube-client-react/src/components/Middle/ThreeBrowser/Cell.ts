@@ -72,4 +72,6 @@ export default class Cell{
     RemoveFromScene(){
         if(this.threeObject != null) this.scene.remove(this.threeObject);
     }
+
+
 }

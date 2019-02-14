@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import '../../css/RightDock.css'
 import FileCount from './FileCount';
-import BrowsingModeChanger from './BrowsingModeChanger';
+import BrowsingModeChanger, { BrowsingModes } from './BrowsingModeChanger';
 import Dimensions from './Dimensions';
 
-class RightDock extends React.Component<{onDimensionChanged:(dimName: string, dimension:any) => void}>{
+class RightDock extends React.Component<{
+    onDimensionChanged:(dimName: string, dimension:any) => void,
+    onBrowsingModeChanged:(browsingmode: BrowsingModes) => void
+    }>{
 
     private fileCount = React.createRef<FileCount>();
 
@@ -16,7 +19,7 @@ class RightDock extends React.Component<{onDimensionChanged:(dimName: string, di
         return(
             <div id="RightDock">
                 <FileCount ref={this.fileCount}/>
-                <BrowsingModeChanger/>
+                <BrowsingModeChanger onBrowsingModeChanged={this.onBrowsingModeChanged} />
                 <Dimensions onDimensionChanged={this.onDimensionChanged}/>
             </div>
         );
@@ -29,6 +32,11 @@ class RightDock extends React.Component<{onDimensionChanged:(dimName: string, di
     onDimensionChanged = (dimName: string, dimension:any) => {
         this.props.onDimensionChanged(dimName, dimension);
         //ThreeBrowserController.getInstance().sayHello();
+    }
+
+    onBrowsingModeChanged = (selectedBrowsingMode: BrowsingModes) => {
+        console.log(selectedBrowsingMode);
+        this.props.onBrowsingModeChanged(selectedBrowsingMode);
     }
 }
 
