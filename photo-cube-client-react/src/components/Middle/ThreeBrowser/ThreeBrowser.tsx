@@ -2,7 +2,6 @@ import * as React from 'react';
 import * as THREE from 'three';
 import Position from './Position';
 import '../../../css/ThreeBrowser.css';
-import ThreeBrowserController from '../ThreeBrowserController';
 import stockImage from '../../../images/download.jpg';
 import helveticaRegular from '../../../fonts/helvetiker_regular.typeface.json';
 import Axis, {AxisTypeEnum, AxisDirection, ObjectTagPair} from './Axis';
@@ -22,7 +21,7 @@ const OrbitControls = require('three-orbitcontrols')
  * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
-class ThreeBrowser extends React.Component{
+class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: number) => void}>{
     state: React.ComponentState = {
         //The three axis:
         xAxis: null,
@@ -43,10 +42,10 @@ class ThreeBrowser extends React.Component{
     renderer: any;
     controls: any;
     textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-    textMeshes: any;
+    textMeshes: any = [];
     textLoader: any;
     frameId: any;
-    
+    distinctPhotoObjects: Object = new Object();
     
     Colors = {
         red: 0xF00000,
@@ -56,7 +55,7 @@ class ThreeBrowser extends React.Component{
 
     constructor(props: any){
         super(props);
-        this.textMeshes = []
+        
     }
     
     componentDidMount(){
@@ -183,13 +182,13 @@ class ThreeBrowser extends React.Component{
         if(event.code === "Space"){
             //Move camera up in the y direction:
             this.camera.position.y += 0.1;
-            this.controls.target.y += 0.1;
+            //this.controls.target.y += 0.1;
             this.controls.update();
         }
         else if(event.code === "ControlLeft"){
             //Move camera down in the y direction:
             this.camera.position.y -= 0.1;
-            this.controls.target.y -= 0.1;
+            //this.controls.target.y -= 0.1;
             this.controls.update();
         }
     }
@@ -347,7 +346,6 @@ class ThreeBrowser extends React.Component{
                 this.setState( {zAxis: newZAxis} );
             break;
         }
-        
         this.fetchAndAddCubeObjects();
     }
 
@@ -438,22 +436,30 @@ class ThreeBrowser extends React.Component{
         let xDefined : boolean = this.state.xAxis.TitleString != "X";
         let yDefined : boolean = this.state.yAxis.TitleString != "Y";
         let zDefined : boolean = this.state.zAxis.TitleString != "Z";
+        let promise: Promise<void>;
         if(xDefined && yDefined && zDefined){   //X and Y and Z
             //Render all three axis
-            this.fetchAndAddCubeObjectsForThreeAxis(this.state.xAxis, this.state.yAxis, this.state.zAxis);
+            promise = this.fetchAndAddCubeObjectsForThreeAxis(this.state.xAxis, this.state.yAxis, this.state.zAxis);
         }else if(xDefined && yDefined){         //X and Y
-            this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.yAxis);
+            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.yAxis);
         }else if(xDefined && zDefined){         //X and Z
-            this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.zAxis);
+            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.zAxis);
         }else if(yDefined && zDefined){         //Y and Z
-            this.fetchAndAddCubeObjectsForTwoAxis(this.state.yAxis, this.state.zAxis);
+            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.yAxis, this.state.zAxis);
         }else if(xDefined){                     //X
-            this.fetchAndAddCubeObjectsForOneAxis(this.state.xAxis);
+            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.xAxis);
         }else if(yDefined){                     //Y
-            this.fetchAndAddCubeObjectsForOneAxis(this.state.yAxis);
+            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.yAxis);
         }else if(zDefined){                     //Z
-            this.fetchAndAddCubeObjectsForOneAxis(this.state.zAxis);
+            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.zAxis);
         }
+
+        await promise!;
+        //Update filecount:
+        let uniquePhotoIds: Set<number> = new Set();
+        this.state.cells.forEach((cell: Cell) => 
+            cell.cubeObjectData.forEach(co => uniquePhotoIds.add(co.PhotoId)));
+        this.props.onFileCountChanged(uniquePhotoIds.size);
 
         //One axis is defined.. Two axis is defined.. Three axis is defined.
 

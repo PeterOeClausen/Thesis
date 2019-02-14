@@ -15,6 +15,7 @@ class Dimensions extends Component{
         );
     }
 
+    //Sending data up the tree:
     onDimensionChanged = (dimName, dimension) => {
         this.props.onDimensionChanged(dimName, dimension);
         //ThreeBrowserController.getInstance().sayHello();

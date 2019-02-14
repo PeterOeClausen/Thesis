@@ -4,27 +4,29 @@ import LeftDock from '../LeftDock/LeftDock';
 import ThreeBrowser from './ThreeBrowser/ThreeBrowser';
 import RightDock from '../RightDock/RightDock';
 
-export default class PhotoCubeClient extends Component {
+export default class PhotoCubeClient extends React.Component {
+  threeBrowser = React.createRef<ThreeBrowser>();
+  rightDock = React.createRef<RightDock>();
+
   render() {
     return (
         <div className="App grid-container">
           <LeftDock/>
-          <ThreeBrowser ref="ThreeBrowser" onFileCountChanged={this.onFileCountChanged}/>
-          <RightDock onDimensionChanged={this.onDimensionChanged}/>
+          <ThreeBrowser ref={this.threeBrowser} onFileCountChanged={this.onFileCountChanged}/>
+          <RightDock ref={this.rightDock} onDimensionChanged={this.onDimensionChanged}/>
         </div>
     );
   }
 
-  onDimensionChanged = (dimName, dimension) => {
-    console.log("Dimension " + dimName + ", changed to: ");
-    console.log(dimension);
-    this.refs.ThreeBrowser.fetchDataAndUpdateDimensionWithTagset(dimName, dimension);
-    //ThreeBrowserController.getInstance().sayHello();
+  onFileCountChanged = (fileCount: number) => {
+    this.rightDock.current!.UpdateFileCount(fileCount);
   }
 
-  onFileCountChanged = (fileCount) => {
-    console.log("File count changed: " + fileCount);
-    //TODO: Notify file count component.
+  onDimensionChanged = (dimName: string, dimension:any) => {
+    console.log("Dimension " + dimName + ", changed to: ");
+    console.log(dimension);
+    this.threeBrowser.current!.fetchDataAndUpdateDimensionWithTagset(dimName, dimension);
+    //ThreeBrowserController.getInstance().sayHello();
   }
 }
 
