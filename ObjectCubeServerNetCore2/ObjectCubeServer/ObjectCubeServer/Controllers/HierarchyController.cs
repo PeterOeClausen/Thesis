@@ -23,10 +23,12 @@ namespace ObjectCubeServer.Controllers
             using (var context = new ObjectContext())
             {
                 allHierarchies = context.Hierarchies
+                    .Include(h => h.Nodes)
                     .ToList();
             }
-            return Ok(JsonConvert.SerializeObject(allHierarchies));
-           
+            return Ok(JsonConvert.SerializeObject(allHierarchies,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
+
             /*
             List<Hierarchy> rootHierarchies;
             using (var context = new ObjectContext())
@@ -45,9 +47,23 @@ namespace ObjectCubeServer.Controllers
 
         // GET: api/Hierarchy/5
         [HttpGet("{id}", Name = "GetHirarchy")]
-        public string Get(int id)
+        public IActionResult Get(int id)
         {
-            return "value";
+            Hierarchy hierarchyFound;
+            using (var context = new ObjectContext())
+            {
+                hierarchyFound = context.Hierarchies
+                    .Include(h => h.Nodes)
+                        .ThenInclude(node => node.Tag)
+                    .Where(h => h.Id == id)
+                    .FirstOrDefault();
+            }
+            if(hierarchyFound == null)
+            {
+                return NotFound();
+            }
+            return Ok(JsonConvert.SerializeObject(hierarchyFound,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         // POST: api/Hierarchy

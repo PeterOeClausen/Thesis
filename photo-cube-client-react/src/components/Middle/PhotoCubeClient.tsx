@@ -6,6 +6,9 @@ import GridBrowser from './GridBrowser/GridBrowser';
 import CardBrowser from './CardBrowser/CardBrowser';
 import RightDock from '../RightDock/RightDock';
 import { BrowsingModes } from '../RightDock/BrowsingModeChanger';
+import Tagset from './ThreeBrowser/Tagset';
+import Hierarchy from './ThreeBrowser/Hierarchy';
+import { TGALoader, TriangleStripDrawMode } from 'three';
 
 export default class PhotoCubeClient extends React.Component {
   threeBrowser = React.createRef<ThreeBrowser>();
@@ -40,10 +43,11 @@ export default class PhotoCubeClient extends React.Component {
     this.rightDock.current!.UpdateFileCount(fileCount);
   }
 
-  onDimensionChanged = (dimName: string, dimension:any) => {
+  onDimensionChanged = (dimName: string, dimension:Tagset|Hierarchy) => {
     console.log("Dimension " + dimName + ", changed to: ");
     console.log(dimension);
-    this.threeBrowser.current!.fetchDataAndUpdateDimensionWithTagset(dimName, dimension);
+    
+    this.threeBrowser.current!.updateAxis(dimName, dimension);
     //ThreeBrowserController.getInstance().sayHello();
   }
 

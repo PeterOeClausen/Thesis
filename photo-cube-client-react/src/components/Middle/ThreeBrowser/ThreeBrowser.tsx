@@ -8,6 +8,8 @@ import Axis, {AxisTypeEnum, AxisDirection, ObjectTagPair} from './Axis';
 import Cell from './Cell';
 import Fetcher from './Fetcher';
 import Tag from './Tag';
+import Hierarchy from './Hierarchy';
+import Tagset from './Tagset';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -251,20 +253,31 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         return textMesh; //Returns ThreeObject
     }
         
-    fetchDataAndUpdateDimensionWithTagset(dimName:string, dimension:any){
-        fetch("https://localhost:44317/api/" + dimension.type + "/" + dimension.id)
+    /**
+     * Updates axis labels and then calls compute cells.
+     * @param dimName "X", "Y" or "Z"
+     * @param dimension 
+     */
+    async updateAxis(dimName:string, dimension:any){
+        //Fetch hierarchy or tagset:
+        let axisData: any;
+        await fetch("https://localhost:44317/api/" + dimension.type + "/" + dimension.id)
         .then(result => {return result.json();})
-        .then(tagset => {
-            //data.((r) => console.log(r))
-            this.updateDimension(dimName, tagset);
+        .then(tagsetOrHierarchy => {
+            if(dimension.type === "hierarchy"){
+                let hierarchy: Hierarchy = tagsetOrHierarchy as Hierarchy;
+                let tags: Tag[] = hierarchy.Nodes.map( n => n.Tag!);
+                axisData = { Tags: tags, Name: hierarchy.Name + " (hierarchy)" };
+            }else{
+                tagsetOrHierarchy.Name = tagsetOrHierarchy.Name + " (tagset)";
+                axisData = tagsetOrHierarchy;
+            }
         });
-    }
 
-    //TODO: Rewrite to make shorter.
-    updateDimension(dimName:string, tagset:any){
         //Sort tags alphabethically:
-        tagset.Tags.sort((a:Tag,b:Tag) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
+        axisData.Tags.sort((a:Tag,b:Tag) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
 
+        //Update axis:
         const offsetFromCenter = 1;
         switch(dimName){
             case "X":
@@ -276,21 +289,34 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
                 //Add new labels to scene and state:
                 let newXLabelObjectsAndTags = [];
-                for(let i = 0; i < tagset.Tags.length; i++){
+                for(let i = 0; i < axisData.Tags.length; i++){
                     newXLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, {x:i + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.1),
-                        tag: tagset.Tags[i] 
+                        object: this.addText(
+                            axisData.Tags[i].Name, 
+                            {x:i + offsetFromCenter,y:0,z:0}, 
+                            new THREE.Color(this.Colors.red),
+                            0.1),
+                        tag: axisData.Tags[i] 
                     });
                 }
                 
                 //Update values:
                 newXAxis.LabelThreeObjectsAndTags = newXLabelObjectsAndTags;
                 newXAxis.SetAxisType(AxisTypeEnum.Tagset);
-                newXAxis.TitleString = tagset.Name;
+                newXAxis.TitleString = axisData.Name;
                 
                 //Add objects to scene and values:
-                newXAxis.TitleThreeObject = this.addText(tagset.Name, {x:tagset.Tags.length + offsetFromCenter,y:0,z:0}, new THREE.Color(this.Colors.red), 0.5);
-                newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:newXAxis.LabelThreeObjectsAndTags.length,y:0,z:0}, new THREE.Color(this.Colors.red));
+                newXAxis.TitleThreeObject = this.addText(
+                    axisData.Name,
+                    {x:axisData.Tags.length + offsetFromCenter,y:0,z:0},
+                    new THREE.Color(this.Colors.red),
+                    0.5
+                );
+                newXAxis.LineThreeObject = this.addLine(
+                    {x:0,y:0,z:0}, 
+                    {x:newXAxis.LabelThreeObjectsAndTags.length,y:0,z:0}, 
+                    new THREE.Color(this.Colors.red)
+                );
                 
                 //Update xAxis in state:
                 this.setState( {xAxis: newXAxis} );
@@ -304,20 +330,25 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
                 //Add new labels to scene and state:
                 let newYLabelObjectsAndTags = [];
-                for(let i = 0; i < tagset.Tags.length; i++){
+                for(let i = 0; i < axisData.Tags.length; i++){
                     newYLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, {x:0,y:i + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.1),
-                        tag: tagset.Tags[i] 
+                        object: this.addText(
+                            axisData.Tags[i].Name,
+                            {x:0,y:i + offsetFromCenter,z:0},
+                            new THREE.Color(this.Colors.green),
+                            0.1
+                        ),
+                        tag: axisData.Tags[i] 
                     });
                 }
                 
                 //Update values:
                 newYAxis.LabelThreeObjectsAndTags = newYLabelObjectsAndTags;
                 newYAxis.SetAxisType(AxisTypeEnum.Tagset);
-                newYAxis.TitleString = tagset.Name;
+                newYAxis.TitleString = axisData.Name;
                 
                 //Add objects to scene and values:
-                newYAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:tagset.Tags.length + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.5);
+                newYAxis.TitleThreeObject = this.addText(axisData.Name, {x:0,y:axisData.Tags.length + offsetFromCenter,z:0}, new THREE.Color(this.Colors.green), 0.5);
                 newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:newYAxis.LabelThreeObjectsAndTags.length,z:0}, new THREE.Color(this.Colors.green));
                 
                 //Update yAxis in state:
@@ -332,27 +363,28 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
                 //Add new labels to scene and state:
                 let newZLabelObjectsAndTags = [];
-                for(let i = 0; i < tagset.Tags.length; i++){
+                for(let i = 0; i < axisData.Tags.length; i++){
                     newZLabelObjectsAndTags.push({ 
-                        object: this.addText(tagset.Tags[i].Name, {x:0,y:0,z:i + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.1),
-                        tag: tagset.Tags[i] 
+                        object: this.addText(axisData.Tags[i].Name, {x:0,y:0,z:i + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.1),
+                        tag: axisData.Tags[i] 
                     });
                 }
                 
                 //Update values:
                 newZAxis.LabelThreeObjectsAndTags = newZLabelObjectsAndTags;
                 newZAxis.SetAxisType(AxisTypeEnum.Tagset);
-                newZAxis.TitleString = tagset.Name;
+                newZAxis.TitleString = axisData.Name;
                 
                 //Add objects to scene and values:
-                newZAxis.TitleThreeObject = this.addText(tagset.Name, {x:0,y:0,z:tagset.Tags.length + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.5);
+                newZAxis.TitleThreeObject = this.addText(axisData.Name, {x:0,y:0,z:axisData.Tags.length + offsetFromCenter}, new THREE.Color(this.Colors.blue), 0.5);
                 newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:newZAxis.LabelThreeObjectsAndTags.length}, new THREE.Color(this.Colors.blue));
                 
                 //Update zAxis in state:
                 this.setState( {zAxis: newZAxis} );
             break;
         }
-        this.fetchAndAddCubeObjects();
+
+        this.computeCells();
     }
 
     async fetchAndAddCubeObjectsForOneAxis(axis: Axis){
@@ -433,11 +465,14 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         this.setState({cells: cells});
     }
 
-    async fetchAndAddCubeObjects(){
+    async computeCells(){
         //Remove previous cells:
         this.state.cells.forEach((cell: Cell) => cell.RemoveFromScene());
         
         this.setState({cells: []});
+
+        //Clear cache:
+        sessionStorage.clear();
 
         //Fetch and add new cells:
         let xDefined : boolean = this.state.xAxis.TitleString != "X";
@@ -462,79 +497,12 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         }
 
         await promise!;
+
         //Update filecount:
         let uniquePhotoIds: Set<number> = new Set();
         this.state.cells.forEach((cell: Cell) => 
             cell.cubeObjectData.forEach(co => uniquePhotoIds.add(co.PhotoId)));
         this.props.onFileCountChanged(uniquePhotoIds.size);
-
-        //One axis is defined.. Two axis is defined.. Three axis is defined.
-
-        /*
-        //Removing previous cube objects from scene:
-        this.state.cubeObjects.forEach((co:THREE.Mesh) => this.scene.remove(co));
-
-        let newCubeObjectArray: THREE.Mesh[] = [];
-        let addCubeCallback = (imageUrl:string, aPosition:Position) => newCubeObjectArray.push(this.addCube(imageUrl, aPosition));
-        let result = await Fetcher.FetchCubeObjectsFromAxis(this.state.xAxis, addCubeCallback);
-        this.setState({cubeObjects: newCubeObjectArray});
-        */
-
-        /*
-        result.forEach(elem => {
-            console.log("Hello?");
-            console.log(elem);
-            if(elem.cubeObjectArr.length > 0){
-                this.addCube("https://localhost:44317/api/thumbnail/" + elem.cubeObjectArr[0].ThumbnailId ,
-                    {x:elem.coordinate, y:1, z:0});
-            }
-        });
-        console.log("Done!");
-        */
-
-        /*
-        //Make cells:
-        for(let i = 0; i < this.state.xAxis.LabelThreeObjectsAndTags.length; i++){
-            let newCell = new Cell(i, 0, 0);
-            
-            fetch("https://localhost:44317/api/cubeobject/FromTagId/" + this.state.xAxis.LabelThreeObjectsAndTags[i].tagInfo.Id)
-            .then(result => {return result.json();})
-            .then(cubeObjectDataArray =>{
-                newCell.cubeObjectData = cubeObjectDataArray;
-                //console.log(this.state.xAxis.LabelThreeObjectsAndTags[i].tagInfo);
-                //console.log(cubeObjectDataArray);
-                //cubeObjectDataArray.forEach(cubeObject => console.log(cubeObject))
-            });
-
-            NewCellsAndCoordinates.push(newCell);
-
-            for(let j = 0; j < this.state.yAxis.length; j++){
-                for(let k = 0; k < this.state.zAxis.length; k++){
-                    
-                    
-                }
-            }  
-        }
-        */
-
-        /*
-        //Remove previous cube objects:
-        this.state.cubeObjects.forEach(co => this.scene.remove(co));
-        let newCubeObjects = [];
-        if(this.state.xAxisHasDimension){
-            for(let i = 0; i < this.state.xAxisLabelThreeObjects.length; i++){
-                fetch("https://localhost:44317/api/cubeobject/FromTagId/" + this.state.xAxisLabelThreeObjects[i].tagInfo.Id)
-                .then(result => {return result.json();})
-                .then(cubeObjectArray => {
-                    //data.((r) => console.log(r))
-                    //this.updateDimension(dimName, tagset);
-                    cubeObjectArray.forEach(co => newCubeObjects.push(co));
-                });
-            }
-        }
-        this.setState( {cubeObjects: newCubeObjects} );
-        console.log(this.state.cubeObjects);
-        */
     }
 }
         
