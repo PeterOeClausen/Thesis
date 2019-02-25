@@ -299,12 +299,14 @@ namespace ConsoleAppForInteractingWithDatabase
 
                 using (var context = new ObjectContext())
                 {
+                    //Finding tagset:
                     Tagset tagsetFromDb = context.Tagsets
                             .Where(ts => ts.Name.Equals(tagsetName))
                             .Include(ts => ts.Tags)
                             .Include(ts => ts.Hierarchies)
                             .FirstOrDefault();
 
+                    //See if hierarchy exists:
                     Hierarchy hierarchyFromDb = context.Hierarchies
                         .Include(h => h.Nodes)
                         .Where(h => h.Name.Equals(hierarchyName))
@@ -315,12 +317,13 @@ namespace ConsoleAppForInteractingWithDatabase
                     {
                         hierarchyFromDb = DomainClassFactory.NewHierarchy(tagsetFromDb);
                         tagsetFromDb.Hierarchies.Add(hierarchyFromDb);
-                        hierarchyFromDb.Tagset = tagsetFromDb;
+                        //hierarchyFromDb.Tagset = tagsetFromDb;
                         context.Update(tagsetFromDb);
                         context.Update(hierarchyFromDb);
                         context.SaveChanges();
                     }
 
+                    //Finding parent tag:
                     Tag parentTagFromDb = context.Tags
                         .Where(t => t.TagsetId == tagsetFromDb.Id && t.Name.Equals(parentTagName))
                         .FirstOrDefault();
@@ -335,28 +338,26 @@ namespace ConsoleAppForInteractingWithDatabase
                         context.SaveChanges();
                     }
 
+                    //Finding parent node:
                     Node parentNodeFromDb = context.Nodes
+                        .Include(n => n.Children)
                         .Where(n => n.HierarchyId == hierarchyFromDb.Id && n.TagId == parentTagFromDb.Id)
                         .FirstOrDefault();
 
                     //If parent node does not exist, create it:
                     if(parentNodeFromDb == null)
                     {
-                        if (hierarchyName.Equals(parentTagName)) //Root node:
-                        {
-                            parentNodeFromDb = DomainClassFactory.NewRootNode(parentTagFromDb, hierarchyFromDb);
-                            if(parentTagFromDb == null) { throw new Exception("Parent tag is null!"); }
-                            hierarchyFromDb.Nodes.Add(parentNodeFromDb);
-                            context.Update(hierarchyFromDb);
-                            context.SaveChanges();
-                        }
-                        else
-                        {
-                            Console.WriteLine("parentNodeFromDb is null!");
-                            throw new Exception("ParentNodeFromDb was null!");
-                        }
-                    }
+                        //Probably root node:
+                        parentNodeFromDb = DomainClassFactory.NewNode(parentTagFromDb, hierarchyFromDb);
+                        hierarchyFromDb.Nodes.Add(parentNodeFromDb);
+                        context.Update(hierarchyFromDb);
+                        context.SaveChanges();
 
+                        hierarchyFromDb.RootNodeId = parentNodeFromDb.Id;
+                        context.Update(hierarchyFromDb);
+                        context.SaveChanges();
+                    }
+                    
                     //Adding child nodes:
                     for (int i = 2; i < split.Length; i++)
                     {
@@ -376,12 +377,12 @@ namespace ConsoleAppForInteractingWithDatabase
                             context.SaveChanges();
                         }
 
-                        Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, hierarchyFromDb, parentNodeFromDb);
-                        if (childTagFromDb == null) { throw new Exception("Parent tag is null!"); }
+                        Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, hierarchyFromDb);
+                        parentNodeFromDb.Children.Add(newChildNode);
                         hierarchyFromDb.Nodes.Add(newChildNode);
+                        context.Update(parentNodeFromDb);
                         context.Update(hierarchyFromDb);
                         context.SaveChanges();
-                        //Todo: Fix that nodes have null tagId?
                     }
                 }
                 lineCount++;

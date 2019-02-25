@@ -1,10 +1,11 @@
 import Tag from "./Tag";
+import Hierarchy from "./Hierarchy";
 
 export default interface HierarchyNode{
     Id: number;
     TagId: number;
-    Tag: Tag|null;
+    Tag: Tag;
     HierarchyId: number;
-    ParentId: number|null;
-    Parent: HierarchyNode|null;
+    Hierarchy: Hierarchy|null;
+    Children: HierarchyNode[];
 }

@@ -66,18 +66,7 @@ namespace ObjectCubeServer.Models
             };
         }
 
-        public static Node NewRootNode(Tag tag, Hierarchy hierarchy)
-        {
-            if (tag == null) { throw new Exception("Tag is null!"); }
-            if (hierarchy == null) { throw new Exception("Hierarchy is null!"); }
-            return new Node()
-            {
-                Tag = tag,
-                Hierarchy = hierarchy
-            };
-        }
-
-        public static Node NewNode(Tag tag, Hierarchy hierarchy, Node parent)
+        public static Node NewNode(Tag tag, Hierarchy hierarchy)
         {
             if(tag == null) { throw new Exception("Tag is null!"); }
             if (hierarchy == null) { throw new Exception("Hierarchy is null!"); }
@@ -85,7 +74,7 @@ namespace ObjectCubeServer.Models
             {
                 Tag = tag,
                 Hierarchy = hierarchy,
-                Parent = parent
+                Children = new List<Node>()
             };
         }
     }

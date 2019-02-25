@@ -11,29 +11,7 @@ export interface CoordinateObjectPair{
 export default class Fetcher{
     static baseUrl: string = "https://localhost:44317/api/";
 
-    static async FetchCubeObjectsFromAxis(xAxis: Axis, addCubeCallBack: (url: string, position: Position) => any){
-        //let coordinateObjectPairs : Array<CoordinateObjectPair> = [];
-        let promises = [];
-        
-        for(let i = 0; i < xAxis.LabelThreeObjectsAndTags.length ; i++){
-            promises.push(fetch(this.baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tag.Id)
-                .then(result => {return result.json();})
-                .then(cubeObjectDataArray => {
-                    //coordinateObjectPairs.push({coordinate : i, cubeObjectArr: cubeObjectDataArray});
-                    
-                    if(cubeObjectDataArray.length > 0){
-                        addCubeCallBack("https://localhost:44317/api/photo/" + cubeObjectDataArray[0].PhotoId ,
-                            {x:i+1, y:1, z:0}
-                        );
-                    }
-                })
-            );
-        }
-
-        return await Promise.all(promises);
-        //return coordinateObjectPairs;
-    }
-
+    //Not in use:
     static async imageResult(PhotoId: number){
         // Using sessionStorage as cache:
         let cachedValue = sessionStorage.getItem("photo/" + PhotoId);
@@ -50,6 +28,7 @@ export default class Fetcher{
         return imageResult;
     }
 
+    //Not in use:    
     static FetchThumbnail(thumbnailId: number){
         let thumbnailImage = null;
 
@@ -61,18 +40,21 @@ export default class Fetcher{
         return thumbnailImage;
     }
 
+    //Not in use:
     static async FetchCubeObjectsWithTag(tag: Tag){
         return await fetch(this.baseUrl + "cubeobject/fromTagId/" + tag.Id)
             .then(result => {return result.json();})
             .then((cubeObjectArr: CubeObject[]) => {return cubeObjectArr});
     }
 
+    //Not in use:
     static async FetchCubeObjectsWith2Tags(tag1: Tag, tag2: Tag){
         return await fetch(this.baseUrl + "cubeobject/from2TagIds/" + tag1.Id + "/" + tag2.Id)
             .then(result => {return result.json();})
             .then((cubeObjectArr: CubeObject[]) => {return cubeObjectArr});
     }
 
+    //Not in use:
     static async FetchCubeObjectsWith3Tags(tag1: Tag, tag2: Tag, tag3: Tag){
         return await fetch(this.baseUrl + "cubeobject/from3TagIds/" + tag1.Id + "/" + tag2.Id + "/" + tag3.Id)
             .then(result => {return result.json();})
@@ -110,21 +92,29 @@ export default class Fetcher{
         return cubeObjectArrResult;
     }
 
-    static FetchCubeObjectsFrom2Axis(xAxis: Axis, yAxis: Axis){
-        let coordinateObjectPairs : Array<CoordinateObjectPair> = [];
+    static async FetchCellsFromAxis(xAxis: Axis, yAxis: Axis, zAxis: Axis){
+        //Fetch and add new cells:
+        let xDefined : boolean = xAxis.TitleString != "X";
+        let yDefined : boolean = yAxis.TitleString != "Y";
+        let zDefined : boolean = zAxis.TitleString != "Z";
+        let promise: Promise<void>;
+        if(xDefined){
 
-        for(let i = 0; i < xAxis.LabelThreeObjectsAndTags.length ; i++){
-            for(let j = 0; j < yAxis.LabelThreeObjectsAndTags.length ; j++){
-                fetch(this.baseUrl + "cubeobject/FromTagId/" + xAxis.LabelThreeObjectsAndTags[i].tag.Id) //Add second axis tagInfo
-                .then(result => {return result.json();})
-                .then(cubeObjectDataArray => {
-                    let result = cubeObjectDataArray as CubeObject[];
-                    coordinateObjectPairs.push({coordinate : i, cubeObjectArr: result});
-                });
-            }
         }
-
-        return coordinateObjectPairs;
     }
 
+    static async FetchNode(nodeId: number){
+        return await fetch(Fetcher.baseUrl + "/node/" + nodeId)
+            .then(result => {return result.json()});
+    }
+
+    static async FetchHierarchy(hierarchyId: number){
+        return await fetch(Fetcher.baseUrl + "/hierarchy/" + hierarchyId)
+            .then(result => {return result.json()});
+    }
+
+    static async FetchTagset(tagsetId: number){
+        return await fetch(Fetcher.baseUrl + "/tagset/" + tagsetId)
+        .then(result => {return result.json()});
+    }
 }

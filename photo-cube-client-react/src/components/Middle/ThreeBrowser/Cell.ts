@@ -29,7 +29,7 @@ export default class Cell{
         this.z = aPosition.z;
         this.cubeObjectData = cubeObjectData;
         if(cubeObjectData.length > 0){
-            this.threeObject = this.CreateMesh();
+            this.threeObject = this.CreateCubeMesh();
             //this.ToggleSwitchingImagesEveryXms(10000);
         }
         else{
@@ -50,9 +50,8 @@ export default class Cell{
         }, miliseconds);
     }
 
-    CreateMesh(){
+    private CreateCubeMesh(){
         THREE.Cache.enabled = true;
-        //Load image as material:
         let imageMaterial = new THREE.MeshBasicMaterial({
             map : ImageTextureLoader.Load(Fetcher.baseUrl + "/photo/" + this.cubeObjectData[0].PhotoId)
         });
@@ -64,6 +63,8 @@ export default class Cell{
         boxMesh.position.x = this.x;
         boxMesh.position.y = this.y;
         boxMesh.position.z = this.z;
+        //Tooltip:
+        boxMesh.userData.tooltipText = this.cubeObjectData.length + " photos.";
         //Add to scene:
         this.scene.add( boxMesh );
         return boxMesh;
@@ -72,6 +73,4 @@ export default class Cell{
     RemoveFromScene(){
         if(this.threeObject != null) this.scene.remove(this.threeObject);
     }
-
-
 }

@@ -31,7 +31,7 @@ class RightDock extends React.Component<{
         this.fileCount.current!.UpdateFileCount(count);
     }
 
-    onDimensionChanged = (dimName: string, dimension:Tagset|Hierarchy) => {
+    onDimensionChanged = (dimName: string, dimension:any) => {
         this.props.onDimensionChanged(dimName, dimension);
         //ThreeBrowserController.getInstance().sayHello();
     }

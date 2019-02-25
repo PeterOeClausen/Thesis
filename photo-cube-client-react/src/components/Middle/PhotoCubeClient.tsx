@@ -43,7 +43,7 @@ export default class PhotoCubeClient extends React.Component {
     this.rightDock.current!.UpdateFileCount(fileCount);
   }
 
-  onDimensionChanged = (dimName: string, dimension:Tagset|Hierarchy) => {
+  onDimensionChanged = (dimName: string, dimension:any) => {
     console.log("Dimension " + dimName + ", changed to: ");
     console.log(dimension);
     

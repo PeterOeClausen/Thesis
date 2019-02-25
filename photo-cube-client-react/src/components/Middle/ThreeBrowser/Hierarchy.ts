@@ -7,4 +7,5 @@ export default interface Hierarchy{
     Tagset: Tag[]|null;
     TagsetId: number ;
     Nodes: HierarchyNode[];
+    RootNodeId: number;
 }

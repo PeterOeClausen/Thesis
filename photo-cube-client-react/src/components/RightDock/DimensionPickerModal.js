@@ -89,8 +89,9 @@ class DimensionPickerModal extends Component{
         fetch("https://localhost:44317/api/tagset")
         .then(result => {return result.json();})
         .then(data => {
-            //Use map instead
-            this.setState( {fetchedTagsets: data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id} }) } );
+            let tagset = data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id}} );
+            tagset.sort((a,b) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
+            this.setState( {fetchedTagsets: tagset} );
         });
     }
 
@@ -98,8 +99,9 @@ class DimensionPickerModal extends Component{
         fetch("https://localhost:44317/api/hierarchy")
         .then(result => {return result.json();})
         .then(data => {
-            //Use map instead
-            this.setState( {fetchedHierarchies: data.map((h) => { return {"Name": h.Name, "HierarchyId": h.Id} }) } );
+            let hierarchies = data.map((h) => { return {"Name": h.Name, "HierarchyId": h.Id} });
+            hierarchies.sort((a,b) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
+            this.setState( {fetchedHierarchies: hierarchies} );
         });
     }
 }

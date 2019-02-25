@@ -18,5 +18,7 @@ namespace ObjectCubeServer.Models.DomainClasses
 
         //The rootnode has the same name as tagset by convention.
         public List<Node> Nodes { get; set; }
+
+        public int RootNodeId { get; set; }
     }
 }

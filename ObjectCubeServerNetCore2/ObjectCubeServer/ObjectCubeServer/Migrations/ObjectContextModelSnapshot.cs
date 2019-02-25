@@ -51,6 +51,8 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<string>("Name");
 
+                    b.Property<int>("RootNodeId");
+
                     b.Property<int>("TagsetId");
 
                     b.HasKey("Id");
@@ -68,7 +70,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.Property<int>("HierarchyId");
 
-                    b.Property<int?>("ParentId");
+                    b.Property<int?>("NodeId");
 
                     b.Property<int>("TagId");
 
@@ -76,7 +78,7 @@ namespace ObjectCubeServer.Migrations
 
                     b.HasIndex("HierarchyId");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("NodeId");
 
                     b.HasIndex("TagId");
 
@@ -185,9 +187,9 @@ namespace ObjectCubeServer.Migrations
                         .HasForeignKey("HierarchyId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Node", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
+                    b.HasOne("ObjectCubeServer.Models.DomainClasses.Node")
+                        .WithMany("Children")
+                        .HasForeignKey("NodeId");
 
                     b.HasOne("ObjectCubeServer.Models.DomainClasses.Tag", "Tag")
                         .WithMany()

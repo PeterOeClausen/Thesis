@@ -3,5 +3,5 @@ export default interface Tag{
     Name: string,
     Tagset: any,
     TagsetId: number,
-    ObjectTagRelation: any
+    ObjectTagRelations: any
 }
