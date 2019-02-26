@@ -10,7 +10,7 @@ Be sure that you have installed React:
 ```
 npm install react
 ```
-Navigate to the 'photo-cube-client-react' directory and run:
+Navigate to the '/photo-cube-client-react/' directory and run:
 ```
 npm install
 ```
@@ -24,7 +24,7 @@ A browser tab should open automatically with the client application.
 ## Installing and running the server:
 Be sure that you have SQL Server running.
 
-Open the 'ObjectCubeServer.sln' solution file in Visual Studio. This can be found in ./ObjectCubeServerNetCore2\ObjectCubeServer/
+Open the 'ObjectCubeServer.sln' solution file in Visual Studio. This can be found in the './ObjectCubeServerNetCore2/ObjectCubeServer/' directory.
 
 Right-click the Solution in the Solution Explorer and click 'Rebuild Solution'. This will download all the NuGet packages needed.
 
