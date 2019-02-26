@@ -25,14 +25,15 @@ A browser tab should open automatically with the client application.
 ## Installing and running the server:
 Be sure that you have SQL Server running.
 
-
 Open the 'ObjectCubeServer.sln' solution file in Visual Studio. This can be found in the './ObjectCubeServerNetCore2/ObjectCubeServer/' directory.
 
 First we need to specify some paths:
+
 Add a connection-string to your SQL database in the file: ObjectCubeServer/Models/Contexts/ObjectContext.cs around line 123.
 Also, you need to specify the path to the Laugavegur dataset on your computer in 'ConsoleAppForInteractingWithDatabase/LaugavegurDatasetInserter.cs' around line 40.
 
 Then we will compile the applications:
+
 Right-click the Solution in the Solution Explorer and click 'Rebuild Solution'. This will download and install all the NuGet packages needed.
 
 Next, we want to create the database schema:
