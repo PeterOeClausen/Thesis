@@ -201,7 +201,7 @@ namespace ObjectCubeServer.Controllers
                     .Where(n => n.Id == id)
                     .FirstOrDefault();
             }
-            currentNode.Children.OrderBy(cn => cn.Tag);
+            currentNode.Children.Sort((cn1, cn2) => cn1.Tag.Name.CompareTo(cn2.Tag.Name));
             List<Node> newChildNodes = new List<Node>();
             currentNode.Children.ForEach(cn => newChildNodes.Add(fetchWholeHierarchyFromRootNode(cn.Id)));
             currentNode.Children = newChildNodes;

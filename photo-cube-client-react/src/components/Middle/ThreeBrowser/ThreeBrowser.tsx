@@ -27,14 +27,6 @@ const OrbitControls = require('three-orbitcontrols')
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
 class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: number) => void}>{
-    state: React.ComponentState = {
-        
-
-        //Cube data:
-        cubeObjects: [],
-
-        
-    }
 
     //TODO: Add progressbar
     render(){
@@ -70,7 +62,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen:
     mouse = new THREE.Vector2();
 
-    //State:
+    //Browsing state:
     //Cells:
     cells: Cell[] = [];
     //The three axis:
@@ -131,115 +123,6 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         this.start();
 
         /*
-        let hierarchyNode : HierarchyNode = {
-            Id: 1,
-            TagId:3,
-            Tag:{
-                Id:3,
-                Name:"Hike",
-                Tagset:null,
-                TagsetId:2,
-                ObjectTagRelations: null
-            },
-            HierarchyId:1,
-            Hierarchy:null,
-            Children:[
-                {
-                    Id:2,
-                    TagId:3,
-                    Tag:
-                    {
-                        Id:3,
-                        Name:"Hike",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                },
-                {
-                    Id:3,
-                    TagId:4,
-                    Tag:
-                    {
-                        Id:4,
-                        Name:"Day 1",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                },
-                {
-                    Id:4,
-                    TagId:51,
-                    Tag:
-                    {
-                        Id:51,
-                        Name:"Day 2",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                },
-                {Id:5,
-                    TagId:58,
-                    Tag:
-                    {
-                        Id:58,
-                        Name:"Day 3",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                },
-                {
-                    Id:6,
-                    TagId:69,
-                    Tag:
-                    {
-                        Id:69,
-                        Name:"Day 4",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                },
-                {
-                    Id:7,
-                    TagId:78,
-                    Tag:
-                    {
-                        Id:78,
-                        Name:"Day 5",
-                        Tagset:null,
-                        TagsetId:2,
-                        ObjectTagRelations:null
-                    },
-                    HierarchyId:1,
-                    Hierarchy:null,
-                    Children:[]
-                }]
-            };
-        
-
-        console.log(this.extractTagsFromHierarchyNode(hierarchyNode));
-        */
-
-        /*
         THREE.DefaultLoadingManager.onProgress = (item:any, loaded: number, total: number) => {
             console.log(item);
             console.log((loaded / total * 100));
@@ -250,28 +133,46 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     createInitialScene(){
         //XYZ-AXIS:
         //Creating X-Axis:
+        this.ClearXAxis();
+
+        //Creating Y-Axis:
+        this.ClearYAxis();
+        
+        //Creating Z-Axis:
+        this.ClearZAxis();
+    }
+
+    ClearXAxis(){
+        this.xAxis.RemoveObjectsFromScene(this.scene);
         let newXAxis = new Axis();
         newXAxis.AxisDirection = AxisDirection.X;
         newXAxis.TitleString = "X";
-        newXAxis.TitleThreeObject = this.addText("X", {x:5,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
-        newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:5,y:0,z:0}, new THREE.Color(0xF00000));
+        newXAxis.TitleThreeObject = this.addText("X", {x:2,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
+        newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:2,y:0,z:0}, new THREE.Color(0xF00000));
         this.xAxis = newXAxis;
+        this.computeCells();
+    }
 
-        //Creating Y-Axis:
+    ClearYAxis(){
+        this.yAxis.RemoveObjectsFromScene(this.scene);
         let newYAxis = new Axis();
         newYAxis.AxisDirection = AxisDirection.Y;
         newYAxis.TitleString = "Y";
-        newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:5,z:0}, new THREE.Color(0x00F000), 0.5);
-        newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:5,z:0}, new THREE.Color(0x00F000));
+        newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:2,z:0}, new THREE.Color(0x00F000), 0.5);
+        newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:2,z:0}, new THREE.Color(0x00F000));
         this.yAxis = newYAxis;
-        
-        //Creating Z-Axis:
+        this.computeCells();
+    }
+
+    ClearZAxis(){
+        this.zAxis.RemoveObjectsFromScene(this.scene);
         let newZAxis = new Axis();
         newZAxis.AxisDirection = AxisDirection.Z;
         newZAxis.TitleString = "Z";
-        newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:5}, new THREE.Color(0x0000F0), 0.5);
-        newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:5}, new THREE.Color(0x0000F0));
+        newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:2}, new THREE.Color(0x0000F0), 0.5);
+        newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:2}, new THREE.Color(0x0000F0));
         this.zAxis = newZAxis;
+        this.computeCells();
     }
 
     componentWillUnmount(){
@@ -489,14 +390,10 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         //Remove previous cells:
         this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
 
-        //Clear cache:
-        //sessionStorage.clear();
-
         //Fetch and add new cells:
         let xDefined : boolean = this.xAxis.TitleString != "X";
         let yDefined : boolean = this.yAxis.TitleString != "Y";
         let zDefined : boolean = this.zAxis.TitleString != "Z";
-        //let promise: Promise<void>;
 
         let newCells: Cell[] = [];
 
@@ -555,13 +452,13 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
      * Recursively goes through the HierarchyNode tree and collects all the tags.
      * @param hn A hierarchy node to start from.
      */
-    extractTagsFromHierarchyNode(hn: HierarchyNode): Tag[]{
+    /*extractTagsFromHierarchyNode(hn: HierarchyNode): Tag[]{
         let tags: Tag[] = [hn.Tag];
         let childTags: Tag[] = hn.Children.flatMap(c => this.extractTagsFromHierarchyNode(c));
         return tags.concat(childTags);
-    }
+    }*/
 
-    async fetchAndAddCubeObjectsForOneAxis(axis: Axis){
+    /*async fetchAndAddCubeObjectsForOneAxis(axis: Axis){
         let cells: Cell[] = [];
         //Change promise if axis is of type hirarchy
         let promises = 
@@ -592,56 +489,14 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
                 :   
                 //If axis is hierarchy:
                 axis.Hierarchies.map(async (hierarchies: HierarchyNode, index) => {
-                    //let tags : Tag[] = this.extractTagsFromHierarchyNode(hierarchies);
-                    
-                    //Rewrite to take a Tag[]
-                    /*
-                    let cubeObjectArr: CubeObject[] = await Fetcher.FetchCubeObjectsWithTagsOTR(hierarchies, null, null);
-
-                    let coordinate = {x:0, y:0, z:0};
-                    switch(axis.AxisDirection){
-                        case AxisDirection.X: //If axis is xAxis
-                            coordinate.x += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                        case AxisDirection.Y:
-                            coordinate.y += 1 + index;
-                            coordinate.z += 0.5;
-                            break;
-                        case AxisDirection.Z:
-                            coordinate.z += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                    }
-
-                    let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
-                    cells.push(cell);
-                    */
-                    /*
-                    cubeObjectArr.push(await Fetcher.FetchCubeObjectsWithTagsOTR(tag, null, null);
-                    let coordinate = {x:0, y:0, z:0};
-                    switch(axis.AxisDirection){
-                        case AxisDirection.X: //If axis is xAxis
-                            coordinate.x += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                        case AxisDirection.Y:
-                            coordinate.y += 1 + index;
-                            coordinate.z += 0.5;
-                            break;
-                        case AxisDirection.Z:
-                            coordinate.z += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                    }
-                    */
+                   
                 });
 
         await Promise.all(promises); //Wait for all cells to be added:
         //this.setState({cells: cells});
-    }
+    }*/
 
-    async fetchAndAddCubeObjectsForTwoAxis(axis1: Axis, axis2:Axis){
+    /*async fetchAndAddCubeObjectsForTwoAxis(axis1: Axis, axis2:Axis){
         let cells: Cell[] = [];
         let promises = axis1.Tags.map(async (tag1: Tag, index1) => {
             axis2.Tags.map(async (tag2: Tag, index2) => {
@@ -667,9 +522,9 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         });
         await Promise.all(promises); //Wait for all cells to be added:
         this.setState({cells: cells});
-    }
+    }*/
 
-    async fetchAndAddCubeObjectsForThreeAxis(axis1: Axis, axis2:Axis, axis3:Axis){
+    /*async fetchAndAddCubeObjectsForThreeAxis(axis1: Axis, axis2:Axis, axis3:Axis){
         let cells: Cell[] = [];
         let promises = axis1.Tags.map(async (tag1: Tag, index1) => {
             axis2.Tags.map(async (tag2: Tag, index2) => {
@@ -687,7 +542,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         });
         await Promise.all(promises); //Wait for all cells to be added:
         this.setState({cells: cells});
-    }
+    }*/
     
     onMouseMove = (event:MouseEvent) => {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;

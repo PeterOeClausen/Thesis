@@ -33,14 +33,16 @@ export default class PhotoCubeClient extends React.Component {
         <div className="App grid-container">
           <LeftDock/>
           {currentBrowser}
-          <RightDock ref={this.rightDock} onDimensionChanged={this.onDimensionChanged} 
-            onBrowsingModeChanged={this.onBrowsingModeChanged}/>
+          <RightDock ref={this.rightDock} 
+            onDimensionChanged={this.onDimensionChanged} 
+            onBrowsingModeChanged={this.onBrowsingModeChanged}
+            onClearAxis={this.onClearAxis}/>
         </div>
     );
   }
 
   onFileCountChanged = (fileCount: number) => {
-    this.rightDock.current!.UpdateFileCount(fileCount);
+    if(this.rightDock.current) this.rightDock.current.UpdateFileCount(fileCount);
   }
 
   onDimensionChanged = (dimName: string, dimension:any) => {
@@ -53,6 +55,16 @@ export default class PhotoCubeClient extends React.Component {
 
   onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
     this.setState({BrowsingMode: browsingMode});
+  }
+
+  onClearAxis = (axisName: string) => {
+    console.log(axisName);
+    switch(axisName){
+      case "X": if(this.threeBrowser.current) this.threeBrowser.current.ClearXAxis(); break;
+      case "Y": if(this.threeBrowser.current) this.threeBrowser.current.ClearYAxis(); break;
+      case "Z": if(this.threeBrowser.current) this.threeBrowser.current.ClearZAxis(); break;
+    }
+    
   }
 }
 

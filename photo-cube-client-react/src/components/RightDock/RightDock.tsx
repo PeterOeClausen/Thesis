@@ -7,8 +7,9 @@ import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 
 class RightDock extends React.Component<{
-    onDimensionChanged:(dimName: string, dimension:Tagset|Hierarchy) => void,
+    onDimensionChanged:(dimName: string, dimension:any) => void,
     onBrowsingModeChanged:(browsingmode: BrowsingModes) => void
+    onClearAxis:(axisName: string) => void
     }>{
 
     private fileCount = React.createRef<FileCount>();
@@ -22,7 +23,7 @@ class RightDock extends React.Component<{
             <div id="RightDock">
                 <FileCount ref={this.fileCount}/>
                 <BrowsingModeChanger onBrowsingModeChanged={this.onBrowsingModeChanged} />
-                <Dimensions onDimensionChanged={this.onDimensionChanged}/>
+                <Dimensions onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
             </div>
         );
     }
@@ -40,6 +41,8 @@ class RightDock extends React.Component<{
         console.log(selectedBrowsingMode);
         this.props.onBrowsingModeChanged(selectedBrowsingMode);
     }
+
+    
 }
 
 export default RightDock;

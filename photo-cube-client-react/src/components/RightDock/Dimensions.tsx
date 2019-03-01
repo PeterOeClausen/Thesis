@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
 import '../../css/Dimensions.css';
 import Dimension from './Dimension';
+import Tagset from '../Middle/ThreeBrowser/Tagset';
+import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 //import {MyContext} from '../Middle/PhotoCubeClient';
 
-class Dimensions extends Component{
+class Dimensions extends Component<{
+    onDimensionChanged:(dimName: string, dimension:any) => void,
+    onClearAxis:(axisName: string) => void
+    }>{
+        
     render(){
         return(
             <div>
                 <h4 className="Header">Dimensions</h4>
-                <Dimension xyz="X" onDimensionChanged={this.onDimensionChanged}/>
-                <Dimension xyz="Y" onDimensionChanged={this.onDimensionChanged}/>
-                <Dimension xyz="Z" onDimensionChanged={this.onDimensionChanged}/>
+                <Dimension xyz="X" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <Dimension xyz="Y" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <Dimension xyz="Z" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
             </div>
         );
-    }
-
-    //Sending data up the tree:
-    onDimensionChanged = (dimName, dimension) => {
-        this.props.onDimensionChanged(dimName, dimension);
     }
 }
 

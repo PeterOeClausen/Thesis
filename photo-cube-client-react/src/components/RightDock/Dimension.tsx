@@ -7,15 +7,17 @@ import DimensionPickerModal from './DimensionPickerModal';
  * 
  * Used in RightDock to choose values for dimensions.
  */
-class Dimension extends Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            DimensionType: null,
-            DimensionId: null,
-            DimensionName: null,
-        };
-    }
+class Dimension extends Component<{
+    xyz: string,
+    onDimensionChanged:(dimName: string, dimension:any) => void,
+    onClearAxis: (axisName:string) => void
+    }>{
+
+    state = {
+        DimensionType: null,
+        DimensionId: null,
+        DimensionName: null,
+    };
     
     render(){
         return(
@@ -23,6 +25,7 @@ class Dimension extends Component{
                 <p>{this.props.xyz}-Axis:</p><br/>
                 {this.renderDimensionTypeAndName()}
                 <DimensionPickerModal onDimensionPicked={this.dimensionPicked}/>
+                <button onClick={() => this.props.onClearAxis(this.props.xyz)}>Clear</button>
             </div>
         );
     }
@@ -35,7 +38,7 @@ class Dimension extends Component{
         }
     }
 
-    dimensionPicked = (dimension) => {
+    dimensionPicked = (dimension:any) => {
         this.setState({
             DimensionType:  dimension.type, 
             DimensionId:    dimension.id, 
