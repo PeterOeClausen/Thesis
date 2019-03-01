@@ -5,6 +5,7 @@ import BrowsingModeChanger, { BrowsingModes } from './BrowsingModeChanger';
 import Dimensions from './Dimensions';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import Tagset from '../Middle/ThreeBrowser/Tagset';
+import HierarchyBrowser from './HierarchyBrowser';
 
 class RightDock extends React.Component<{
     onDimensionChanged:(dimName: string, dimension:any) => void,
@@ -13,6 +14,7 @@ class RightDock extends React.Component<{
     }>{
 
     private fileCount = React.createRef<FileCount>();
+    private hierarchyBrowser = React.createRef<HierarchyBrowser>();
 
     constructor(props: any){
         super(props);
@@ -24,6 +26,7 @@ class RightDock extends React.Component<{
                 <FileCount ref={this.fileCount}/>
                 <BrowsingModeChanger onBrowsingModeChanged={this.onBrowsingModeChanged} />
                 <Dimensions onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <HierarchyBrowser ref={this.hierarchyBrowser}/>
             </div>
         );
     }
@@ -34,6 +37,9 @@ class RightDock extends React.Component<{
 
     onDimensionChanged = (dimName: string, dimension:any) => {
         this.props.onDimensionChanged(dimName, dimension);
+        if(dimension.type == "hierarchy"){
+            if(this.hierarchyBrowser.current) this.hierarchyBrowser.current.RenderHierarchy(dimName, dimension);
+        }
         //ThreeBrowserController.getInstance().sayHello();
     }
 
@@ -41,8 +47,6 @@ class RightDock extends React.Component<{
         console.log(selectedBrowsingMode);
         this.props.onBrowsingModeChanged(selectedBrowsingMode);
     }
-
-    
 }
 
 export default RightDock;

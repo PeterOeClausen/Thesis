@@ -1,0 +1,23 @@
+.nodeLevel-0{
+    margin-left: 0px;
+}
+.nodeLevel-1{
+    margin-left: 20px;
+}
+.nodeLevel-2{
+    margin-left: 40px;
+}
+.nodeLevel-3{
+    margin-left: 60px;
+}
+.nodeLevel-4{
+    margin-left: 80px;
+}
+.nodeLevel-5{
+    margin-left: 100px;
+}
+
+.Scrollable{
+    height: 200px;
+    overflow-y: scroll;
+}

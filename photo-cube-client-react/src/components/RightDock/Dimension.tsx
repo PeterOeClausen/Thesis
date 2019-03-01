@@ -24,8 +24,10 @@ class Dimension extends Component<{
             <div>
                 <p>{this.props.xyz}-Axis:</p><br/>
                 {this.renderDimensionTypeAndName()}
-                <DimensionPickerModal onDimensionPicked={this.dimensionPicked}/>
-                <button onClick={() => this.props.onClearAxis(this.props.xyz)}>Clear</button>
+                <div className="width100">
+                    <div className="displayInline width50"><DimensionPickerModal onDimensionPicked={this.dimensionPicked}/></div>
+                    <div className="displayInline width50"><button className="width100" onClick={() => this.props.onClearAxis(this.props.xyz)}>Clear</button></div>
+                </div>
             </div>
         );
     }

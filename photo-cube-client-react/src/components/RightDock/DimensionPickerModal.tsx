@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Modal from "react-responsive-modal"; //https://www.npmjs.com/package/react-responsive-modal
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
+import '../../css/Dimensions.css'
 
 /**
  * A component containing a Modal for picking Dimensions.
@@ -41,7 +42,7 @@ class DimensionPickerModal extends Component<{
         const { open } = this.state;
         return (
             <div>
-                <button onClick={this.onOpenModal}>Choose</button>
+                <button className="width100" onClick={this.onOpenModal}>Choose</button>
                 <Modal open={open} onClose={this.onCloseModal} center>
                     <h2>Pick a tagset or a hierarchy to show as a dimension</h2>
                     <h3>Tagsets</h3>

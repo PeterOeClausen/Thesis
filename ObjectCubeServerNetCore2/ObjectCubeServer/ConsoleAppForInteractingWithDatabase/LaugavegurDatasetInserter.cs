@@ -378,7 +378,7 @@ namespace ConsoleAppForInteractingWithDatabase
                         }
 
                         Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, hierarchyFromDb);
-                        parentNodeFromDb.Children.Add(newChildNode);
+                        parentNodeFromDb.Children.Add(newChildNode); //Try not adding this line? Debug
                         hierarchyFromDb.Nodes.Add(newChildNode);
                         context.Update(parentNodeFromDb);
                         context.Update(hierarchyFromDb);
