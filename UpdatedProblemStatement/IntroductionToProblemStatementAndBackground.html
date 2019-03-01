@@ -1,0 +1,49 @@
+<p><b>Introduction to problem and background:</b><br/>
+
+The size and complexity of multimedia collections are growing more rapidly than ever with the introduction of cameras in phones, growth of social media and digital documents [6,7]. The rapid growth and increase in complexity makes it inherently difficult, but also more desirable, for a person to gain useful insight into these collections. Current state of the art multimedia analytics solutions are highly interactive and give users freedom in how they perform their analytics task, but they do not scale well [6]. Hence new multimedia analytics tools where humans and computers cooperatively analyze large multimedia collections, and where humans can search, browse and analyze interactively to gain useful insight into multimedia collections are called for [6].<br/><br/>
+
+To address this need for scalable analytics tools, Jónsson et. al. proposed the M³ data model for storing and browsing multimedia collections in multiple dimensions using filters and hierarchies [1]. The M³ data model enables the user to browse and search multimedia in a scalable and interactive manner.<br/><br/>
+
+Previous to my thesis, a total of four theses have been written about the M³ data model: i) The ObjectCube (O³) thesis by Tómasson [2,3], which initially defined the M³ model and proposed an implementation built on relational systems; ii) The PhotoCube (P³) thesis by Sigurþórsson [3,4], which proposed a frontend desktop application in Python for browsing photo collections using the O³ server; iii) A face recognition plugin to the P³ browser was added in [8] by Rúnarsson; iv) Finally, in a thesis by Gíslason, the M³ model and the O3/P3 software were extended with search functionality [5,9].<br/><br/>
+
+<b>Introduction to problem and background:</b><br/>
+Recently, many media services and tools are moving towards the Web. Google Drive, Dropbox and Youtube are just some examples of how popular multimedia tools are now accessible in the Web browser. Cloud services like these offers great benefits that Desktop-only alternatives struggle to provide, such as: Better scalability through microservices and load balancing, more availability, collaboration and shareability for the user through PC and smartphones, and easier maintainability as the software is updated and changed in the cloud. The current O³ and P³ implementations are desktop only applications which do not utilize the Web.<br/><br/>
+
+When starting out this thesis, our plan was to extend the O³ implementation with a Web API, and develop a web-based implementation of P³ to communicate with it. Unfortunately, however we found that the O³ and P³ implementations were greatly outdated and badly maintained. We even failed to get the software up and running on current operating systems. Hence, we chose to also develop a prototype web server and database to provide data. Developing these from scratch also allows us to improve on the design and architecture, benefitting scalability and user interaction with the M³ model.<br/><br/>
+
+<b>Problem statement and evaluation:</b><br/><br/>
+
+<b>How can we design and implement a modern web-based implementation of the M³ model, and how does it compare to the existing desktop-based version?</b><br/><br/>
+
+To study this question we must first design and implement a backend web API and database to store the data needed for the M³ model. Next, we also need to design and develop a frontend web-based P³ implementation, focussing on usability, scalability and making the new implementation more easily maintainable.
+
+We also need to evaluate the developed system to see whether we achieved what we wanted. We will try to evaluate it against the previous P³ implementation on the following criterias:<br/>
+
+<ul>
+	<li><b>Functionality.</b> A side-by-side comparison: Are same or similar features available in both programs? Are there missing features in our new implementation, and/or have we improved the design of the application from a user’s perspective?</li>
+		<ul><li>Here, we will make the comparison to the 2015 version of P³, as we are aiming to support the same level of functionality. The 2019 version of P³ has search features, and developing these would extend the scope of the project beyond the time constraints of an MSc thesis.</li></ul>
+	<li><b>Portability and maintainability.</b> A side-by-side comparison: Is the new implementation easier to port and run to other computers and devices? Is the new implementation easier further develop and maintain?</li>
+	<li><b>A user review.</b> It will be difficult to compare across user reviews between the new and old system. However the newly developed system is to be developed with usability in mind, hence it is important to conduct a user review to see how it is received by the users.</li>
+</ul>
+
+Optional goals for the thesis will be to add more features and further improve on the design from the previous implementation.<br/><br/>
+
+<b>References:</b><br/>
+[1] Jónsson, B.Þ., Tómasson, G., Sigurþórsson, H., Eiríksdóttir, Á., Amsaleg, L. and Lárusdóttir, M.K., 2015, January. <i>A multi-dimensional data model for personal photo browsing.</i> In International Conference on Multimedia Modeling (pp. 345-356). Springer, Cham.<br/>
+
+[2] Tómasson, Grímur. <i>ObjectCube–a generic multi-dimensional model for media browsing.</i> Master's thesis, Reykjavik University, Iceland (2011).<br/>
+
+[3] Tómasson, G., Sigurþórsson, H., Jónsson, B.Þ. and Amsaleg, L., 2011, April. <i>Photocube: Effective and efficient multi-dimensional browsing of personal photo collections.</i> In Proceedings of the 1st ACM International Conference on Multimedia Retrieval (p. 70). ACM.<br/>
+
+[4] Sigurþórsson, H., 2011. <i>Photocube: A multi-dimensional image browser.</i> MSc Thesis, Reykjavik University, Iceland.<br/>
+
+[5] Snorri Gíslason. <i>Multimedia Analytics and File Browsing.</i> MSc thesis, IT University of Copenhagen, May 2018.<br/>
+
+[6] Björn Þór Jónsson, Marcel Worring, Jan Zahálka, Stevan Rudinac, Laurent Amsaleg: <i>Ten Research Questions for Scalable Multimedia Analytics.</i> MMM (2) 2016: 290-302.<br/>
+
+[7] Zahálka, J. and Worring, M., 2014, October. <i>Towards interactive, intelligent, and integrated multimedia analytics.</i> In Visual Analytics Science and Technology (VAST), 2014 IEEE Conference on (pp. 3-12). IEEE.<br/>
+
+[8] Kristján Rúnarsson. <i>A Face Recognition Plug-In for The PhotoCube Browser.</i> MSc Thesis, IT University of Copenhagen, December 2011.<br/>
+
+[9] Snorri Gíslason, Björn Þór Jónsson, and Laurent Amsaleg. 2019, January. <i>Integration of Exploration and Search: A Case Study of the M³ Model.</i> In International Conference on Multimedia Modeling (pp. 156-168). Springer, Cham.<br/>
+</p>

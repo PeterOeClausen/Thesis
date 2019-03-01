@@ -13,6 +13,7 @@ import Tagset from './Tagset';
 import HierarchyNode from './HierarchyNode';
 import { Raycaster } from 'three';
 import CubeObject from './CubeObject';
+import ICell from './Cell';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -27,16 +28,12 @@ const OrbitControls = require('three-orbitcontrols')
  */
 class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: number) => void}>{
     state: React.ComponentState = {
-        //The three axis:
-        xAxis: null,
-        yAxis: null,
-        zAxis: null,
+        
 
         //Cube data:
         cubeObjects: [],
 
-        //Cells:
-        cells: [],
+        
     }
 
     //TODO: Add progressbar
@@ -73,6 +70,14 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen:
     mouse = new THREE.Vector2();
 
+    //State:
+    //Cells:
+    cells: Cell[] = [];
+    //The three axis:
+    xAxis: Axis = new Axis();
+    yAxis: Axis = new Axis();
+    zAxis: Axis = new Axis();
+
     Colors = {
         red: 0xF00000,
         green: 0x00F000,
@@ -81,6 +86,9 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
     constructor(props: any){
         super(props);
+        this.xAxis.TitleString = "X";
+        this.yAxis.TitleString = "Y";
+        this.zAxis.TitleString = "Z";
     }
     
     componentDidMount(){
@@ -247,7 +255,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         newXAxis.TitleString = "X";
         newXAxis.TitleThreeObject = this.addText("X", {x:5,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
         newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:5,y:0,z:0}, new THREE.Color(0xF00000));
-        this.setState( {xAxis: newXAxis} );
+        this.xAxis = newXAxis;
 
         //Creating Y-Axis:
         let newYAxis = new Axis();
@@ -255,7 +263,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         newYAxis.TitleString = "Y";
         newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:5,z:0}, new THREE.Color(0x00F000), 0.5);
         newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:5,z:0}, new THREE.Color(0x00F000));
-        this.setState( {yAxis: newYAxis} );
+        this.yAxis = newYAxis;
         
         //Creating Z-Axis:
         let newZAxis = new Axis();
@@ -263,7 +271,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         newZAxis.TitleString = "Z";
         newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:5}, new THREE.Color(0x0000F0), 0.5);
         newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:5}, new THREE.Color(0x0000F0));
-        this.setState( {zAxis: newZAxis} );
+        this.zAxis = newZAxis;
     }
 
     componentWillUnmount(){
@@ -430,15 +438,15 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
         let axis : Axis = new Axis();
         switch(dimName){
             case "X":
-                this.state.xAxis.RemoveObjectsFromScene(this.scene);
+                this.xAxis.RemoveObjectsFromScene(this.scene);
                 axis.AxisDirection = AxisDirection.X; //.AxisDirection = AxisDirection.X;
                 break;
             case "Y":
-                this.state.yAxis.RemoveObjectsFromScene(this.scene);
+                this.yAxis.RemoveObjectsFromScene(this.scene);
                 axis.AxisDirection = AxisDirection.Y;
                 break;
             case "Z":
-                this.state.zAxis.RemoveObjectsFromScene(this.scene);
+                this.zAxis.RemoveObjectsFromScene(this.scene);
                 axis.AxisDirection = AxisDirection.Z;
                 break;
         }
@@ -464,13 +472,13 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
         switch(dimName){
             case "X":
-                this.setState({xAxis: axis});
+                this.xAxis = axis;
                 break;
             case "Y":
-                this.setState({yAxis: axis});
+                this.yAxis = axis;
                 break;
             case "Z":
-                this.setState({zAxis: axis});
+                this.zAxis = axis;
                 break;
         }
 
@@ -479,41 +487,67 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
 
     async computeCells(){
         //Remove previous cells:
-        this.state.cells.forEach((cell: Cell) => cell.RemoveFromScene());
-        this.setState({cells: []});
+        this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
 
         //Clear cache:
-        sessionStorage.clear();
+        //sessionStorage.clear();
 
         //Fetch and add new cells:
-        let xDefined : boolean = this.state.xAxis.TitleString != "X";
-        let yDefined : boolean = this.state.yAxis.TitleString != "Y";
-        let zDefined : boolean = this.state.zAxis.TitleString != "Z";
-        let promise: Promise<void>;
+        let xDefined : boolean = this.xAxis.TitleString != "X";
+        let yDefined : boolean = this.yAxis.TitleString != "Y";
+        let zDefined : boolean = this.zAxis.TitleString != "Z";
+        //let promise: Promise<void>;
+
+        let newCells: Cell[] = [];
+
         if(xDefined && yDefined && zDefined){   //X and Y and Z
             //Render all three axis
-            promise = this.fetchAndAddCubeObjectsForThreeAxis(this.state.xAxis, this.state.yAxis, this.state.zAxis);
+            //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
-            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.yAxis);
+            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
-            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.xAxis, this.state.zAxis);
+            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
-            promise = this.fetchAndAddCubeObjectsForTwoAxis(this.state.yAxis, this.state.zAxis);
+            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
-            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.xAxis);
+            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            //TODO: Add cubes to UI.
         }else if(yDefined){                     //Y
-            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.yAxis);
+            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
-            promise = this.fetchAndAddCubeObjectsForOneAxis(this.state.zAxis);
+            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
+            console.log(ICells);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
-        await promise!;
+        this.cells = newCells;
+
+        //await promise!;
         console.log("Done computing cells")
 
         //Update filecount:
         let uniquePhotoIds: Set<number> = new Set();
-        this.state.cells.forEach((cell: Cell) => 
-            cell.cubeObjectData.forEach(co => uniquePhotoIds.add(co.PhotoId)));
+        this.cells.forEach((cell: Cell) => 
+            cell.CubeObjects.forEach(co => uniquePhotoIds.add(co.PhotoId)));
         this.props.onFileCountChanged(uniquePhotoIds.size);
     }
 
@@ -535,6 +569,8 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
                 //If axis is tagset:
                 axis.Tags.map(async (tag: Tag, index) => {
                     let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(tag, null, null);
+                    
+                    //Calculate coordinates:
                     let coordinate = {x:0, y:0, z:0};
                     switch(axis.AxisDirection){
                         case AxisDirection.X: //If axis is xAxis
@@ -556,10 +592,31 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
                 :   
                 //If axis is hierarchy:
                 axis.Hierarchies.map(async (hierarchies: HierarchyNode, index) => {
-                    let tags : Tag[] = this.extractTagsFromHierarchyNode(hierarchies);
+                    //let tags : Tag[] = this.extractTagsFromHierarchyNode(hierarchies);
                     
                     //Rewrite to take a Tag[]
-                    let cubeObjectArr: CubeObject[] = await Fetcher.FetchCubeObjectsWithTagsOTR(hierarchies.Tag, null, null);
+                    /*
+                    let cubeObjectArr: CubeObject[] = await Fetcher.FetchCubeObjectsWithTagsOTR(hierarchies, null, null);
+
+                    let coordinate = {x:0, y:0, z:0};
+                    switch(axis.AxisDirection){
+                        case AxisDirection.X: //If axis is xAxis
+                            coordinate.x += 1 + index;
+                            coordinate.y += 1;
+                            break;
+                        case AxisDirection.Y:
+                            coordinate.y += 1 + index;
+                            coordinate.z += 0.5;
+                            break;
+                        case AxisDirection.Z:
+                            coordinate.z += 1 + index;
+                            coordinate.y += 1;
+                            break;
+                    }
+
+                    let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
+                    cells.push(cell);
+                    */
                     /*
                     cubeObjectArr.push(await Fetcher.FetchCubeObjectsWithTagsOTR(tag, null, null);
                     let coordinate = {x:0, y:0, z:0};
@@ -581,7 +638,7 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
                 });
 
         await Promise.all(promises); //Wait for all cells to be added:
-        this.setState({cells: cells});
+        //this.setState({cells: cells});
     }
 
     async fetchAndAddCubeObjectsForTwoAxis(axis1: Axis, axis2:Axis){

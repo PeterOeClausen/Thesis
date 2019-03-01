@@ -2,6 +2,7 @@ import Axis from "./Axis";
 import CubeObject from './CubeObject';
 import Position from './Position';
 import Tag from "./Tag";
+import HierarchyNode from "./HierarchyNode";
 
 export interface CoordinateObjectPair{
     coordinate: number,
@@ -92,15 +93,33 @@ export default class Fetcher{
         return cubeObjectArrResult;
     }
 
-    static async FetchCellsFromAxis(xAxis: Axis, yAxis: Axis, zAxis: Axis){
+    static async FetchCellsFromAxis(xAxis: Axis|null, yAxis: Axis|null, zAxis: Axis|null){
         //Fetch and add new cells:
-        let xDefined : boolean = xAxis.TitleString != "X";
-        let yDefined : boolean = yAxis.TitleString != "Y";
-        let zDefined : boolean = zAxis.TitleString != "Z";
-        let promise: Promise<void>;
-        if(xDefined){
+        let xDefined: boolean = xAxis !== null;
+        let yDefined: boolean = yAxis !== null;
+        let zDefined: boolean = zAxis !== null;
+        if(!xDefined && !yDefined && !zDefined){ throw new Error("xAxis, yAxis and zAxis cannot all be null!") }
+        let queryString: string = this.baseUrl + "cell/?";
+        if(xDefined) { queryString += "xAxis=" + this.parseAxis(xAxis!)}
+        if(yDefined) { queryString += "&yAxis=" + this.parseAxis(yAxis!)}
+        if(zDefined) { queryString += "&zAxis=" + this.parseAxis(zAxis!)}
+        //Header too long... use fetch with data instead! https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+        console.log(queryString);
+            
+        return fetch(queryString)
+            .then(result => {return result.json();});
+    }
 
-        }
+    private static parseAxis(axis: Axis) : string{
+        console.log(axis.TitleString);
+        return JSON.stringify( 
+            {
+                AxisDirection: axis.AxisDirection,
+                AxisType: axis.AxisType,
+                TagsetId: axis.TagsetId,
+                HierarchyNodeId: axis.RootNodeId
+            } 
+        );
     }
 
     static async FetchNode(nodeId: number){

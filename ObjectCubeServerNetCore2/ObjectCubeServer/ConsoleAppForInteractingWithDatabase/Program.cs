@@ -2,6 +2,7 @@
 using ObjectCubeServer.Models.DataAccess;
 using ObjectCubeServer.Models.DomainClasses;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -15,7 +16,20 @@ namespace ConsoleAppForInteractingWithDatabase
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             //JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
-            LaugavegurDatasetInserter.InsertLaugavegurDataset();
+            //LaugavegurDatasetInserter.InsertLaugavegurDataset();
+            
+            List<string> A = new List<string>();
+            A.Add("a");
+            A.Add("b");
+            A.Add("c");
+            A.Add("d");
+
+            List<string> B = new List<string>();
+            B.Add("b");
+            B.Add("c");
+
+            List<string> C = A.Intersect(B).ToList();
+            C.ForEach(s => Console.WriteLine(s));
 
             // Get the elapsed time as a TimeSpan value.
             TimeSpan ts = stopWatch.Elapsed;
