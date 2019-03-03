@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../../css/RightDock.css'
+import '../../css/RightDock.css';
 import FileCount from './FileCount';
 import BrowsingModeChanger, { BrowsingModes } from './BrowsingModeChanger';
 import Dimensions from './Dimensions';
@@ -8,9 +8,10 @@ import Tagset from '../Middle/ThreeBrowser/Tagset';
 import HierarchyBrowser from './HierarchyBrowser';
 
 class RightDock extends React.Component<{
-    onDimensionChanged:(dimName: string, dimension:any) => void,
-    onBrowsingModeChanged:(browsingmode: BrowsingModes) => void
-    onClearAxis:(axisName: string) => void
+        //Props contract:
+        onDimensionChanged:(dimName: string, dimension:any) => void,
+        onBrowsingModeChanged:(browsingmode: BrowsingModes) => void
+        onClearAxis:(axisName: string) => void
     }>{
 
     private fileCount = React.createRef<FileCount>();
@@ -26,7 +27,7 @@ class RightDock extends React.Component<{
                 <FileCount ref={this.fileCount}/>
                 <BrowsingModeChanger onBrowsingModeChanged={this.onBrowsingModeChanged} />
                 <Dimensions onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
-                <HierarchyBrowser ref={this.hierarchyBrowser}/>
+                <HierarchyBrowser ref={this.hierarchyBrowser} onDimensionChanged={this.onDimensionChanged}/>
             </div>
         );
     }
@@ -39,6 +40,8 @@ class RightDock extends React.Component<{
         this.props.onDimensionChanged(dimName, dimension);
         if(dimension.type == "hierarchy"){
             if(this.hierarchyBrowser.current) this.hierarchyBrowser.current.RenderHierarchy(dimName, dimension);
+        }else if(dimension.type == "tagset"){
+            if(this.hierarchyBrowser.current) this.hierarchyBrowser.current.ClearHierarchy(dimName);
         }
         //ThreeBrowserController.getInstance().sayHello();
     }
@@ -46,6 +49,11 @@ class RightDock extends React.Component<{
     onBrowsingModeChanged = (selectedBrowsingMode: BrowsingModes) => {
         console.log(selectedBrowsingMode);
         this.props.onBrowsingModeChanged(selectedBrowsingMode);
+    }
+
+    onClearAxis = (axisName: string) => {
+        if(this.hierarchyBrowser.current){ this.hierarchyBrowser.current.ClearHierarchy(axisName); }
+        this.props.onClearAxis(axisName);
     }
 }
 

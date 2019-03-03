@@ -34,7 +34,7 @@ class Dimension extends Component<{
 
     renderDimensionTypeAndName(){
         if(this.state.DimensionType != null){
-            return (<p>{this.state.DimensionType}:{this.state.DimensionName}</p>);
+            return (<p>{this.state.DimensionName} ({this.state.DimensionType})</p>);
         }else{
             return (<p>Choose a dimension...</p>)
         }

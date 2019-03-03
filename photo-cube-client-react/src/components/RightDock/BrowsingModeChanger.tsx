@@ -10,7 +10,9 @@ export enum BrowsingModes{
     Card
 }
 
-class BrowserModeChanger extends React.Component<{onBrowsingModeChanged: (selectedBrowsingMode:BrowsingModes) => void}>{
+class BrowserModeChanger extends React.Component<{
+        onBrowsingModeChanged: (selectedBrowsingMode:BrowsingModes) => void
+    }>{
     
     render(){
         return(

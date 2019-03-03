@@ -27,7 +27,10 @@ const OrbitControls = require('three-orbitcontrols')
  * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
-class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: number) => void}>{
+class ThreeBrowser extends React.Component<{
+        //Props contract:
+        onFileCountChanged: (fileCount: number) => void
+    }>{
 
     //TODO: Add progressbar
     render(){
@@ -357,11 +360,6 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
             case "hierarchy":
                 let hierarchy: Hierarchy = await Fetcher.FetchHierarchy(dimension.id);
                 let rootNode: HierarchyNode = await Fetcher.FetchNode(hierarchy.RootNodeId);
-                /*
-                let tags: (Tag)[] = rootNode.Children.map(n => {
-                    n.Tag!.Name += "(h)"; //Appending (h)
-                    return n.Tag!;
-                });*/
                 axis.TitleString = hierarchy.Name + " (hierarchy)";
                 axis.AddHierarchy(rootNode, this.addTextCallback, this.addLineCallback);
                 break;
@@ -369,6 +367,11 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
                 let tagset: Tagset = await Fetcher.FetchTagset(dimension.id);
                 axis.TitleString = tagset.Name + " (tagset)";
                 axis.AddTagset(tagset, this.addTextCallback, this.addLineCallback);
+                break;
+            case "hierarchyNode":
+                let rootNode2: HierarchyNode = await Fetcher.FetchNode(dimension.id);
+                axis.TitleString = rootNode2.Tag.Name + " (hierarchy)";
+                axis.AddHierarchy(rootNode2, this.addTextCallback, this.addLineCallback);
                 break;
         }
 

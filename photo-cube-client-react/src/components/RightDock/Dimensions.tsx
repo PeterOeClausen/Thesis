@@ -9,14 +9,16 @@ class Dimensions extends Component<{
     onDimensionChanged:(dimName: string, dimension:any) => void,
     onClearAxis:(axisName: string) => void
     }>{
-        
+
     render(){
         return(
             <div>
                 <h4 className="Header">Dimensions</h4>
-                <Dimension xyz="X" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
-                <Dimension xyz="Y" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
-                <Dimension xyz="Z" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <div className="Container">
+                    <Dimension xyz="X" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                    <Dimension xyz="Y" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                    <Dimension xyz="Z" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                </div>
             </div>
         );
     }

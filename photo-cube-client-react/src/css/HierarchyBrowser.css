@@ -19,5 +19,8 @@
 
 .Scrollable{
     height: 200px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    border-width: 1px;
+    border-color: white;
+    padding: 5px;
 }

@@ -1,3 +1,7 @@
+.Container{
+    padding: 5px;
+}
+
 .displayInline{
     display: inline-block;
 }
