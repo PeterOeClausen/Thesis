@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import '../../css/PhotoCubeClient.css';
-import LeftDock from '../LeftDock/LeftDock';
-import ThreeBrowser from './ThreeBrowser/ThreeBrowser';
-import GridBrowser from './GridBrowser/GridBrowser';
-import CardBrowser from './CardBrowser/CardBrowser';
-import RightDock from '../RightDock/RightDock';
-import { BrowsingModes } from '../RightDock/BrowsingModeChanger';
-import Tagset from './ThreeBrowser/Tagset';
-import Hierarchy from './ThreeBrowser/Hierarchy';
-import { TGALoader, TriangleStripDrawMode } from 'three';
+import '../css/PhotoCubeClient.css';
+import LeftDock from './LeftDock/LeftDock';
+import ThreeBrowser from './Middle/ThreeBrowser/ThreeBrowser';
+import GridBrowser from './Middle/GridBrowser/GridBrowser';
+import CardBrowser from './Middle/CardBrowser/CardBrowser';
+import Tagset from './Middle/ThreeBrowser/Tagset';
+import Hierarchy from './Middle/ThreeBrowser/Hierarchy';
+import RightDock from './RightDock/RightDock';
+import { BrowsingModes } from './RightDock/BrowsingModeChanger';
 
 export default class PhotoCubeClient extends React.Component {
   threeBrowser = React.createRef<ThreeBrowser>();
@@ -54,6 +53,7 @@ export default class PhotoCubeClient extends React.Component {
   }
 
   onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
+    if(this.threeBrowser.current) this.threeBrowser.current.GetCurrentBrowsingState();
     this.setState({BrowsingMode: browsingMode});
   }
 

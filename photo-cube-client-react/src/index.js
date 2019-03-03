@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PhotoCubeClient from './components/Middle/PhotoCubeClient';
+import PhotoCubeClient from './components/PhotoCubeClient';
 import * as serviceWorker from './serviceWorker';
 
 /* Run 'npm start' to run project. */

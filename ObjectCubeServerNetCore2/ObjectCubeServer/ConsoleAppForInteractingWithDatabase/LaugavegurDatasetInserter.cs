@@ -359,7 +359,7 @@ namespace ConsoleAppForInteractingWithDatabase
                     }
                     
                     //Adding child nodes:
-                    for (int i = 2; i < split.Length; i++)
+                    for (int i = 3; i < split.Length; i++)
                     {
                         string childTagName = split[i];
 

@@ -41,11 +41,13 @@ namespace ObjectCubeServer.Controllers
                     .Where(n => n.Id == id)
                     .Include(n => n.Tag)
                     .Include(n => n.Children)
+                        .ThenInclude(cn => cn.Tag)
                     .FirstOrDefault();
             }
             if (nodeFound == null) { return NotFound(); }
             else
             {
+                nodeFound.Children.Sort((cn1, cn2) => cn1.Tag.Name.CompareTo(cn2.Tag.Name));
                 nodeFound = RecursiveAddChildrenAndTags(nodeFound);
                 return Ok(JsonConvert.SerializeObject(nodeFound));
             }
@@ -63,8 +65,10 @@ namespace ObjectCubeServer.Controllers
                         .Where(n => n.Id == childNode.Id)
                         .Include(n => n.Tag)
                         .Include(n => n.Children)
+                            .ThenInclude(cn => cn.Tag)
                         .FirstOrDefault();
                 }
+                childNodeWithTagAndChildren.Children.Sort((cn1, cn2) => cn1.Tag.Name.CompareTo(cn2.Tag.Name));
                 childNodeWithTagAndChildren = RecursiveAddChildrenAndTags(childNodeWithTagAndChildren);
                 newChildNodes.Add(childNodeWithTagAndChildren);
             }

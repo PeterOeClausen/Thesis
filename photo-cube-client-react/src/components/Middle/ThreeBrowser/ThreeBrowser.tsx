@@ -14,6 +14,7 @@ import HierarchyNode from './HierarchyNode';
 import { Raycaster } from 'three';
 import CubeObject from './CubeObject';
 import ICell from './Cell';
+import { BrowsingState } from './BrowsingState';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -547,6 +548,19 @@ class ThreeBrowser extends React.Component<{onFileCountChanged: (fileCount: numb
     onMouseMove = (event:MouseEvent) => {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	    this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    }
+
+    GetCurrentBrowsingState(){
+        let cameraAngle = new THREE.Vector3();
+        //this.camera.getWorldDirection(camera)
+        /*
+        let currentBrowsingState : BrowsingState = {
+            xAxis: this.xAxis,
+            yAxis: this.yAxis,
+            zAxis: this.zAxis,
+            cameraPosition: {x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z }
+            //cameraAngle: this.camera.
+        }*/
     }
 }
         
