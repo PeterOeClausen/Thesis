@@ -8,10 +8,14 @@ import Tagset from './Middle/ThreeBrowser/Tagset';
 import Hierarchy from './Middle/ThreeBrowser/Hierarchy';
 import RightDock from './RightDock/RightDock';
 import { BrowsingModes } from './RightDock/BrowsingModeChanger';
+import { BrowsingState } from './Middle/ThreeBrowser/BrowsingState';
+import PickedDimension from './RightDock/PickedDimension';
 
 export default class PhotoCubeClient extends React.Component {
   threeBrowser = React.createRef<ThreeBrowser>();
+  threeBrowserBrowsingState : BrowsingState|null = null;
   rightDock = React.createRef<RightDock>();
+
   
   state = {
     BrowsingMode: BrowsingModes.Cube //Check selected value in BrowsingModeChanger
@@ -21,7 +25,7 @@ export default class PhotoCubeClient extends React.Component {
     //Conditional rendering:
     let currentBrowser = null;
     if(this.state.BrowsingMode == BrowsingModes.Cube){
-      currentBrowser = <ThreeBrowser ref={this.threeBrowser} onFileCountChanged={this.onFileCountChanged}/>
+      currentBrowser = <ThreeBrowser ref={this.threeBrowser} onFileCountChanged={this.onFileCountChanged} previousBrowsingState={this.threeBrowserBrowsingState}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Grid){
       currentBrowser = <GridBrowser/>
     }else if(this.state.BrowsingMode == BrowsingModes.Card){
@@ -44,16 +48,19 @@ export default class PhotoCubeClient extends React.Component {
     if(this.rightDock.current) this.rightDock.current.UpdateFileCount(fileCount);
   }
 
-  onDimensionChanged = (dimName: string, dimension:any) => {
+  onDimensionChanged = (dimName: string, dimension:PickedDimension) => {
     console.log("Dimension " + dimName + ", changed to: ");
     console.log(dimension);
     
-    this.threeBrowser.current!.updateAxis(dimName, dimension);
+    this.threeBrowser.current!.UpdateAxis(dimName, dimension);
     //ThreeBrowserController.getInstance().sayHello();
   }
 
   onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
-    if(this.threeBrowser.current) this.threeBrowser.current.GetCurrentBrowsingState();
+    if(this.state.BrowsingMode == BrowsingModes.Cube && browsingMode != BrowsingModes.Cube){
+      //Saving current browsingstate:
+      this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
+    }
     this.setState({BrowsingMode: browsingMode});
   }
 

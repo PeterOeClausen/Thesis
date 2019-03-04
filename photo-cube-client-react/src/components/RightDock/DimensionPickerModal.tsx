@@ -3,6 +3,7 @@ import Modal from "react-responsive-modal"; //https://www.npmjs.com/package/reac
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import '../../css/Dimensions.css'
+import PickedDimension from './PickedDimension';
 
 /**
  * A component containing a Modal for picking Dimensions.
@@ -19,7 +20,7 @@ import '../../css/Dimensions.css'
  * The Dimension is then to be shown in the ThreeBrowser.
  */
 class DimensionPickerModal extends Component<{
-    onDimensionPicked : (dimension:any) => void
+    onDimensionPicked : (dimension:PickedDimension) => void
     }>{
     
     state = {

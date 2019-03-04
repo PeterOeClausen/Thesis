@@ -4,6 +4,8 @@ import Position from "./Position";
 import HierarchyNode from './HierarchyNode';
 import Tagset from './Tagset';
 import Hierarchy from './Hierarchy';
+import PickedDimension from '../../RightDock/PickedDimension';
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 export enum AxisTypeEnum {
     Tagset = "Tagset",
@@ -30,6 +32,7 @@ export default class Axis{
     LineThreeObject: THREE.Line|null = null;
     LabelThreeObjects: THREE.Mesh[] = [];
     
+    PickedDimension: PickedDimension|null = null;
     TagsetId: number = 0;
     Tags: Tag[] = [];
     RootNodeId: number = 0;

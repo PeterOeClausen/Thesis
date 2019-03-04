@@ -31,7 +31,7 @@ export default class Cell{
 
     imageIndex: number = 0;
 
-    constructor(scene:THREE.Scene, textureLoader:THREE.TextureLoader, aPosition:Position, cubeObjectData: CubeObject[]){
+    constructor(scene:THREE.Scene, textureLoader:THREE.TextureLoader, addToCubeMeshesCallback: (cubeMesh: THREE.Mesh) => void, aPosition:Position, cubeObjectData: CubeObject[]){
         this.scene = scene;
         
         this.x = aPosition.x;
@@ -40,6 +40,8 @@ export default class Cell{
         this.CubeObjects = cubeObjectData;
         if(cubeObjectData.length > 0){
             this.threeObject = this.CreateCubeMesh();
+            this.threeObject.userData = { x: this.x, y: this.y, z:this.z, size: this.CubeObjects.length };
+            addToCubeMeshesCallback(this.threeObject);
             //this.ToggleSwitchingImagesEveryXms(10000);
         }
         else{

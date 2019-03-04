@@ -3,10 +3,11 @@ import '../../css/Dimensions.css';
 import Dimension from './Dimension';
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
+import PickedDimension from './PickedDimension';
 //import {MyContext} from '../Middle/PhotoCubeClient';
 
 class Dimensions extends Component<{
-    onDimensionChanged:(dimName: string, dimension:any) => void,
+    onDimensionChanged:(dimName: string, dimension:PickedDimension) => void,
     onClearAxis:(axisName: string) => void
     }>{
 

@@ -15,6 +15,7 @@ import { Raycaster } from 'three';
 import CubeObject from './CubeObject';
 import ICell from './Cell';
 import { BrowsingState } from './BrowsingState';
+import PickedDimension from '../../RightDock/PickedDimension';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -29,22 +30,28 @@ const OrbitControls = require('three-orbitcontrols')
  */
 class ThreeBrowser extends React.Component<{
         //Props contract:
-        onFileCountChanged: (fileCount: number) => void
+        onFileCountChanged: (fileCount: number) => void,
+        previousBrowsingState: BrowsingState|null
     }>{
+
+    state = {
+        infoText: "InfoText",
+        showContextMenu: false,
+        
+    };
 
     //TODO: Add progressbar
     render(){
-        /*
-        let cssClasses: string = "";
-        if(this.state.showTooltip){
-            cssClasses += "showTooltip";
-        }else{
-            cssClasses += "hideTooltip";
+        let contextMenu = <div id="conMenu"></div>
+        if(this.state.showContextMenu){
+            contextMenu = <div id="conMenu"><button>Open cube in card mode</button></div>
         }
-        */
+
         return(
             <div className="grid-item" id="ThreeBrowser">
                 <div style={{ width: '400px', height: '400px' }} ref = {(mount) => { this.mount = mount }}/>
+                <div id="info">{this.state.infoText}</div>
+                {contextMenu}
                 <p style={{}}>tooltip!</p>
             </div>
         );
@@ -53,17 +60,18 @@ class ThreeBrowser extends React.Component<{
     mount: HTMLDivElement|null = this.mount!;
     //ADD SCENE
     scene: THREE.Scene = new THREE.Scene();
-    camera: any;    //Set in componentDidMount
+    camera: THREE.Camera = new THREE.Camera();
     controls: any;  //Set in componentDidMount
     font:any;
     frameId: number = 0;
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
     textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
     textMeshes: THREE.Mesh[] = [];
+    cubeMeshes: THREE.Mesh[] = [];
     textLoader: any = new THREE.FontLoader();
     //Raycaster used for detecting mouse over:
     raycaster: Raycaster = new Raycaster();
-    //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen:
+    //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen. Updated in this.onMouseMove
     mouse = new THREE.Vector2();
 
     //Browsing state:
@@ -118,13 +126,48 @@ class ThreeBrowser extends React.Component<{
         window.addEventListener("resize", this.resizeBrowser);
         //Add keydown handler:
         document.addEventListener('keydown', this.handleKeyPress);
-        //Mouse move tooltip:
-        this.mount!.addEventListener('mousemove', this.onMouseMove);
+        //Mouse move event handler:
+        this.renderer.domElement.addEventListener('mousemove', this.onMouseMove, false);
 
+        //Default x,y,z view:
         this.createInitialScene();
 
         //START ANIMATION
         this.start();
+
+        if(this.props.previousBrowsingState) this.RestoreBrowsingState(this.props.previousBrowsingState!);
+
+        //Right click handler:
+        this.renderer.domElement.addEventListener('contextmenu', (me: MouseEvent) => {
+            me.preventDefault();
+            // calculate objects intersecting the picking ray:
+            // is updated in function onMouseMove
+            let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+            //Only show contextMenu if on cube object:
+            if(intersects.length > 0){
+                let conMenu : HTMLElement|null = document.getElementById('conMenu');
+                let x = (me.clientX + 20) + 'px';
+                let y = (me.clientY + 20) + 'px';
+                conMenu!.style.top = y;
+                conMenu!.style.left = x;
+                this.setState({showContextMenu: true});
+            }
+            return false;
+        }, false);
+
+        this.renderer.domElement.addEventListener("click", (me: MouseEvent) => {
+            if(me.button == 0 || me.button == 1){ //left or middle click
+                this.setState({ showContextMenu: false });
+            }
+        });
+
+        /*
+        this.renderer.domElement.addEventListener( 'webglcontextrestored', () => {
+
+            this.camera.update( this.renderer, this.scene );
+        
+        } );
+        */
 
         /*
         THREE.DefaultLoadingManager.onProgress = (item:any, loaded: number, total: number) => {
@@ -217,8 +260,9 @@ class ThreeBrowser extends React.Component<{
         let width = browserElement.clientWidth;
         let height = browserElement.clientHeight;
         this.renderer.setSize(width, height);
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
+        //console.log(this.camera);
+        (this.camera as any).aspect = width / height; //For some reason, typescript cannot see .aspect property?
+        (this.camera as any).updateProjectionMatrix();
     }
 
     handleKeyPress = (event: KeyboardEvent) => {
@@ -252,6 +296,7 @@ class ThreeBrowser extends React.Component<{
         boxMesh.position.z = aPosition.z;
         //Add to scene:
         this.scene.add( boxMesh );
+        this.cubeMeshes.push(boxMesh);
         return boxMesh;
     }
 
@@ -339,7 +384,7 @@ class ThreeBrowser extends React.Component<{
      * @param dimName "X", "Y" or "Z"
      * @param dimension 
      */
-    async updateAxis(dimName:string, dimension:any){
+    async UpdateAxis(dimName:string, dimension:PickedDimension){
         let axis : Axis = new Axis();
         switch(dimName){
             case "X":
@@ -355,7 +400,8 @@ class ThreeBrowser extends React.Component<{
                 axis.AxisDirection = AxisDirection.Z;
                 break;
         }
-        
+        axis.PickedDimension = dimension;
+
         switch(dimension.type){
             case "hierarchy":
                 let hierarchy: Hierarchy = await Fetcher.FetchHierarchy(dimension.id);
@@ -393,6 +439,7 @@ class ThreeBrowser extends React.Component<{
     async computeCells(){
         //Remove previous cells:
         this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
+        this.cubeMeshes = [];
 
         //Fetch and add new cells:
         let xDefined : boolean = this.xAxis.TitleString != "X";
@@ -406,38 +453,38 @@ class ThreeBrowser extends React.Component<{
             //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
             //TODO: Add cubes to UI.
         }else if(yDefined){                     //Y
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
             console.log(ICells);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
         this.cells = newCells;
@@ -452,118 +499,64 @@ class ThreeBrowser extends React.Component<{
         this.props.onFileCountChanged(uniquePhotoIds.size);
     }
 
-    /**
-     * Recursively goes through the HierarchyNode tree and collects all the tags.
-     * @param hn A hierarchy node to start from.
-     */
-    /*extractTagsFromHierarchyNode(hn: HierarchyNode): Tag[]{
-        let tags: Tag[] = [hn.Tag];
-        let childTags: Tag[] = hn.Children.flatMap(c => this.extractTagsFromHierarchyNode(c));
-        return tags.concat(childTags);
-    }*/
-
-    /*async fetchAndAddCubeObjectsForOneAxis(axis: Axis){
-        let cells: Cell[] = [];
-        //Change promise if axis is of type hirarchy
-        let promises = 
-            axis.AxisType === AxisTypeEnum.Tagset ? 
-                //If axis is tagset:
-                axis.Tags.map(async (tag: Tag, index) => {
-                    let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(tag, null, null);
-                    
-                    //Calculate coordinates:
-                    let coordinate = {x:0, y:0, z:0};
-                    switch(axis.AxisDirection){
-                        case AxisDirection.X: //If axis is xAxis
-                            coordinate.x += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                        case AxisDirection.Y:
-                            coordinate.y += 1 + index;
-                            coordinate.z += 0.5;
-                            break;
-                        case AxisDirection.Z:
-                            coordinate.z += 1 + index;
-                            coordinate.y += 1;
-                            break;
-                    }
-                    let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
-                    cells.push(cell);
-                })
-                :   
-                //If axis is hierarchy:
-                axis.Hierarchies.map(async (hierarchies: HierarchyNode, index) => {
-                   
-                });
-
-        await Promise.all(promises); //Wait for all cells to be added:
-        //this.setState({cells: cells});
-    }*/
-
-    /*async fetchAndAddCubeObjectsForTwoAxis(axis1: Axis, axis2:Axis){
-        let cells: Cell[] = [];
-        let promises = axis1.Tags.map(async (tag1: Tag, index1) => {
-            axis2.Tags.map(async (tag2: Tag, index2) => {
-                let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(tag1, tag2, null);
-                let coordinate = {x:0, y:0, z:0};
-                switch((axis1.AxisDirection, axis2.AxisDirection)){
-                    case (AxisDirection.X, AxisDirection.Y):    //x and y
-                        coordinate.x += 1 + index1;
-                        coordinate.y += 1 + index2;
-                        break;
-                    case (AxisDirection.X, AxisDirection.Z):    //x and z
-                        coordinate.x += 1 + index1;
-                        coordinate.z += 1 + index2;
-                        break;
-                    case (AxisDirection.Y, AxisDirection.Z):    //y and z
-                        coordinate.y += 1 + index1;
-                        coordinate.z += 1 + index2;
-                        break;
-                }
-                let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
-                cells.push(cell);
-            });
-        });
-        await Promise.all(promises); //Wait for all cells to be added:
-        this.setState({cells: cells});
-    }*/
-
-    /*async fetchAndAddCubeObjectsForThreeAxis(axis1: Axis, axis2:Axis, axis3:Axis){
-        let cells: Cell[] = [];
-        let promises = axis1.Tags.map(async (tag1: Tag, index1) => {
-            axis2.Tags.map(async (tag2: Tag, index2) => {
-                axis3.Tags.map(async (tag3: Tag, index3) => {
-                    let cubeObjectArr = await Fetcher.FetchCubeObjectsWithTagsOTR(tag1, tag2, tag3);
-                    let coordinate = {x:0, y:0, z:0};
-                    //x and y and z:
-                    coordinate.x += 1 + index1;
-                    coordinate.y += 1 + index2;
-                    coordinate.z += 1 + index3;
-                    let cell = new Cell(this.scene, this.textLoader, coordinate, cubeObjectArr);
-                    cells.push(cell);
-                });
-            });
-        });
-        await Promise.all(promises); //Wait for all cells to be added:
-        this.setState({cells: cells});
-    }*/
+    addToCubeMeshesCallback = (cubeMesh: THREE.Mesh) => {
+        this.cubeMeshes.push(cubeMesh);
+    }
     
-    onMouseMove = (event:MouseEvent) => {
+    onMouseMove = (event: MouseEvent) => {
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	    this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera( this.mouse, this.camera );
+        // calculate objects intersecting the picking ray
+        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+        if(intersects.length > 0){
+            let xDefined : boolean = this.xAxis.TitleString !== "X";
+            let yDefined : boolean = this.yAxis.TitleString !== "Y";
+            let zDefined : boolean = this.zAxis.TitleString !== "Z";
+            let infoText : string = "Number of photos: " + intersects[0].object.userData.size;
+           
+            if(xDefined){ 
+                infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name) 
+            }
+            if(yDefined){
+                infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
+            }
+            if(zDefined){
+                infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
+            }
+
+            this.setState({infoText: infoText});
+        }else{
+            this.setState({infoText: "Hover with mouse on a cube to see info"});
+        }
     }
 
     GetCurrentBrowsingState(){
-        let cameraAngle = new THREE.Vector3();
-        //this.camera.getWorldDirection(camera)
-        /*
+        console.log("Getting current browsing state")
         let currentBrowsingState : BrowsingState = {
-            xAxis: this.xAxis,
-            yAxis: this.yAxis,
-            zAxis: this.zAxis,
-            cameraPosition: {x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z }
-            //cameraAngle: this.camera.
-        }*/
+            xAxisPickedDimension: this.xAxis.PickedDimension ? this.xAxis.PickedDimension : null,
+            yAxisPickedDimension: this.yAxis.PickedDimension ? this.yAxis.PickedDimension : null,
+            zAxisPickedDimension: this.zAxis.PickedDimension ? this.zAxis.PickedDimension : null,
+            cameraState: JSON.stringify(this.camera.matrix.toArray())
+        }
+
+        return currentBrowsingState;
+    }
+
+    async RestoreBrowsingState(browsingState: BrowsingState){
+        console.log("Restoring previous browsing state:");
+        //Restoring camera state:
+        this.camera.matrix.fromArray(JSON.parse(browsingState.cameraState));
+        this.camera.matrix.decompose(this.camera.position, this.camera.quaternion, this.camera.scale);
+        (this.camera as any).updateProjectionMatrix();
+
+        //Restoring browsing state:
+        if(browsingState.xAxisPickedDimension) { await this.UpdateAxis("X", browsingState.xAxisPickedDimension) }
+        if(browsingState.yAxisPickedDimension) { await this.UpdateAxis("Y", browsingState.yAxisPickedDimension) }
+        if(browsingState.zAxisPickedDimension) { await this.UpdateAxis("Z", browsingState.zAxisPickedDimension) }
     }
 }
         

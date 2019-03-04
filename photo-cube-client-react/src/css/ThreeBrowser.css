@@ -21,6 +21,21 @@
 	border: 1px solid black;
 	box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
 	transition: opacity 0.25s linear;
-	border-radius: 3px;
-	
+	border-radius: 3px;	
+}
+
+#info {
+	position: absolute;
+	top: 10px;
+	width: 80%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+	color:white;
+}
+
+#conMenu{
+	position: absolute;
+	z-index: 100;
+	display:block;
 }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import '../../css/Dimensions.css'
 import DimensionPickerModal from './DimensionPickerModal';
+import PickedDimension from './PickedDimension';
 
 /**
  * Component repressenting a Dimension, can be either X, Y or Z.
@@ -9,7 +10,7 @@ import DimensionPickerModal from './DimensionPickerModal';
  */
 class Dimension extends Component<{
     xyz: string,
-    onDimensionChanged:(dimName: string, dimension:any) => void,
+    onDimensionChanged:(dimName: string, dimension:PickedDimension) => void,
     onClearAxis: (axisName:string) => void
     }>{
 
@@ -40,7 +41,7 @@ class Dimension extends Component<{
         }
     }
 
-    dimensionPicked = (dimension:any) => {
+    dimensionPicked = (dimension:PickedDimension) => {
         this.setState({
             DimensionType:  dimension.type, 
             DimensionId:    dimension.id, 
