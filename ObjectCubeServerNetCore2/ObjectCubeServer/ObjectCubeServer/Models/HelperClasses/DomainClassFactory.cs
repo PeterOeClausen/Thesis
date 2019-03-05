@@ -8,10 +8,11 @@ namespace ObjectCubeServer.Models
 {
     public class DomainClassFactory
     {
-        public static CubeObject NewCubeObject(FileType fileType, Photo photo)
+        public static CubeObject NewCubeObject(string fileName, FileType fileType, Photo photo)
         {
             return new CubeObject()
             {
+                FileName = fileName,
                 FileType = fileType,
                 Photo = photo,
                 ObjectTagRelations = new List<ObjectTagRelation>()

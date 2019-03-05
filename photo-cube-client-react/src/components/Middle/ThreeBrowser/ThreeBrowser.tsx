@@ -31,30 +31,33 @@ const OrbitControls = require('three-orbitcontrols')
 class ThreeBrowser extends React.Component<{
         //Props contract:
         onFileCountChanged: (fileCount: number) => void,
-        previousBrowsingState: BrowsingState|null
+        previousBrowsingState: BrowsingState|null,
+        onOpenCubeInCardMode: (cubeObjecta: CubeObject[]) => void
     }>{
 
     state = {
-        infoText: "InfoText",
-        showContextMenu: false,
-        
+        infoText: "Hover with mouse on a cube to see info",
+        showContextMenu: false
     };
 
     //TODO: Add progressbar
     render(){
         let contextMenu = <div id="conMenu"></div>
         if(this.state.showContextMenu){
-            contextMenu = <div id="conMenu"><button>Open cube in card mode</button></div>
+            contextMenu = <div id="conMenu"><button onClick={(e) => this.onOpenCubeInCardMode()}>Open cube in card mode</button></div>
         }
-
         return(
             <div className="grid-item" id="ThreeBrowser">
                 <div style={{ width: '400px', height: '400px' }} ref = {(mount) => { this.mount = mount }}/>
                 <div id="info">{this.state.infoText}</div>
                 {contextMenu}
-                <p style={{}}>tooltip!</p>
+                <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please switch browsing mode or refresh the browser.</p>
             </div>
         );
+    }
+
+    onOpenCubeInCardMode(){
+        this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
     }
 
     mount: HTMLDivElement|null = this.mount!;
@@ -73,6 +76,7 @@ class ThreeBrowser extends React.Component<{
     raycaster: Raycaster = new Raycaster();
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen. Updated in this.onMouseMove
     mouse = new THREE.Vector2();
+    
 
     //Browsing state:
     //Cells:
@@ -81,6 +85,8 @@ class ThreeBrowser extends React.Component<{
     xAxis: Axis = new Axis();
     yAxis: Axis = new Axis();
     zAxis: Axis = new Axis();
+
+    contextMenuCubeObjects = [];
 
     Colors = {
         red: 0xF00000,
@@ -129,6 +135,29 @@ class ThreeBrowser extends React.Component<{
         //Mouse move event handler:
         this.renderer.domElement.addEventListener('mousemove', this.onMouseMove, false);
 
+        /* Move camera in Y direction when ctrl + scroll. not done...
+        this.renderer.domElement.addEventListener('scroll', (e) => {
+            if(this.ctrlIsDown && ){
+                e.preventDefault();
+
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key == "Control"){
+                this.ctrlIsDown = true;
+                console.log(e.key == "Control");
+            }
+            
+            //this.ctrlIsDown = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if(e.key == "Control"){
+                this.ctrlIsDown = false;
+            }
+        });*/
+
         //Default x,y,z view:
         this.createInitialScene();
 
@@ -151,6 +180,7 @@ class ThreeBrowser extends React.Component<{
                 conMenu!.style.top = y;
                 conMenu!.style.left = x;
                 this.setState({showContextMenu: true});
+                this.contextMenuCubeObjects = intersects[0].object.userData.cubeObjects;
             }
             return false;
         }, false);
@@ -554,6 +584,18 @@ class ThreeBrowser extends React.Component<{
         }
 
         return currentBrowsingState;
+    }
+
+    GetUniqueCubeObjects(){
+        let uniqueCubeObjectIds = new Set<number>();
+        let listOfUniqueCubeObjects : CubeObject[] = [];
+        this.cells.forEach(c => c.CubeObjects.forEach(co => {
+            if(!uniqueCubeObjectIds.has(co.Id)){
+                listOfUniqueCubeObjects.push(co);
+                uniqueCubeObjectIds.add(co.Id);
+            }
+        }));
+        return listOfUniqueCubeObjects;
     }
 
     async RestoreBrowsingState(browsingState: BrowsingState){

@@ -25,6 +25,8 @@ namespace ObjectCubeServer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("FileName");
+
                     b.Property<int>("FileType");
 
                     b.Property<int?>("PhotoId");

@@ -17,10 +17,15 @@
     margin-left: 100px;
 }
 
-.Scrollable{
-    height: 200px;
+.hierarchyContainer{
+    padding: 5px;
+}
+
+.scrollable{
+    height: 95px;
     overflow-y: auto;
     border-width: 1px;
-    border-color: white;
+    border-color: rgb(40, 40, 40);;
+    border-style: solid;
     padding: 5px;
 }

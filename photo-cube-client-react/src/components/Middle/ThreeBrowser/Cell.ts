@@ -40,7 +40,7 @@ export default class Cell{
         this.CubeObjects = cubeObjectData;
         if(cubeObjectData.length > 0){
             this.threeObject = this.CreateCubeMesh();
-            this.threeObject.userData = { x: this.x, y: this.y, z:this.z, size: this.CubeObjects.length };
+            this.threeObject.userData = { x: this.x, y: this.y, z:this.z, size: this.CubeObjects.length, cubeObjects: this.CubeObjects };
             addToCubeMeshesCallback(this.threeObject);
             //this.ToggleSwitchingImagesEveryXms(10000);
         }

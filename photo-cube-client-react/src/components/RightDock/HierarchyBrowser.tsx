@@ -8,15 +8,27 @@ export default class HierarchyBrowser extends React.Component<{
         onDimensionChanged: (dimName: string, dimension:any) => void,
     }>{
     state = {
-        node: <p>Pick a hierarchy to browse it...</p>
+        xIsHieararchy: false,
+        yIsHieararchy: false,
+        zIsHieararchy: false,
+        xNodes: <p>No xNodes</p>,
+        yNodes: <p>No yNodes</p>,
+        zNodes: <p>No zNodes</p>
     }
     
     render(){
+        let message = !this.state.xIsHieararchy && !this.state.yIsHieararchy && !this.state.zIsHieararchy ? <p>Pick a hierarchy to browse...</p> : <div></div>;
+        let xContainer = this.state.xIsHieararchy ? <div><p>x-hierarchy:</p><div className="scrollable">{this.state.xNodes}</div></div> : <div></div>
+        let yContainer = this.state.yIsHieararchy ? <div><p>y-hierarchy:</p><div className="scrollable">{this.state.yNodes}</div></div> : <div></div>
+        let zContainer = this.state.zIsHieararchy ? <div><p>z-hierarchy:</p><div className="scrollable">{this.state.zNodes}</div></div> : <div></div>
         return(
             <div id="HierarchyBrowser">
                 <h4 className="Header">HierarchyBrowser:</h4>
-                <div className="Scrollable">
-                    {this.state.node}
+                <div className="hierarchyContainer">
+                    {message}
+                    {xContainer}
+                    {yContainer}
+                    {zContainer}
                 </div>
             </div>
         )
@@ -30,7 +42,18 @@ export default class HierarchyBrowser extends React.Component<{
         console.log("Render Hierarchy");
         let hierarchy : Hierarchy = await Fetcher.FetchHierarchy(dimension.id);
         let rootNode: HierarchyNode = await Fetcher.FetchNode(hierarchy.RootNodeId);
-        this.setState({node: this.RenderNode(dimName, rootNode, 0)});
+        switch(dimName){
+            case "X":
+                this.setState({xIsHieararchy:true, xNodes: this.RenderNode(dimName, rootNode, 0)});
+                break;
+            case "Y":
+                this.setState({yIsHieararchy:true, yNodes: this.RenderNode(dimName, rootNode, 0)});
+                break;
+            case "Z":
+                this.setState({zIsHieararchy:true, zNodes: this.RenderNode(dimName, rootNode, 0)});
+                break;
+        }
+        
         console.log(hierarchy);       
     }
 
@@ -52,8 +75,17 @@ export default class HierarchyBrowser extends React.Component<{
         return result;
     }
 
-    ClearHierarchy(dimName: string){
-        console.log("Clear Hierarchy")
-        this.setState({node: null});
+    ClearHierarchy(dimName: string){        
+        switch(dimName){
+            case "X":
+                this.setState({xIsHieararchy: false});
+                break;
+            case "Y":
+                this.setState({yIsHieararchy: false});
+                break;
+            case "Z":
+                this.setState({zIsHieararchy: false});
+                break;
+        }
     }
 }

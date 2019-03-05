@@ -1,0 +1,8 @@
+.imageContainer{
+    width: 100%;
+    background-color: black;
+}
+
+.image{
+    max-width: 25%;
+}

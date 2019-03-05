@@ -113,15 +113,16 @@ namespace ConsoleAppForInteractingWithDatabase
                                     
                                     //Create Cube and Photo objects:
                                     CubeObject cubeObject = DomainClassFactory.NewCubeObject(
+                                        filename,
                                         FileType.Photo, 
                                         DomainClassFactory.NewPhoto(
-                                            ms.ToArray(), 
-                                            Path.GetFileName(file)
+                                            ms.ToArray(),
+                                            filename
                                         )
                                     );
 
                                     //Creating and saving thumbnail:
-                                    int destinationWidth = 200; //200px
+                                    int destinationWidth = 1000; //1000px
                                     decimal downscaleFactor = Decimal.Parse(destinationWidth+"") / Decimal.Parse(image.Width+"");
                                     int newWidth = (int)(image.Width * downscaleFactor);
                                     int newHeight = (int)(image.Height * downscaleFactor);

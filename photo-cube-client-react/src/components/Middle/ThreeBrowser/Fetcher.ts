@@ -136,4 +136,12 @@ export default class Fetcher{
         return await fetch(Fetcher.baseUrl + "/tagset/" + tagsetId)
         .then(result => {return result.json()});
     }
+
+    static GetPhotoURL(photoId: number) : string{
+        return Fetcher.baseUrl + "/photo/" + photoId;
+    }
+
+    static async FetchPhoto(photoId: number) {
+        return await fetch(Fetcher.baseUrl + "/photo/" + photoId);
+    }
 }

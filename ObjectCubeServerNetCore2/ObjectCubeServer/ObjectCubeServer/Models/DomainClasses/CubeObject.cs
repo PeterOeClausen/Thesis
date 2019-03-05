@@ -9,6 +9,8 @@ namespace ObjectCubeServer.Models.DomainClasses
         [Key]
         public int Id { get; set; }
 
+        public string FileName { get; set; }
+
         public FileType FileType { get; set; }
 
         public int? PhotoId { get; set; }
