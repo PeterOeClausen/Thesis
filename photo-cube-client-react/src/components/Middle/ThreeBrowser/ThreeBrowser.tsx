@@ -517,17 +517,27 @@ class ThreeBrowser extends React.Component<{
             let yDefined : boolean = this.yAxis.TitleString !== "Y";
             let zDefined : boolean = this.zAxis.TitleString !== "Z";
             let infoText : string = "Number of photos: " + intersects[0].object.userData.size;
-           
-            if(xDefined){ 
-                infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name) 
+            if(xDefined){
+                if(this.xAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name)
+                }else if(this.xAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
+                }
             }
             if(yDefined){
-                infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
+                if(this.yAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
+                }else if(this.yAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name);
+                }
             }
             if(zDefined){
-                infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
+                if(this.zAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
+                }else if(this.zAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name);
+                }
             }
-
             this.setState({infoText: infoText});
         }else{
             this.setState({infoText: "Hover with mouse on a cube to see info"});
