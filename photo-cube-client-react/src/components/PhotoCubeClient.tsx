@@ -31,7 +31,7 @@ export default class PhotoCubeClient extends React.Component {
         previousBrowsingState={this.threeBrowserBrowsingState}
         onOpenCubeInCardMode={this.onOpenCubeInCardMode}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Grid){
-      currentBrowser = <GridBrowser cubeObjects={this.state.cubeObjects}/>
+      currentBrowser = <GridBrowser cubeObjects={this.state.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Card){
       currentBrowser = <CardBrowser cubeObjects={this.state.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }
@@ -71,6 +71,7 @@ export default class PhotoCubeClient extends React.Component {
     }
     ]
     this.setState({cubeObjects: cubeObjects, BrowsingMode:BrowsingModes.Grid});
+    this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Grid);
   }
 
   onFileCountChanged = (fileCount: number) => {
@@ -85,15 +86,6 @@ export default class PhotoCubeClient extends React.Component {
     }
   }
 
-  onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{    
-    if(this.state.BrowsingMode == BrowsingModes.Cube){ //Going from cube to other:
-      //Saving current browsingstate:
-      this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
-      this.setState({cubeObjects: this.threeBrowser.current!.GetUniqueCubeObjects()});
-    }
-    this.setState({BrowsingMode: browsingMode});
-  }
-
   onClearAxis = (axisName: string) => {
     console.log(axisName);
     switch(axisName){
@@ -103,10 +95,21 @@ export default class PhotoCubeClient extends React.Component {
     } 
   }
 
+  onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
+    this.rightDock.current!.ChangeBrowsingMode(browsingMode);
+    if(this.state.BrowsingMode == BrowsingModes.Cube){ //Going from cube to other:
+      //Saving current browsingstate:
+      this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
+      this.setState({cubeObjects: this.threeBrowser.current!.GetUniqueCubeObjects()});
+    }
+    this.setState({BrowsingMode: browsingMode});
+  }
+
   onOpenCubeInCardMode = (cubeObjects: CubeObject[]) => {
     console.log("Opening cube in card mode:");
     this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
     this.setState({cubeObjects: cubeObjects});
     this.setState({BrowsingMode: BrowsingModes.Card});
+    this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Card);
   }
 }

@@ -47,6 +47,10 @@ export default class CardBrowser extends React.Component<{
         document.addEventListener("keydown", (e) => this.onKeydown(e));
     }
 
+    componentWillUnmount(){
+        document.removeEventListener("keydown", (e) => this.onKeydown(e));
+    }
+
     onImageLoad(e: SyntheticEvent<HTMLImageElement, Event>){
         this.setState({spinnerVisibility: "hidden"});
         if(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight){
@@ -58,7 +62,6 @@ export default class CardBrowser extends React.Component<{
     }
 
     onLoadStart(e: SyntheticEvent<HTMLImageElement, Event>){
-        
         this.setState({photoVisibility: "hidden"});
         this.setState({spinnerVisibility: "visible"});
     }

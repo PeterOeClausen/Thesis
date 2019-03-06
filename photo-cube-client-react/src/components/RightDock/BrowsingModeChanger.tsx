@@ -13,13 +13,16 @@ export enum BrowsingModes{
 class BrowserModeChanger extends React.Component<{
         onBrowsingModeChanged: (selectedBrowsingMode:BrowsingModes) => void
     }>{
-    
+    state = {
+        selectedBrowsingMode: BrowsingModes.Cube
+    }
+
     render(){
         return(
             <div id="BrowserModeChanger">
                 <h4 className="Header">Browsing mode</h4>
                 <div className="Content">
-                    <select className="Selector" onChange={this.onSelectionChanged}>
+                    <select className="Selector" onChange={this.onSelectionChanged} value={this.state.selectedBrowsingMode}>
                         <option value={BrowsingModes.Cube}>Cube</option>
                         <option value={BrowsingModes.Grid}>Grid</option>
                         <option value={BrowsingModes.Card}>Card</option>
@@ -30,9 +33,13 @@ class BrowserModeChanger extends React.Component<{
     }
 
     onSelectionChanged = (event: any) => {
-        let {name, value} = event.target;
-        console.log(value);
-        this.props.onBrowsingModeChanged(value);
+        event.target.blur(); //Remove focus after selection, so that user don't accidentally changes it again.
+        this.ChangeSelectedBrowsingMode(event.target.value);
+        this.props.onBrowsingModeChanged(event.target.value);
+    }
+
+    ChangeSelectedBrowsingMode(browsingMode: BrowsingModes){
+        this.setState({selectedBrowsingMode: browsingMode});
     }
 }
 
