@@ -6,7 +6,9 @@ import ApplicationState from '../ApplicationState/ApplicationStateSingleton';
 /**
  * FileCount is a Component that shows how many objects the ThreeBrowser is currently showing.
  */
-class FileCount extends React.Component{
+class FileCount extends React.Component<{
+        className: string
+    }>{
     state = {
         fileCount: 0,
     };
@@ -17,7 +19,7 @@ class FileCount extends React.Component{
 
     render(){
         return(
-            <div id="FileCount">
+            <div className={this.props.className} id="FileCount">
                 <h4 className="Header">File count</h4>
                 <div className="Content">
                     <p>Showing: </p>

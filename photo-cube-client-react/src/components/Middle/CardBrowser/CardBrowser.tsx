@@ -3,6 +3,7 @@ import CubeObject from '../ThreeBrowser/CubeObject';
 import Fetcher from '../ThreeBrowser/Fetcher';
 import '../../../css/CardBrowser.css';
 import { BrowsingModes } from '../../RightDock/BrowsingModeChanger';
+import Tag from '../ThreeBrowser/Tag';
 
 export default class CardBrowser extends React.Component<{
     cubeObjects: CubeObject[],
@@ -12,7 +13,8 @@ export default class CardBrowser extends React.Component<{
         photoIndex: 0,
         currentPhotoClassName: "",
         spinnerVisibility: "hidden",
-        photoVisibility: "visible"
+        photoVisibility: "visible",
+        tagNamesWithCubeObjectId: ""
     }
 
     render(){
@@ -24,8 +26,9 @@ export default class CardBrowser extends React.Component<{
             return(
                 <div className="grid-item cardBrowserContainer">
                     <div>
-                        <p>{fileName}</p><br/>
                         <p>{"Showing photo: " + (this.state.photoIndex + 1) + " out of " + this.props.cubeObjects.length}</p><br/>
+                        <p>Filename: {fileName}</p><br/>
+                        <p>Tags: {this.state.tagNamesWithCubeObjectId}.</p>
                     </div>
                     <div className="currentPhotoContainer">
                         <img id="currentPhoto" 
@@ -43,8 +46,22 @@ export default class CardBrowser extends React.Component<{
         }
     }
 
+    private async updateTagsInState() {
+        if(this.props.cubeObjects.length > 0){
+            await Fetcher.FetchTagsWithCubeObjectId(this.props.cubeObjects[this.state.photoIndex].Id)
+            .then((tags:Tag[]) => {
+                console.log("then");
+                console.log(tags);
+                let result : string = "";
+                tags.forEach(t => result += t.Name + ", ");
+                this.setState({tagNamesWithCubeObjectId: result.substring(0, result.length - 2)})
+            });
+        }   
+    }
+
     componentDidMount(){
         document.addEventListener("keydown", (e) => this.onKeydown(e));
+        this.updateTagsInState();
     }
 
     componentWillUnmount(){
@@ -71,10 +88,12 @@ export default class CardBrowser extends React.Component<{
         if(e.key == "ArrowRight"){
             if(this.state.photoIndex < this.props.cubeObjects.length - 1){
                 this.setState({photoIndex: this.state.photoIndex + 1});
+                this.updateTagsInState();
             }
         }else if(e.key == "ArrowLeft"){
             if(this.state.photoIndex != 0){
                 this.setState({photoIndex: this.state.photoIndex - 1});
+                this.updateTagsInState();
             }
         }else if(e.key == "Escape"){
             this.props.onBrowsingModeChanged(BrowsingModes.Cube);

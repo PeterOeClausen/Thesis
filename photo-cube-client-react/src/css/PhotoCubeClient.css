@@ -25,3 +25,7 @@ canvas {
 .grid-item{
 	height: 100vh;
 }
+
+.hide{
+  visibility: hidden;
+}

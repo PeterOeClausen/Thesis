@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ObjectCubeServer.Models.DataAccess;
 using ObjectCubeServer.Models.DomainClasses;
@@ -17,14 +18,34 @@ namespace ObjectCubeServer.Controllers
         // GET: api/Tag
         //Should return all Tags in the DB as a JSON list.
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get(int? cubeObjectId)
         {
-            List<Tag> allTags;
-            using (var context = new ObjectContext())
+            if (cubeObjectId == null)
             {
-                allTags = context.Tags.ToList();
+                List<Tag> allTags;
+                using (var context = new ObjectContext())
+                {
+                    allTags = context.Tags.ToList();
+                }
+                return Ok(JsonConvert.SerializeObject(allTags));
             }
-            return Ok(JsonConvert.SerializeObject(allTags));
+            else
+            {
+                List<Tag> tagsFound;
+                using (var context = new ObjectContext())
+                {
+                    tagsFound = context.CubeObjects
+                        .Where(co => co.Id == cubeObjectId)
+                        .Select(co => co.ObjectTagRelations.Select(otr => otr.Tag)) //Map each OTR to a Tag
+                        .FirstOrDefault()
+                        .ToList();
+                }
+                if (tagsFound != null)
+                {
+                    return Ok(JsonConvert.SerializeObject(tagsFound));
+                }
+                else return NotFound();
+            }
         }
 
         // GET: api/Tag/5
@@ -41,7 +62,7 @@ namespace ObjectCubeServer.Controllers
             {
                 return Ok(JsonConvert.SerializeObject(tagFound));
             }
-            else return NotFound();
+            else return NotFound();   
         }
 
         // POST: api/Tag

@@ -12,7 +12,8 @@ class RightDock extends React.Component<{
         //Props contract:
         onDimensionChanged:(dimName: string, dimension:PickedDimension) => void,
         onBrowsingModeChanged:(browsingmode: BrowsingModes) => void,
-        onClearAxis:(axisName: string) => void
+        onClearAxis:(axisName: string) => void,
+        hideControls: boolean
     }>{
 
     private fileCount = React.createRef<FileCount>();
@@ -24,12 +25,13 @@ class RightDock extends React.Component<{
     }
 
     render(){
+        let visibility: string = this.props.hideControls ? "hide" : "";
         return(
             <div id="RightDock">
-                <FileCount ref={this.fileCount}/>
+                <FileCount className={visibility} ref={this.fileCount}/>
                 <BrowsingModeChanger ref={this.browsingModeChanger} onBrowsingModeChanged={this.props.onBrowsingModeChanged} />
-                <Dimensions onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
-                <HierarchyBrowser ref={this.hierarchyBrowser} onDimensionChanged={this.onDimensionChanged}/>
+                <Dimensions className={visibility} onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <HierarchyBrowser className={visibility} ref={this.hierarchyBrowser} onDimensionChanged={this.onDimensionChanged}/>
             </div>
         );
     }

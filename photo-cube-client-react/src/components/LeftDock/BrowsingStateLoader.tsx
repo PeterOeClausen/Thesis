@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import '../../css/BrowsingState.css'
+import '../../css/BrowsingStateLoader.css'
 
-class BrowsingStateLoader extends Component{
+class BrowsingStateLoader extends Component<{
+        className: string
+    }>{
     render() {
         return (
-            <div id="BrowsingState">
+            <div id="BrowsingState" className={this.props.className}>
                 <h4 className="MenuHeader">Browsing state</h4>
                 <button className="MenuButton">New browsing state</button>
                 <button className="MenuButton">Save browsing state</button>

@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import '../../css/LeftDock.css'
 import BrowsingStateLoader from './BrowsingStateLoader';
 
-class LeftDock extends Component{
+class LeftDock extends Component<{
+        hideControls: boolean
+    }>{
     render() {
+        let classNames = this.props.hideControls ? "hide" : "";
         return (
             <div id="LeftDock">
-		  		<BrowsingStateLoader/>
-				<button className="MenuButton">Edit tags</button>
+		  		<BrowsingStateLoader className={classNames}/>
+				<button className={"MenuButton " + classNames}>Edit tags</button>
 	  		</div>
         );
     }

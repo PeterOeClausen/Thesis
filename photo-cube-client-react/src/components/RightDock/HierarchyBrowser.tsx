@@ -6,6 +6,7 @@ import '../../css/HierarchyBrowser.css';
 
 export default class HierarchyBrowser extends React.Component<{
         onDimensionChanged: (dimName: string, dimension:any) => void,
+        className: string
     }>{
     state = {
         xIsHieararchy: false,
@@ -22,7 +23,7 @@ export default class HierarchyBrowser extends React.Component<{
         let yContainer = this.state.yIsHieararchy ? <div><p>y-hierarchy:</p><div className="scrollable">{this.state.yNodes}</div></div> : <div></div>
         let zContainer = this.state.zIsHieararchy ? <div><p>z-hierarchy:</p><div className="scrollable">{this.state.zNodes}</div></div> : <div></div>
         return(
-            <div id="HierarchyBrowser">
+            <div id="HierarchyBrowser" className={this.props.className}>
                 <h4 className="Header">HierarchyBrowser:</h4>
                 <div className="hierarchyContainer">
                     {message}

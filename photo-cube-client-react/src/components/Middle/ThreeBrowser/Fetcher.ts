@@ -144,4 +144,9 @@ export default class Fetcher{
     static async FetchPhoto(photoId: number) {
         return await fetch(Fetcher.baseUrl + "/photo/" + photoId);
     }
+
+    static async FetchTagsWithCubeObjectId(cubeObjectId: number){
+        return await fetch(Fetcher.baseUrl + "/tag?cubeObjectId=" + cubeObjectId)
+            .then(result => {return result.json()});
+    }
 }

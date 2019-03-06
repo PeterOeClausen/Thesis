@@ -8,12 +8,13 @@ import PickedDimension from './PickedDimension';
 
 class Dimensions extends Component<{
     onDimensionChanged:(dimName: string, dimension:PickedDimension) => void,
-    onClearAxis:(axisName: string) => void
+    onClearAxis:(axisName: string) => void,
+    className: string
     }>{
 
     render(){
         return(
-            <div>
+            <div className={this.props.className}>
                 <h4 className="Header">Dimensions</h4>
                 <div className="Container">
                     <Dimension xyz="X" onDimensionChanged={this.props.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
