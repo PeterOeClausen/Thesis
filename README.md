@@ -6,6 +6,10 @@
 * Download and install [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-2017#ssms-180-preview-6) (Required for running development server).
 * Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server).
 
+## Download the dataset:
+Link to zip file OneDrive:
+https://1drv.ms/f/s!AuZm-4W16RlCgrZlsehbzvQvM4kq5w
+
 ## Installing and running the client:
 Be sure that you have installed React:
 ```
