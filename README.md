@@ -73,7 +73,7 @@ When the Console Application says "Press any key to shut down." the database is 
 
 You can now run the server by right-clicking the ObjectServer project, select 'Set as StartUp Project' and then run the application by pressing the play button in the top of Visual Studio.
 
-## Other (needed if you are going to make changes to the database):
+## Other (needed if you are going to make changes to the database or downloaded npm packages on a seperate computer):
 If you need to delete the data in the database, run:
 ```
 Drop-Database
