@@ -39,7 +39,7 @@ Add a connection-string to your SQL database in the file: *ObjectCubeServer/Mode
     optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf");
     break;
 ```
-Note that the connectionstring identifies the Server, this is usually "Server = (localdb)\\mssqllocaldb;", the name of the database: "Database = ObjectData;", that it's a trusted connection: "Trusted_Connection = True;" and the path to the database file (.mdf) "AttachDbFileName=C:\\Databases\\ObjectDB.mdf".
+Note that the connectionstring identifies the Server, this is usually "Server = (localdb)\\mssqllocaldb;", the name of the database: "Database = ObjectData;", that it's a trusted connection: "Trusted_Connection = True;" and the path to the database file (.mdf) "AttachDbFileName=C:\\Databases\\ObjectDB.mdf". The ObjectDB.mdf file will be created later with the command "Update-Database".
 
 Also, you need to specify the path to the Laugavegur dataset on your computer in *ConsoleAppForInteractingWithDatabase/LaugavegurDatasetInserter.cs* around line 34. Eg:
 ```
@@ -47,9 +47,6 @@ Also, you need to specify the path to the Laugavegur dataset on your computer in
     pathToDataset = @"C:\LaugavegurData";
     break;
 ```
-
-Note that the connectionstring
-
 
 Then we will compile the applications by right-clicking the Solution in the Solution Explorer and click *Rebuild Solution*. This will download and install all the NuGet packages needed.
 
