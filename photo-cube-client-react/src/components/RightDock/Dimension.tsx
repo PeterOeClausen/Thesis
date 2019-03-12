@@ -49,21 +49,6 @@ class Dimension extends Component<{
         });
         this.props.onDimensionChanged(this.props.xyz, dimension);
     }
-
-    /* NOT IN USE
-    changeDimensionClicked(){
-        //Using this guide: https://blog.hellojs.org/fetching-api-data-with-react-js-460fe8bbf8f2
-        //Fetching tagsets:
-        fetch("https://localhost:44317/api/tagset")
-        .then(result => {return result.json();})
-        .then(data => {
-            //Use map instead
-            this.setState({TagSets: data});
-            console.log(this.state.TagSets);
-            let listOfNames = data.map((ts) => { return {"Name": ts.Name, "TagsetId": ts.Id} });
-            console.log(listOfNames);
-        });
-    }*/
 }
 
 export default Dimension;

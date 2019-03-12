@@ -3,8 +3,6 @@ import '../../css/RightDock.css';
 import FileCount from './FileCount';
 import BrowsingModeChanger, { BrowsingModes } from './BrowsingModeChanger';
 import Dimensions from './Dimensions';
-import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
-import Tagset from '../Middle/ThreeBrowser/Tagset';
 import HierarchyBrowser from './HierarchyBrowser';
 import PickedDimension from './PickedDimension';
 

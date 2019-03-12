@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import '../../css/FileCount.css';
-import AppState from '../ApplicationState/ApplicationState';
-import ApplicationState from '../ApplicationState/ApplicationStateSingleton';
 
 /**
  * FileCount is a Component that shows how many objects the ThreeBrowser is currently showing.
@@ -14,7 +12,7 @@ class FileCount extends React.Component<{
     };
 
     componentDidMount(){
-        //Subscribe to store with render function or updateFileCount as callback.   
+        
     }
 
     render(){
@@ -30,8 +28,11 @@ class FileCount extends React.Component<{
         );
     }
 
+    /**
+     * Update file count from outside.
+     * @param count The updated filecount.
+     */
     UpdateFileCount(count: number){
-        //Istead of receiving count, it may get the application state and update state itself.
         this.setState({fileCount: count});
     }
 }

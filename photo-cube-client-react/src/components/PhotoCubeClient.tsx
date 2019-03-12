@@ -10,11 +10,16 @@ import { BrowsingState } from './Middle/ThreeBrowser/BrowsingState';
 import PickedDimension from './RightDock/PickedDimension';
 import CubeObject from './Middle/ThreeBrowser/CubeObject';
 
+/**
+ * Root component of the PhotoCubeClient application, containing LeftDock, Middle and RightDock.
+ */
 export default class PhotoCubeClient extends React.Component {
+  //Component instance refferences:
   threeBrowser = React.createRef<ThreeBrowser>();
   threeBrowserBrowsingState : BrowsingState|null = null;
   rightDock = React.createRef<RightDock>();
   
+  //State of PhotoCubeClient
   state = {
     BrowsingMode: BrowsingModes.Cube, //Check selected value in BrowsingModeChanger, or pass down prop.
     cubeObjects: []
@@ -34,6 +39,7 @@ export default class PhotoCubeClient extends React.Component {
       currentBrowser = <CardBrowser cubeObjects={this.state.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }
 
+    //Returned:
     return (
         <div className="App grid-container">
           <LeftDock hideControls={this.state.BrowsingMode != BrowsingModes.Cube}/>
@@ -49,6 +55,7 @@ export default class PhotoCubeClient extends React.Component {
 
   componentDidMount(){
     /*
+    //Code can be used to start in Grid mode with data:
     let cubeObjects: CubeObject[] = [{
       Id: 4,
       FileName: "IMG_1",
@@ -75,10 +82,16 @@ export default class PhotoCubeClient extends React.Component {
     */
   }
 
+  /**
+   * Can be called from sub-components props to update the fileCount:
+   */
   onFileCountChanged = (fileCount: number) => {
     if(this.rightDock.current) this.rightDock.current.UpdateFileCount(fileCount);
   }
 
+  /**
+   * Can be called from sub-components props to update a dimension.
+   */
   onDimensionChanged = (dimName: string, dimension:PickedDimension) => {
     console.log("Dimension " + dimName + ", changed to: ");
     console.log(dimension);
@@ -87,6 +100,9 @@ export default class PhotoCubeClient extends React.Component {
     }
   }
 
+  /**
+   * Can be called from sub-components to clear an axis in the ThreeBrowser.
+   */
   onClearAxis = (axisName: string) => {
     console.log(axisName);
     switch(axisName){
@@ -96,6 +112,10 @@ export default class PhotoCubeClient extends React.Component {
     } 
   }
 
+  /**
+   * Can be called from sub-components to change the current browsing mode (the middle of the interface),
+   * see BrowsingModes.tsx for details.
+   */
   onBrowsingModeChanged = (browsingMode: BrowsingModes) =>{
     this.rightDock.current!.ChangeBrowsingMode(browsingMode);
     if(this.state.BrowsingMode == BrowsingModes.Cube){ //Going from cube to other:
@@ -106,6 +126,9 @@ export default class PhotoCubeClient extends React.Component {
     this.setState({BrowsingMode: browsingMode});
   }
 
+  /**
+   * Can be called from sub-components to open CubeObject array in CardMode.
+   */
   onOpenCubeInCardMode = (cubeObjects: CubeObject[]) => {
     console.log("Opening cube in card mode:");
     this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();

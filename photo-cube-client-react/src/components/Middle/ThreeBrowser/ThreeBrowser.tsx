@@ -7,7 +7,6 @@ import helveticaRegular from '../../../fonts/helvetiker_regular.typeface.json';
 import Axis, {AxisTypeEnum, AxisDirection, ObjectTagPair} from './Axis';
 import Cell from './Cell';
 import Fetcher from './Fetcher';
-import Tag from './Tag';
 import Hierarchy from './Hierarchy';
 import Tagset from './Tagset';
 import HierarchyNode from './HierarchyNode';

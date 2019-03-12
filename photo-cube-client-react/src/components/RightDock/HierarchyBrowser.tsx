@@ -45,20 +45,20 @@ export default class HierarchyBrowser extends React.Component<{
         let rootNode: HierarchyNode = await Fetcher.FetchNode(hierarchy.RootNodeId);
         switch(dimName){
             case "X":
-                this.setState({xIsHieararchy:true, xNodes: this.RenderNode(dimName, rootNode, 0)});
+                this.setState({xIsHieararchy:true, xNodes: this.renderNode(dimName, rootNode, 0)});
                 break;
             case "Y":
-                this.setState({yIsHieararchy:true, yNodes: this.RenderNode(dimName, rootNode, 0)});
+                this.setState({yIsHieararchy:true, yNodes: this.renderNode(dimName, rootNode, 0)});
                 break;
             case "Z":
-                this.setState({zIsHieararchy:true, zNodes: this.RenderNode(dimName, rootNode, 0)});
+                this.setState({zIsHieararchy:true, zNodes: this.renderNode(dimName, rootNode, 0)});
                 break;
         }
         
         console.log(hierarchy);       
     }
 
-    RenderNode(dimName: string, node: HierarchyNode, level: number){
+    private renderNode(dimName: string, node: HierarchyNode, level: number){
         let nodeLevelClassName : string = "nodeLevel-"+level;
         let result = 
             <div key={"Node:" + node.Tag.Id + ", level: " + level}>
@@ -67,15 +67,15 @@ export default class HierarchyBrowser extends React.Component<{
                     onClick={() => this.props.onDimensionChanged(dimName, {type:"hierarchyNode", id:node.Id, name:node.Tag.Name})}>
                         {node.Tag.Name}
                 </button> 
-                { node.Children.map(n => this.RenderNode(dimName, n, level + 1)) }
+                { node.Children.map(n => this.renderNode(dimName, n, level + 1)) }
             </div>
-        /*<ul>
-            <li className="white"><button>{node.Tag.Name}</button></li>
-            { node.Children.map(n => this.RenderNode(n)) }
-        </ul>*/
         return result;
     }
 
+    /**
+     * To clear a hierarchy from outside of class. Called by super components.
+     * @param dimName "X", "Y" or "Z".
+     */
     ClearHierarchy(dimName: string){        
         switch(dimName){
             case "X":

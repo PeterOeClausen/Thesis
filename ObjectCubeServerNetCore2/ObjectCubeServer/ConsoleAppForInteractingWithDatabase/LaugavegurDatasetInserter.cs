@@ -9,7 +9,6 @@ using SixLabors.ImageSharp.Processing;
 using System;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ConsoleAppForInteractingWithDatabase
 {
@@ -27,25 +26,20 @@ namespace ConsoleAppForInteractingWithDatabase
             {
                 case "DESKTOP-T7BC3Q4": //Desktop
                     pathToDataset = @"D:\LaugavegurData";
-                    pathToTagFile = @"D:\LaugavegurData\LaugavegurImageTags.csv";
-                    pathToHierarchiesFile = @"D:\LaugavegurData\LaugavegurHierarchiesV2.csv";
-                    pathToErrorLogFile = @"C:\Users\peter\Desktop\FileLoadError.txt";
                     break;
                 case "DESKTOP-EO6T94J": //Laptop
                     pathToDataset = @"C:\LaugavegurData";
-                    pathToTagFile = @"C:\LaugavegurData\LaugavegurImageTags.csv";
-                    pathToHierarchiesFile = @"C:\LaugavegurData\LaugavegurHierarchiesV2.csv";
-                    pathToErrorLogFile = @"C:\LaugavegurData\ErrorLogFiles\FileLoadError.txt";
                     break;
                 default:
-                    throw new Exception("ComputerName is unknown, please specify paths!");
+                    throw new Exception("ComputerName is unknown, please specify path to dataset!");
                     pathToDataset = @"?";
-                    pathToTagFile = @"?";
-                    pathToHierarchiesFile = @"?";
-                    pathToErrorLogFile = @"?";
                     break;
             }
-            
+
+            pathToTagFile = Path.Combine(pathToDataset, @"LaugavegurImageTags.csv");
+            pathToHierarchiesFile = Path.Combine(pathToDataset, @"LaugavegurHierarchiesV2.csv");
+            pathToErrorLogFile = Path.Combine(pathToDataset, @"\ErrorLogFiles\FileLoadError.txt");
+
             File.AppendAllText(pathToErrorLogFile, "Errors goes here:\n");
             
             //Loading in images from dataset:
@@ -143,48 +137,6 @@ namespace ConsoleAppForInteractingWithDatabase
                     }
                 }
             }
-
-            /* //Parallel implementation:
-            object Lock = new object();
-            int fileCount = 1;
-            Parallel.ForEach(files, (string file) => {
-                using (var context = new ObjectContext()) { 
-                    string filename = Path.GetFileName(file);
-                    if (!filename.EndsWith(".csv"))
-                    {
-                        lock (Lock) { 
-                            Console.WriteLine("Saving file: " + fileCount++ + " out of " + files.Length + " files. Filename: " + filename);
-                        }
-                        //If Image is already in database (Assuming no two file has the same name):
-                        if (context.CubeObjects
-                            .Include(co => co.Photo)
-                            .FirstOrDefault(co => co.Photo.FileName.Equals(filename)) != null)
-                        {
-                            //Don't add it again.
-                            Console.WriteLine("Image " + filename + " is already in the database");
-                        }
-                        //Else add it:
-                        else
-                        {
-                            //Loading and saving image:
-                            using (Image<Rgba32> image = SixLabors.ImageSharp.Image.Load(file))
-                            {
-                                using (MemoryStream ms = new MemoryStream())
-                                {
-                                    image.SaveAsJpeg(ms); //Copy to ms
-                                                            //Create and save cubeObject:
-                                    CubeObject cubeObject = DomainClassFactory.NewCubeObject(FileType.Photo, DomainClassFactory.NewPhoto(ms.ToArray(), Path.GetFileName(file)));
-                                    context.CubeObjects.Add(cubeObject);
-                                    context.SaveChanges();
-
-                                    //Add thumbnail to cubeobject here.
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            */
         }
 
         static void InsertTags(string pathToTagFile, string pathToErrorLogFile)

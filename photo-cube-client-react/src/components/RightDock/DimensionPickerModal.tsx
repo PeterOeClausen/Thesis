@@ -4,6 +4,7 @@ import Tagset from '../Middle/ThreeBrowser/Tagset';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import '../../css/Dimensions.css'
 import PickedDimension from './PickedDimension';
+import Fetcher from '../Middle/ThreeBrowser/Fetcher';
 
 /**
  * A component containing a Modal for picking Dimensions.
@@ -92,7 +93,7 @@ class DimensionPickerModal extends Component<{
     fetchTagsets(){
         //Using this guide: https://blog.hellojs.org/fetching-api-data-with-react-js-460fe8bbf8f2
         //Fetching tagsets:
-        fetch("https://localhost:44317/api/tagset")
+        fetch(Fetcher.baseUrl + "tagset")
         .then(result => {return result.json();})
         .then(data => {
             let tagset = data.map((ts : Tagset) => { return {"Name": ts.Name, "TagsetId": ts.Id}} );
@@ -102,7 +103,7 @@ class DimensionPickerModal extends Component<{
     }
 
     fetchHierarchies(){
-        fetch("https://localhost:44317/api/hierarchy")
+        fetch(Fetcher.baseUrl + "hierarchy")
         .then(result => {return result.json();})
         .then(data => {
             let hierarchies = data.map((h: Hierarchy) => { return {"Name": h.Name, "HierarchyId": h.Id} });

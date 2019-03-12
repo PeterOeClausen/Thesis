@@ -26,14 +26,4 @@ class Dimensions extends Component<{
     }
 }
 
-/*<MyContext.Consumer>
-                    {(context) => (
-                        <React.Fragment>
-                        <p>Name: {context.state.name}</p>
-                        <p>Age: {context.state.age}</p>
-                        <button onClick={context.growAYearOlder}>grow</button>
-                        </React.Fragment>
-                    )}
-                </MyContext.Consumer> */
-
 export default Dimensions;
