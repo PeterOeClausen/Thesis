@@ -38,7 +38,7 @@ namespace ConsoleAppForInteractingWithDatabase
 
             pathToTagFile = Path.Combine(pathToDataset, @"LaugavegurImageTags.csv");
             pathToHierarchiesFile = Path.Combine(pathToDataset, @"LaugavegurHierarchiesV2.csv");
-            pathToErrorLogFile = Path.Combine(pathToDataset, @"\ErrorLogFiles\FileLoadError.txt");
+            pathToErrorLogFile = Path.Combine(pathToDataset, @"ErrorLogFiles\FileLoadError.txt");
 
             File.AppendAllText(pathToErrorLogFile, "Errors goes here:\n");
             
