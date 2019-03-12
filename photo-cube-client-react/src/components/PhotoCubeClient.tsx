@@ -48,6 +48,7 @@ export default class PhotoCubeClient extends React.Component {
   }
 
   componentDidMount(){
+    /*
     let cubeObjects: CubeObject[] = [{
       Id: 4,
       FileName: "IMG_1",
@@ -71,6 +72,7 @@ export default class PhotoCubeClient extends React.Component {
     ]
     this.setState({cubeObjects: cubeObjects, BrowsingMode:BrowsingModes.Grid});
     this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Grid);
+    */
   }
 
   onFileCountChanged = (fileCount: number) => {

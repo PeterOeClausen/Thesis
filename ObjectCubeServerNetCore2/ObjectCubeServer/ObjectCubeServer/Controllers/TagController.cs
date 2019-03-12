@@ -16,7 +16,13 @@ namespace ObjectCubeServer.Controllers
     public class TagController : ControllerBase
     {
         // GET: api/Tag
-        //Should return all Tags in the DB as a JSON list.
+        // GET: api/tag?cubeObjectId=1
+        /// <summary>
+        /// Either returns all tags in the database: api/tag.
+        /// Or returns all tags that cubeObject with cubeObjectId is tagged with.
+        /// </summary>
+        /// <param name="cubeObjectId"></param>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult Get(int? cubeObjectId)
         {
@@ -49,7 +55,11 @@ namespace ObjectCubeServer.Controllers
         }
 
         // GET: api/Tag/5
-        //Should return a single Tag as JSON.
+        /// <summary>
+        /// Returns single tag where Tag.Id == id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}", Name = "GetTag")]
         public IActionResult Get(int id)
         {
@@ -63,69 +73,6 @@ namespace ObjectCubeServer.Controllers
                 return Ok(JsonConvert.SerializeObject(tagFound));
             }
             else return NotFound();   
-        }
-
-        // POST: api/Tag
-        //Should receive a new tag as JSON, parse it and add it to the database.
-        [HttpPost]
-        public IActionResult Post([FromBody] string value)
-        {
-            Tag tag = JsonConvert.DeserializeObject<Tag>(value);
-            if(tag == null)
-            {
-                return BadRequest();
-            }
-            using (var context = new ObjectContext())
-            {
-                context.Tags.Add(tag);
-                context.SaveChanges();
-            }
-            return Ok();
-        }
-
-        // PUT: api/Tag/5
-        //Should edit an existing tag.
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] string value)
-        {
-            Tag inputTag = JsonConvert.DeserializeObject<Tag>(value);
-            if (inputTag == null)
-            {
-                return BadRequest();
-            }
-            Tag tagInDb;
-            using (var context = new ObjectContext())
-            {
-                tagInDb = context.Tags.Where(t => t.Id == id).FirstOrDefault();
-                if(tagInDb == null)
-                {
-                    return NotFound();
-                }
-                tagInDb.Id = inputTag.Id;
-                tagInDb.Name = inputTag.Name;
-                tagInDb.ObjectTagRelations = inputTag.ObjectTagRelations;
-                context.SaveChanges();
-            }
-            return Ok();
-        }
-
-        // DELETE: api/ApiWithActions/5
-        //Should be able to delete an existing tag.
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            Tag tagInDb;
-            using (var context = new ObjectContext())
-            {
-                tagInDb = context.Tags.Where(t => t.Id == id).FirstOrDefault();
-                if (tagInDb == null)
-                {
-                    return NotFound();
-                }
-                context.Remove(tagInDb);
-                context.SaveChanges();
-            }
-            return Ok();
         }
     }
 }
