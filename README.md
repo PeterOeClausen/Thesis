@@ -4,8 +4,7 @@
 * Download and install [Visual Studio](http://google.com) (Required for running and developing server).
 * Download and install [VS Code](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
-* Download and install [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-2017#ssms-180-preview-6) (Required for running development server).
-* Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server).
+* Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
 
 ## Download the dataset:
 Link to zip file on OneDrive containing the Laugavegur dataset:
@@ -34,19 +33,23 @@ Open the *ObjectCubeServer.sln* solution file in Visual Studio. This can be foun
 
 First we need to specify some paths:
 
-Add a connection-string to your SQL database in the file: *ObjectCubeServer/Models/Contexts/ObjectContext.cs* around line 34. Eg:
+Add a connection-string to your SQL database in the file: *ObjectCubeServer/Models/Contexts/ObjectContext.cs* around line 124. Eg:
+```
+  case "DESKTOP-EO6T94J": //Laptop
+    optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf");
+    break;
+```
+Note that the connectionstring identifies the Server, this is usually "Server = (localdb)\\mssqllocaldb;", the name of the database: "Database = ObjectData;", that it's a trusted connection: "Trusted_Connection = True;" and the path to the database file (.mdf) "AttachDbFileName=C:\\Databases\\ObjectDB.mdf".
+
+Also, you need to specify the path to the Laugavegur dataset on your computer in *ConsoleAppForInteractingWithDatabase/LaugavegurDatasetInserter.cs* around line 34. Eg:
 ```
   case "DESKTOP-EO6T94J": //Laptop
     pathToDataset = @"C:\LaugavegurData";
     break;
 ```
 
-Also, you need to specify the path to the Laugavegur dataset on your computer in *ConsoleAppForInteractingWithDatabase/LaugavegurDatasetInserter.cs* around line 40. Eg:
-```
-  case "DESKTOP-EO6T94J": //Laptop
-    optionsBuilder.UseSqlServer("Server = (localdb)\\mssqllocaldb; Database = ObjectData; Trusted_Connection = True; AttachDbFileName=C:\\Databases\\ObjectDB.mdf");
-    break;
-```
+Note that the connectionstring
+
 
 Then we will compile the applications by right-clicking the Solution in the Solution Explorer and click *Rebuild Solution*. This will download and install all the NuGet packages needed.
 
