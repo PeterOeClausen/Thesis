@@ -10,7 +10,6 @@ class LeftDock extends Component<{
         return (
             <div id="LeftDock">
 		  		<BrowsingStateLoader className={classNames}/>
-				<button className={"MenuButton " + classNames}>Edit tags</button>
 	  		</div>
         );
     }
