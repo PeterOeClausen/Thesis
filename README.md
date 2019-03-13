@@ -79,6 +79,7 @@ You can now run the server by right-clicking the ObjectServer project, select 'S
 
 ## User manual:
 When the client and server is running, you can choose dimensions on the right, picking either tagsets or hierarchies.
+![Picking a dimension](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/PickingDimension.png)
 
 After picking a hierarchy, you can drill down into the hierarchy on the right.
 
