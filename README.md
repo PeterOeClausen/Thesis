@@ -77,6 +77,17 @@ When the Console Application says "Press any key to shut down." the database is 
 
 You can now run the server by right-clicking the ObjectServer project, select 'Set as StartUp Project' and then run the application by pressing the play button in the top of Visual Studio.
 
+## User manual:
+When the client and server is running, you can choose dimensions on the right, picking either tagsets or hierarchies.
+
+After picking a hierarchy, you can drill down into the hierarchy on the right.
+
+You can swich browsing mode on the right side to from Cube to Grid or Card mode. Press escape to return to the cube mode you were in.
+
+You can also hover over a cube with the mouse, and see how many photos are in the cube and see what tags it is alligned with.
+
+You can also right click a cube and press "Show cube in card mode" to open a cube in card-mode.
+
 ## Other (needed if you are going to make changes to the database or downloaded npm packages on a seperate computer):
 If you need to delete the data in the database, run:
 ```
