@@ -1,12 +1,15 @@
 #RightDock{
     background-color: rgb(20, 20, 20);
     height: 100%!;
+    margin:0;
+    padding:0;
 }
 
 .Header{
     padding: 3%;
     color: rgb(200, 200, 200);
     background-color: rgb(40, 40, 40);
+    margin:0;
 }
 
 .Content{

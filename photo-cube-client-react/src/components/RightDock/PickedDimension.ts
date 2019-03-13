@@ -1,5 +1,5 @@
 export default interface PickedDimension{
-    type:string, 
+    type:string,
     id:number, 
     name:string
 }

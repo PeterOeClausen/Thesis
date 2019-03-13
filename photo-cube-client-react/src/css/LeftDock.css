@@ -1,5 +1,7 @@
 #LeftDock{
     background-color: rgb(20, 20, 20);
+    margin:0;
+    padding:0;
 }
 
 .MenuButton{

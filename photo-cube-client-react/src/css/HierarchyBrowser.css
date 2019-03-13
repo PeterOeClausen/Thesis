@@ -22,7 +22,7 @@
 }
 
 .scrollable{
-    height: 95px;
+    height: 140px;
     overflow-y: auto;
     border-width: 1px;
     border-color: rgb(40, 40, 40);;
