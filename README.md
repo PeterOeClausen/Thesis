@@ -79,8 +79,13 @@ You can now run the server by right-clicking the ObjectServer project, select 'S
 
 ## User manual:
 When the client and server is running, you can choose dimensions on the right, picking either tagsets or hierarchies.
+![Picking a dimension](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/PickingDimension.png)
+
+Press f11 to use the PhotoCube Browser full-screen and escape to exit full-screen
 
 After picking a hierarchy, you can drill down into the hierarchy on the right.
+
+Rotate the camera by left-clicking and dragging. Pan the camera by right-clicking and dragging. Zoom in and out using the scroll wheel. Move the camera in y direction using space-key for up or ctrl-key for down.
 
 You can swich browsing mode on the right side to from Cube to Grid or Card mode. Press escape to return to the cube mode you were in.
 
