@@ -5,6 +5,10 @@
 * Download and install [VS Code](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
 * Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
+* Remember to restart your computer after installing the frameworks, before trying out the code.
+
+## Download the code:
+Either clone this repository or download it as a zip file with the green button on the top-right of this page.
 
 ## Download the dataset:
 Link to zip file on OneDrive containing the Laugavegur dataset:
@@ -72,6 +76,17 @@ Then run the application by pressing the *Play* button in the top of Visual Stud
 When the Console Application says "Press any key to shut down." the database is populated. This process usually takes around 20-30 minutes.
 
 You can now run the server by right-clicking the ObjectServer project, select 'Set as StartUp Project' and then run the application by pressing the play button in the top of Visual Studio.
+
+## User manual:
+When the client and server is running, you can choose dimensions on the right, picking either tagsets or hierarchies.
+
+After picking a hierarchy, you can drill down into the hierarchy on the right.
+
+You can swich browsing mode on the right side to from Cube to Grid or Card mode. Press escape to return to the cube mode you were in.
+
+You can also hover over a cube with the mouse, and see how many photos are in the cube and see what tags it is alligned with.
+
+You can also right click a cube and press "Show cube in card mode" to open a cube in card-mode.
 
 ## Other (needed if you are going to make changes to the database or downloaded npm packages on a seperate computer):
 If you need to delete the data in the database, run:
