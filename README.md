@@ -5,6 +5,10 @@
 * Download and install [VS Code](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
 * Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
+* Remember to restart your computer after installing the frameworks, before trying out the code.
+
+## Download the code:
+Either clone this repository or download it as a zip file with the green button on the top-right of this page.
 
 ## Download the dataset:
 Link to zip file on OneDrive containing the Laugavegur dataset:
