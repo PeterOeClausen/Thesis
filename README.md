@@ -89,14 +89,17 @@ After picking a hierarchy, you can drill down into the hierarchy on the right:
 Rotate the camera by left-clicking and dragging. Pan the camera by right-clicking and dragging. Zoom in and out using the scroll wheel. Move the camera in y direction using space-key for up or ctrl-key for down.
 
 You can also hover over a cube with the mouse, and see how many photos are in the cube and see what tags it is alligned with:
+
 ![Hover over cube with mouse](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/MouseOverCube.png)
 
 You can swich browsing mode on the right side to from Cube to Grid or Card mode. Press escape to return to the cube mode you were in:
+
 ![Changing browsing mode](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/ChangingBrowsingMode.png)
 ![Card mode](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/CardMode.png)
 ![Grid mode](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/GridMode.png)
 
-You can also right click a cube and press "Show cube in card mode" to open a cube in card-mode.
+You can also right click a cube and press "Show cube in card mode" to open a cube in card-mode:
+
 ![Right click to open in card mode](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/RightClickOpenCardMode.png)
 
 ## Other (needed if you are going to make changes to the database or downloaded npm packages on a seperate computer):
