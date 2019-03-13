@@ -6,7 +6,7 @@ class LeftDock extends Component<{
         hideControls: boolean
     }>{
     render() {
-        let classNames = this.props.hideControls ? "hide" : "";
+        let classNames = "hide" //this.props.hideControls ? "hide" : "";
         return (
             <div id="LeftDock">
 		  		<BrowsingStateLoader className={classNames}/>

@@ -17,7 +17,6 @@ export default class GridBrowser extends React.Component<{
 
         return(
             <div className="grid-item">
-                <p>GridBrowser!</p>
                 <div className="imageContainer">
                     {images}
                 </div>
