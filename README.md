@@ -1,7 +1,7 @@
 # MSc. Thesis - PhotoCube Client and Server implementations.
 ## Prerequisites:
 * On a Windows PC:
-* Download and install [Visual Studio](http://google.com) (Required for running and developing server).
+* Download and install [Visual Studio (Community edition is free)](https://visualstudio.microsoft.com/) (Required for running and developing server).
 * Download and install [VS Code](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
 * Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
