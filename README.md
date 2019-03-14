@@ -84,6 +84,7 @@ When the client and server is running, you can choose dimensions on the right, p
 Press f11 to use the PhotoCube Browser full-screen and escape to exit full-screen.
 
 After picking a hierarchy, you can drill down into the hierarchy on the right:
+
 ![Drilling down](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/DrillingDown.png)
 
 Rotate the camera by left-clicking and dragging. Pan the camera by right-clicking and dragging. Zoom in and out using the scroll wheel. Move the camera in y direction using space-key for up or ctrl-key for down.
