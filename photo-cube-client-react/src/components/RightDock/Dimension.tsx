@@ -27,7 +27,7 @@ class Dimension extends Component<{
                 {this.renderDimensionTypeAndName()}
                 <div className="width100">
                     <div className="displayInline width50"><DimensionPickerModal onDimensionPicked={this.dimensionPicked}/></div>
-                    <div className="displayInline width50"><button className="width100" onClick={() => this.props.onClearAxis(this.props.xyz)}>Clear</button></div>
+                    <div className="displayInline width50"><button className="width100" onClick={() => this.onClearAxis(this.props.xyz)}>Clear</button></div>
                 </div>
             </div>
         );
@@ -48,6 +48,11 @@ class Dimension extends Component<{
             DimensionName:  dimension.name
         });
         this.props.onDimensionChanged(this.props.xyz, dimension);
+    }
+
+    onClearAxis = (dimName: string) => {
+        this.setState({DimensionType: null, DimensionId: null, DimensionName: null});
+        this.props.onClearAxis(dimName);
     }
 }
 

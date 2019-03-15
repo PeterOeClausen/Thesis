@@ -94,13 +94,13 @@ export default class HierarchyBrowser extends React.Component<{
     ClearHierarchy(dimName: string){        
         switch(dimName){
             case "X":
-                this.setState({xIsHieararchy: false});
+                this.setState({xIsHieararchy: false, xNodes: <p>No xNodes</p>});
                 break;
             case "Y":
-                this.setState({yIsHieararchy: false});
+                this.setState({yIsHieararchy: false, yNodes: <p>No yNodes</p>});
                 break;
             case "Z":
-                this.setState({zIsHieararchy: false});
+                this.setState({zIsHieararchy: false, zNodes: <p>No zNodes</p>});
                 break;
         }
     }

@@ -104,7 +104,7 @@ export default class PhotoCubeClient extends React.Component {
    * Can be called from sub-components to clear an axis in the ThreeBrowser.
    */
   onClearAxis = (axisName: string) => {
-    console.log(axisName);
+    console.log("Clear axis: " + axisName);
     switch(axisName){
       case "X": if(this.threeBrowser.current) this.threeBrowser.current.ClearXAxis(); break;
       case "Y": if(this.threeBrowser.current) this.threeBrowser.current.ClearYAxis(); break;

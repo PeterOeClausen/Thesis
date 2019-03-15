@@ -28,7 +28,7 @@ class RightDock extends React.Component<{
             <div id="RightDock">
                 <FileCount className={visibility} ref={this.fileCount}/>
                 <BrowsingModeChanger ref={this.browsingModeChanger} onBrowsingModeChanged={this.props.onBrowsingModeChanged} />
-                <Dimensions className={visibility} onDimensionChanged={this.onDimensionChanged} onClearAxis={this.props.onClearAxis}/>
+                <Dimensions className={visibility} onDimensionChanged={this.onDimensionChanged} onClearAxis={this.onClearAxis}/>
                 <HierarchyBrowser className={visibility} ref={this.hierarchyBrowser} onDimensionChanged={this.onDimensionChanged}/>
             </div>
         );
@@ -49,7 +49,6 @@ class RightDock extends React.Component<{
     }
 
     onClearAxis = (axisName: string) => {
-        //Doesn't work, don't know why:
         if(this.hierarchyBrowser.current){ this.hierarchyBrowser.current.ClearHierarchy(axisName); }
         this.props.onClearAxis(axisName);
     }
