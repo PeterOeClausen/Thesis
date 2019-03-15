@@ -31,7 +31,8 @@ class ThreeBrowser extends React.Component<{
         //Props contract:
         onFileCountChanged: (fileCount: number) => void,
         previousBrowsingState: BrowsingState|null,
-        onOpenCubeInCardMode: (cubeObjecta: CubeObject[]) => void
+        onOpenCubeInCardMode: (cubeObjects: CubeObject[]) => void,
+        onOpenCubeInGridMode: (cubeObjects: CubeObject[]) => void
     }>{
 
     state = {
@@ -43,7 +44,12 @@ class ThreeBrowser extends React.Component<{
     render(){
         let contextMenu = <div id="conMenu"></div>
         if(this.state.showContextMenu){
-            contextMenu = <div id="conMenu"><button onClick={(e) => this.onOpenCubeInCardMode()}>Open cube in card mode</button></div>
+            contextMenu = 
+                <div id="conMenu">
+                    <button onClick={(e) => this.onOpenCubeInCardMode()}>Open cube in Card mode</button>
+                    <br/>
+                    <button onClick={(e) => this.onOpenCubeInGridMode()}>Open cube in Grid mode</button>
+                </div>
         }
         return(
             <div className="grid-item" id="ThreeBrowser">
@@ -57,6 +63,10 @@ class ThreeBrowser extends React.Component<{
 
     onOpenCubeInCardMode(){
         this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
+    }
+
+    onOpenCubeInGridMode(){
+        this.props.onOpenCubeInGridMode(this.contextMenuCubeObjects);
     }
 
     mount: HTMLDivElement|null = this.mount!;
