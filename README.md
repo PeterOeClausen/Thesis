@@ -19,6 +19,8 @@ https://1drv.ms/f/s!AuZm-4W16RlCgrZlsehbzvQvM4kq5w
 ### Step 0: Open the ObjectCubeServer solution file in Visual Studio:
 Open the *ObjectCubeServer.sln* solution file in Visual Studio. This can be found in the *ObjectCubeServerNetCore2/ObjectCubeServer/* directory.
 
+If Visual Studio says that you need to download and install extensions to make it work, please do so.
+
 ### Step 1: Enter a connection-string:
 
 Add a connection-string to your SQL database in the file: *ObjectCubeServer/Models/Contexts/ObjectContext.cs* around line 124. Eg:
@@ -83,6 +85,8 @@ When the Console Application says "Press any key to shut down." the database is 
 You can now run the server by right-clicking the ObjectServer project, select 'Set as StartUp Project' and then run the application by pressing the play button in the top of Visual Studio.
 
 ## Installing and running the client:
+Note that when running these commands, it may give "WARN" and "notice" messages, however you can ignore these and keep going with the installation.
+
 ### Step 1: Install React:
 Be sure that you have installed React:
 ```
