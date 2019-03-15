@@ -6,7 +6,7 @@ Tip: Hold ctrl when clicking on the links to open them in a new tab:
 * Download and install [Visual Studio IDE (Community edition is free)](https://visualstudio.microsoft.com/vs/) (Required for running and developing server).
 * Download and install [Visual Studio Code IDE](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
-* Download and install [SQL Server (Express and Developer editions are free)](https://www.microsoft.com/en-us/sql-server/sql-server-2017-editions#CP_StickyNav_1) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
+* Download and install [SQL Server (Express and Developer editions are free, scroll down a bit)](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
 
 Please restart your computer after installing the frameworks, before trying out the code.
 
