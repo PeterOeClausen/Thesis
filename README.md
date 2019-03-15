@@ -1,6 +1,7 @@
 # MSc. Thesis - PhotoCube Client and Server implementations.
 ## Prerequisites:
 On a Windows PC:
+Tip: Hold ctrl when clicking on the links to open them in a new tab:
 * Download and install [Visual Studio IDE (Community edition is free)](https://visualstudio.microsoft.com/vs/) (Required for running and developing server).
 * Download and install [Visual Studio Code IDE](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
