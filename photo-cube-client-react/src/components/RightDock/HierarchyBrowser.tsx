@@ -4,6 +4,9 @@ import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import HierarchyNode from '../Middle/ThreeBrowser/HierarchyNode';
 import '../../css/HierarchyBrowser.css';
 
+/**
+ * The hierarchy browser component enables the user to browse hierarchies.
+ */
 export default class HierarchyBrowser extends React.Component<{
         onDimensionChanged: (dimName: string, dimension:any) => void,
         className: string
@@ -58,13 +61,25 @@ export default class HierarchyBrowser extends React.Component<{
         console.log(hierarchy);       
     }
 
+    //Recursively render nodes:
     private renderNode(dimName: string, node: HierarchyNode, level: number){
         let nodeLevelClassName : string = "nodeLevel-"+level;
+        /*
+        let buttonOrParagraph = node.Children.length == 0 ?
+            <p className={nodeLevelClassName}>{node.Tag.Name}</p>
+            :
+            <button
+                className={nodeLevelClassName} 
+                onClick={
+                    () => this.props.onDimensionChanged(dimName, {type:"hierarchyNode", id:node.Id, name:node.Tag.Name})}>
+                {node.Tag.Name}
+            </button> 
+        */
         let result = 
             <div key={"Node:" + node.Tag.Id + ", level: " + level}>
                 <button
                     className={nodeLevelClassName} 
-                    onClick={() => this.props.onDimensionChanged(dimName, {type:"hierarchyNode", id:node.Id, name:node.Tag.Name})}>
+                    onClick={ () => this.props.onDimensionChanged(dimName, {type:"hierarchyNode", id:node.Id, name:node.Tag.Name})}>
                         {node.Tag.Name}
                 </button> 
                 { node.Children.map(n => this.renderNode(dimName, n, level + 1)) }

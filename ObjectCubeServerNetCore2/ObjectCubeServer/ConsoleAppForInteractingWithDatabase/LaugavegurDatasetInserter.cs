@@ -73,7 +73,7 @@ namespace ConsoleAppForInteractingWithDatabase
         private static void InsertCubeObjects(string pathToDataset)
         {
             string[] files = Directory.GetFiles(pathToDataset);
-
+            
             Console.WriteLine("Inserting photos as CubeObjects:");
             using (var context = new ObjectContext())
             {
@@ -116,12 +116,36 @@ namespace ConsoleAppForInteractingWithDatabase
                                     );
 
                                     //Creating and saving thumbnail:
-                                    int destinationWidth = 1000; //1000px
-                                    decimal downscaleFactor = Decimal.Parse(destinationWidth+"") / Decimal.Parse(image.Width+"");
-                                    int newWidth = (int)(image.Width * downscaleFactor);
-                                    int newHeight = (int)(image.Height * downscaleFactor);
-                                    image.Mutate(i => i
-                                        .Resize(newWidth, newHeight));
+                                    //Thumbnails needs to be power of two in width and height to avoid extra image manipulation client side.
+                                    if(image.Width > image.Height)
+                                    {
+                                        int destinationHeight = 1024; //1024px
+                                        decimal downscaleFactor = Decimal.Parse(destinationHeight + "") / Decimal.Parse(image.Height + "");
+                                        int newWidth = (int)(image.Width * downscaleFactor);
+                                        int newHeight = (int)(image.Height * downscaleFactor);
+                                        image.Mutate(i => i
+                                            .Resize(newWidth, newHeight)                //Scale
+                                            .Crop(destinationHeight, destinationHeight) //Crop
+                                        );
+                                    }
+                                    else
+                                    {
+                                        int destinationWidth = 1024; //1024px
+                                        decimal downscaleFactor = Decimal.Parse(destinationWidth+"") / Decimal.Parse(image.Width+"");
+                                        int newWidth = (int)(image.Width * downscaleFactor);
+                                        int newHeight = (int)(image.Height * downscaleFactor);
+                                        image.Mutate(i => i
+                                            .Resize(newWidth, newHeight)                //Scale
+                                            .Crop(destinationWidth, destinationWidth)   //Crop
+                                        );
+                                    }
+
+                                    //int destinationWidth = 1024; //1024px
+                                    //decimal downscaleFactor = Decimal.Parse(destinationWidth+"") / Decimal.Parse(image.Width+"");
+                                    //int newWidth = (int)(image.Width * downscaleFactor);
+                                    //int newHeight = (int)(image.Height * downscaleFactor);
+                                    //image.Mutate(i => i
+                                    //    .Resize(newWidth, newHeight));
                                     using (MemoryStream ms2 = new MemoryStream())
                                     {
                                         image.SaveAsJpeg(ms2); //Copy to ms

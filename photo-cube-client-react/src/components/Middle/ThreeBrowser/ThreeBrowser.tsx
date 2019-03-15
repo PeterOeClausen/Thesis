@@ -50,7 +50,7 @@ class ThreeBrowser extends React.Component<{
                 <div style={{ width: '400px', height: '400px' }} ref = {(mount) => { this.mount = mount }}/>
                 <div id="info">{this.state.infoText}</div>
                 {contextMenu}
-                <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please switch browsing mode or refresh the browser.</p>
+                <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please refresh the browser.</p>
             </div>
         );
     }
@@ -481,38 +481,30 @@ class ThreeBrowser extends React.Component<{
             //Render all three axis
             //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
-            //TODO: Add cubes to UI.
         }else if(yDefined){                     //Y
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
-            console.log(ICells);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
@@ -547,21 +539,21 @@ class ThreeBrowser extends React.Component<{
             let zDefined : boolean = this.zAxis.TitleString !== "Z";
             let infoText : string = "Number of photos: " + intersects[0].object.userData.size;
             if(xDefined){
-                if(this.xAxis.AxisType == AxisTypeEnum.Tagset){
+                if(this.xAxis.IsReady && intersects[0].object.userData.x != 0 && this.xAxis.AxisType == AxisTypeEnum.Tagset){
                     infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name)
                 }else if(this.xAxis.AxisType == AxisTypeEnum.Hierarchy){
                     infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
                 }
             }
             if(yDefined){
-                if(this.yAxis.AxisType == AxisTypeEnum.Tagset){
+                if(this.yAxis.IsReady && intersects[0].object.userData.y != 0 && this.yAxis.AxisType == AxisTypeEnum.Tagset){
                     infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
                 }else if(this.yAxis.AxisType == AxisTypeEnum.Hierarchy){
                     infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name);
                 }
             }
             if(zDefined){
-                if(this.zAxis.AxisType == AxisTypeEnum.Tagset){
+                if(this.zAxis.IsReady && intersects[0].object.userData.z != 0 && this.zAxis.AxisType == AxisTypeEnum.Tagset){
                     infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
                 }else if(this.zAxis.AxisType == AxisTypeEnum.Hierarchy){
                     infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name);

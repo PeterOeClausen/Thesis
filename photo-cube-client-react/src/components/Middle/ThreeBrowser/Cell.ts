@@ -53,19 +53,18 @@ export default class Cell{
         setInterval(() => {
             this.imageIndex++;
             let nextImage = this.imageIndex % this.CubeObjects.length;
-            console.log(nextImage);
             this.threeObject!.material = new THREE.MeshBasicMaterial({
-                map : this.textureLoader.load(Fetcher.baseUrl + "/photo/" + 
-                    this.CubeObjects[nextImage].PhotoId)
+                map : this.textureLoader.load(Fetcher.baseUrl + "/thumbnail/" + 
+                    this.CubeObjects[nextImage].ThumbnailId)
             });
-            //Do something each 5000 seconds  
+            //Do something each 'miliseconds' seconds  
         }, miliseconds);
     }
 
     private CreateCubeMesh(){
         THREE.Cache.enabled = true;
         let imageMaterial = new THREE.MeshBasicMaterial({
-            map : ImageTextureLoader.Load(Fetcher.baseUrl + "/photo/" + this.CubeObjects[0].PhotoId)
+            map : ImageTextureLoader.Load(Fetcher.baseUrl + "/thumbnail/" + this.CubeObjects[0].ThumbnailId)
         });
         //Make box geometry:
         let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );

@@ -5,7 +5,6 @@ import HierarchyNode from './HierarchyNode';
 import Tagset from './Tagset';
 import Hierarchy from './Hierarchy';
 import PickedDimension from '../../RightDock/PickedDimension';
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 export enum AxisTypeEnum {
     Tagset = "Tagset",
@@ -31,6 +30,7 @@ export default class Axis{
     AxisType: AxisTypeEnum|null = null;
     LineThreeObject: THREE.Line|null = null;
     LabelThreeObjects: THREE.Mesh[] = [];
+    IsReady: boolean = true;
     
     PickedDimension: PickedDimension|null = null;
     TagsetId: number = 0;
@@ -39,6 +39,7 @@ export default class Axis{
     Hierarchies: HierarchyNode[] = [];
 
     RemoveObjectsFromScene(scene: THREE.Scene){
+        this.IsReady = false;
         //this.LabelThreeObjectsAndTags.forEach((labelObject:{object:THREE.Mesh, tag:Tag}) => scene.remove(labelObject.object));
         this.LabelThreeObjects.forEach(to => scene.remove(to));
         if(this.TitleThreeObject) scene.remove(this.TitleThreeObject);
@@ -50,6 +51,7 @@ export default class Axis{
         addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
         addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
 
+        this.IsReady = false;
         this.AxisType = AxisTypeEnum.Tagset;
         this.TagsetId = tagset.Id;
         //Sort tags alphabethically:
@@ -90,6 +92,7 @@ export default class Axis{
                 0.1           //Fontsize
             )
         });
+        this.IsReady = true;
     }
 
     AddHierarchy(
@@ -97,6 +100,7 @@ export default class Axis{
         addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
         addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
         
+        this.IsReady = false;
         this.AxisType = AxisTypeEnum.Hierarchy;
         this.RootNodeId = hierarchy.Id;
         this.Hierarchies = hierarchy.Children;
@@ -106,6 +110,7 @@ export default class Axis{
             this.AxisDirection === AxisDirection.X ? new THREE.Color(0xF00000): //Red
             this.AxisDirection === AxisDirection.Y ? new THREE.Color(0x00F000): //Green
             new THREE.Color(0x0000F0);                                          //Blue
+        //Adding title:
         this.TitleThreeObject = addTextCallback(
             this.TitleString, //Text
             {                 //Coordinate:
@@ -116,6 +121,7 @@ export default class Axis{
             color,            //Color
             0.5               //Fontsize
         );
+        //Adjusting line length:
         this.LineThreeObject = addLineCallback(
             {x:0,y:0,z:0},    //From
             {                 //To
@@ -125,17 +131,23 @@ export default class Axis{
             }, 
             color             //Color
         );
+        //Adding labels:
         this.LabelThreeObjects = this.Hierarchies.map((hirarchy,index) => {
             return addTextCallback(
-                hirarchy.Tag.Name,//Label name
-                {             //Position
+                //Label name:
+                hirarchy.Tag.Name,
+                //Position:
+                {                 
                     x:this.AxisDirection === AxisDirection.X ? index + 1 : 0,
                     y:this.AxisDirection === AxisDirection.Y ? index + 1 : 0,
                     z:this.AxisDirection === AxisDirection.Z ? index + 1 : 0,
                 },
-                color,        //Color
-                0.1           //Fontsize
+                //Color:
+                color,        
+                //Fontsize:
+                0.1           
             )
         });
+        this.IsReady = true;
     }
 }
