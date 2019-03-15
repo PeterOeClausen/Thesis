@@ -12,12 +12,6 @@ export enum AxisTypeEnum {
     HierarchyLeaf = "HierarchyLeaf" //A HierarchyLeaf is a HierarchyNode that has no children.
 };
 
-export interface ObjectTagPair{
-    object: THREE.Mesh,
-    tag: Tag
-    //Add hirarchy here!
-}
-
 export enum AxisDirection{
     X = "X",
     Y = "Y",
