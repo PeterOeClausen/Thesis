@@ -8,7 +8,8 @@ import PickedDimension from '../../RightDock/PickedDimension';
 
 export enum AxisTypeEnum {
     Tagset = "Tagset",
-    Hierarchy = "Hierarchy"
+    Hierarchy = "Hierarchy",
+    HierarchyLeaf = "HierarchyLeaf" //A HierarchyLeaf is a HierarchyNode that has no children.
 };
 
 export interface ObjectTagPair{
@@ -148,6 +149,62 @@ export default class Axis{
                 0.1           
             )
         });
+        this.IsReady = true;
+    }
+
+    AddHierarchyLeaf(
+        hierarchy: HierarchyNode,
+        addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
+        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
+        
+        this.IsReady = false;
+        this.AxisType = AxisTypeEnum.HierarchyLeaf;
+        this.RootNodeId = hierarchy.Id;
+        this.Hierarchies = [hierarchy];
+        
+        let color: THREE.Color = 
+            this.AxisDirection === AxisDirection.X ? new THREE.Color(0xF00000): //Red
+            this.AxisDirection === AxisDirection.Y ? new THREE.Color(0x00F000): //Green
+            new THREE.Color(0x0000F0);                                          //Blue if Z
+        //Adding title:
+        this.TitleThreeObject = addTextCallback(
+            this.TitleString, //Text
+            {                 //Coordinate:
+                x:this.AxisDirection === AxisDirection.X ? 2 : 0,
+                y:this.AxisDirection === AxisDirection.Y ? 2 : 0,
+                z:this.AxisDirection === AxisDirection.Z ? 2 : 0
+            },
+            color,            //Color
+            0.5               //Fontsize
+        );
+        //Adjusting line length:
+        this.LineThreeObject = addLineCallback(
+            {x:0,y:0,z:0},    //From
+            {                 //To
+                x:this.AxisDirection === AxisDirection.X ? 1 : 0,
+                y:this.AxisDirection === AxisDirection.Y ? 1 : 0,
+                z:this.AxisDirection === AxisDirection.Z ? 1 : 0,
+            }, 
+            color             //Color
+        );
+        //Adding labels:
+        this.LabelThreeObjects = [ 
+             addTextCallback(
+                //Label name:
+                hierarchy.Tag.Name,
+                //Position:
+                {                 
+                    x:this.AxisDirection === AxisDirection.X ? 1 : 0,
+                    y:this.AxisDirection === AxisDirection.Y ? 1 : 0,
+                    z:this.AxisDirection === AxisDirection.Z ? 1 : 0,
+                },
+                //Color:
+                color,        
+                //Fontsize:
+                0.1           
+            )
+        ]
+        
         this.IsReady = true;
     }
 }

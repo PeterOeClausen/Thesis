@@ -446,7 +446,12 @@ class ThreeBrowser extends React.Component<{
             case "hierarchyNode":
                 let rootNode2: HierarchyNode = await Fetcher.FetchNode(dimension.id);
                 axis.TitleString = rootNode2.Tag.Name + " (hierarchy)";
-                axis.AddHierarchy(rootNode2, this.addTextCallback, this.addLineCallback);
+                if(rootNode2.Children.length == 0){
+                    axis.AddHierarchyLeaf(rootNode2, this.addTextCallback, this.addLineCallback)
+                }
+                else {
+                    axis.AddHierarchy(rootNode2, this.addTextCallback, this.addLineCallback);
+                }
                 break;
         }
 
