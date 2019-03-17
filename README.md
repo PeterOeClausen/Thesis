@@ -7,6 +7,7 @@ Tip: Hold ctrl when clicking on the links to open them in a new tab:
 * Download and install [Visual Studio Code IDE](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
 * Download and install [SQL Server (Express and Developer editions are free, scroll down a bit)](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
+* Download and install the Google Chrome Browser or Edge to use the client application with. (Mozilla and other browsers are not yet supported).
 
 Please restart your computer after installing the frameworks, before trying out the code.
 
