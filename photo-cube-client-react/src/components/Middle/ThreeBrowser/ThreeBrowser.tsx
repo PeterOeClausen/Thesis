@@ -546,31 +546,31 @@ class ThreeBrowser extends React.Component<{
             //Render all three axis
             //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined){                     //Y
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
         this.cells = newCells;

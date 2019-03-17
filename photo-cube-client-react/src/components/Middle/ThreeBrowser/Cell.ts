@@ -31,7 +31,13 @@ export default class Cell{
 
     imageIndex: number = 0;
 
-    constructor(scene:THREE.Scene, textureLoader:THREE.TextureLoader, addToCubeMeshesCallback: (cubeMesh: THREE.Mesh) => void, aPosition:Position, cubeObjectData: CubeObject[]){
+    constructor(
+        scene:THREE.Scene, 
+        textureLoader:THREE.TextureLoader, 
+        addCubeCallback: (imageUrl: string, aPosition: Position) => THREE.Mesh, aPosition:Position, 
+        cubeObjectData: CubeObject[]
+        ){
+        
         this.scene = scene;
         this.textureLoader = textureLoader;
         
@@ -40,9 +46,8 @@ export default class Cell{
         this.z = aPosition.z;
         this.CubeObjects = cubeObjectData;
         if(cubeObjectData.length > 0){
-            this.threeObject = this.CreateCubeMesh();
+            this.threeObject = addCubeCallback(Fetcher.baseUrl + "/thumbnail/" + this.CubeObjects[0].ThumbnailId, {x: this.x, y: this.y, z:this.z});
             this.threeObject.userData = { x: this.x, y: this.y, z:this.z, size: this.CubeObjects.length, cubeObjects: this.CubeObjects };
-            addToCubeMeshesCallback(this.threeObject);
             //this.ToggleSwitchingImagesEveryXms(10000);
         }
         else{
