@@ -110,7 +110,7 @@ export default class PhotoCubeClient extends React.Component {
       case "X": if(this.threeBrowser.current) this.threeBrowser.current.ClearXAxis(); break;
       case "Y": if(this.threeBrowser.current) this.threeBrowser.current.ClearYAxis(); break;
       case "Z": if(this.threeBrowser.current) this.threeBrowser.current.ClearZAxis(); break;
-    } 
+    }
   }
 
   /**

@@ -10,11 +10,12 @@ import Fetcher from './Fetcher';
 import Hierarchy from './Hierarchy';
 import Tagset from './Tagset';
 import HierarchyNode from './HierarchyNode';
-import { Raycaster } from 'three';
+import { Raycaster, Object3D } from 'three';
 import CubeObject from './CubeObject';
 import ICell from './Cell';
 import { BrowsingState } from './BrowsingState';
 import PickedDimension from '../../RightDock/PickedDimension';
+import { Colors } from './Colors';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -22,7 +23,7 @@ const OrbitControls = require('three-orbitcontrols')
  * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
  */
-class ThreeBrowser extends React.Component<{
+export default class ThreeBrowser extends React.Component<{
         //Props contract:
         onFileCountChanged: (fileCount: number) => void,
         previousBrowsingState: BrowsingState|null,
@@ -64,11 +65,12 @@ class ThreeBrowser extends React.Component<{
         );
     }
 
+    //THREE interaction properties:
     mount: HTMLDivElement|null = this.mount!;
     scene: THREE.Scene = new THREE.Scene();
     camera: THREE.Camera = new THREE.Camera();
     controls: any;  //Set in componentDidMount
-    font:any;
+    font: THREE.Font;
     frameId: number = 0;
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
     textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
@@ -77,14 +79,21 @@ class ThreeBrowser extends React.Component<{
     raycaster: Raycaster = new Raycaster();
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen. Updated in this.onMouseMove
     mouse = new THREE.Vector2();
-    
-    textMeshes: THREE.Mesh[] = [];
+    //Used to find IntersectedObjects with this.raycaster:
     boxMeshes: THREE.Mesh[] = [];
+    textMeshes: THREE.Mesh[] = [];
+    contextMenuCubeObjects: CubeObject[] = [];
 
     //Reusing THREE Geometries and Materials to save memory, and to dispose them after:
-    boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-    boxTextures : Map<string, THREE.MeshBasicMaterial> = new Map<string, THREE.MeshBasicMaterial>();
-    textGeometries : Map<string, THREE.TextGeometry> = new Map<string, THREE.TextGeometry>();
+    private boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+    private boxTextures : Map<string, THREE.MeshBasicMaterial> = new Map<string, THREE.MeshBasicMaterial>();
+    private textGeometries : Map<string, THREE.TextGeometry> = new Map<string, THREE.TextGeometry>();
+    private redMaterial: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: Colors.Red } );
+    private greenMaterial: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: Colors.Green } );
+    private blueMaterial: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial( { color: Colors.Blue } );
+    private redLineMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial( { color: Colors.Red } );
+    private greenLineMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial( { color: Colors.Green } );
+    private blueLineMaterial: THREE.LineBasicMaterial = new THREE.LineBasicMaterial( { color: Colors.Blue } );
 
     //Browsing state:
     //Cells:
@@ -94,23 +103,17 @@ class ThreeBrowser extends React.Component<{
     yAxis: Axis = new Axis();
     zAxis: Axis = new Axis();
 
-    contextMenuCubeObjects = [];
-
-    Colors = {
-        red: 0xF00000,
-        green: 0x00F000,
-        blue: 0x0000F0
-    }
-
     constructor(props: any){
         super(props);
         this.xAxis.TitleString = "X";
         this.yAxis.TitleString = "Y";
         this.zAxis.TitleString = "Z";
+        //Loading font used in application:
+        this.font = this.textLoader.parse(helveticaRegular);
     }
     
     componentDidMount(){
-        //Adding camere:
+        //Adding camera:
         this.camera = new THREE.PerspectiveCamera(
             75,
             this.mount!.clientWidth / this.mount!.clientHeight,
@@ -127,28 +130,26 @@ class ThreeBrowser extends React.Component<{
         //Add rendered scene to DOM:
         this.mount!.appendChild(this.renderer.domElement)
         
-        //SET CONTROLS TO ORBITCONTROL
+        //Set controls to OrbitControls:
         this.controls = new OrbitControls( this.camera, this.renderer.domElement);
 
-        //Load font:
-        this.font = this.textLoader.parse(helveticaRegular);
-        
-        //Filling out available space:
+        //Filling out available space with renderer:
         this.onBrowserResize();
 
         //Default x,y,z view:
         this.createInitialScene();
 
-        //START ANIMATION
+        //Start animation:
         this.start();
 
         //Restore to previous browsing state if it is given:
-        if(this.props.previousBrowsingState) { this.RestoreBrowsingState(this.props.previousBrowsingState!); }
+        if(this.props.previousBrowsingState) { this.restoreBrowsingState(this.props.previousBrowsingState!); }
 
         //Subscribe eventlisterners:
         this.subscribeEventHandlers();
     }
     
+    /** Before closing component: */
     componentWillUnmount(){
         this.stop()
         this.unsubscribeEventHandlers();
@@ -156,7 +157,7 @@ class ThreeBrowser extends React.Component<{
         this.disposeWhatCanBeDisposed();  
     }
 
-    subscribeEventHandlers(){
+    private subscribeEventHandlers(){
         //Resize canvas when resizing window:
         window.addEventListener("resize", this.onBrowserResize);
         //Add keydown handler:
@@ -171,7 +172,7 @@ class ThreeBrowser extends React.Component<{
         this.renderer.domElement.addEventListener("click", this.onMouseClick, false);
     }
 
-    unsubscribeEventHandlers(){
+    private unsubscribeEventHandlers(){
         window.removeEventListener("resize", this.onBrowserResize);
         document.removeEventListener('keydown', this.onKeyPress);
         this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove, false);
@@ -180,94 +181,116 @@ class ThreeBrowser extends React.Component<{
         this.renderer.domElement.removeEventListener("click", this.onMouseClick, false);
     }
 
-    disposeWhatCanBeDisposed(){
+    /* Cleans up memory. Geometries, Textures and Materials needs to be disposed manually: 
+       https://threejs.org/docs/index.html#manual/en/introduction/How-to-dispose-of-objects
+     */
+    private disposeWhatCanBeDisposed(){
         this.renderer.dispose();
+        this.controls.dispose();
         this.boxGeometry.dispose();
         this.boxTextures.forEach((v:THREE.MeshBasicMaterial, k:string) => v.dispose());
         this.boxTextures = new Map<string, THREE.MeshBasicMaterial>();
         this.textGeometries.forEach((v:THREE.TextGeometry, k:string) => v.dispose());
         this.textGeometries = new Map<string, THREE.TextGeometry>();
+        this.redMaterial.dispose();
+        this.greenMaterial.dispose();
+        this.blueMaterial.dispose();
+        this.redLineMaterial.dispose();
+        this.greenLineMaterial.dispose();
+        this.blueLineMaterial.dispose();
         this.cells = [];
         this.xAxis = new Axis();
         this.yAxis = new Axis();
         this.zAxis = new Axis();
+        this.boxMeshes = [];
+        this.textMeshes = [];
         this.contextMenuCubeObjects = [];
     }
 
-    start = () => {
+    private start = () => {
         if (!this.frameId) {
             this.frameId = requestAnimationFrame(this.animate)
         }
     }
         
-    stop = () => {
+    private stop = () => {
         cancelAnimationFrame(this.frameId)
     }
         
-    animate = () => {
+    private animate = () => {
         this.renderScene()
         this.frameId = window.requestAnimationFrame(this.animate)
         //Point text to camera:
-        this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ) );
+        this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ));
     }
         
-    renderScene = () => {
+    private renderScene = () => {
         this.renderer.render(this.scene, this.camera);
     }
 
-    createInitialScene(){
-        //XYZ-AXIS:
+    private createInitialScene(){
         //Creating X-Axis:
         this.ClearXAxis();
-
         //Creating Y-Axis:
         this.ClearYAxis();
-        
         //Creating Z-Axis:
         this.ClearZAxis();
     }
 
-    ClearXAxis(){
+    private async restoreBrowsingState(browsingState: BrowsingState){
+        console.log("Restoring previous browsing state:");
+        //Restoring camera state:
+        this.camera.matrix.fromArray(JSON.parse(browsingState.cameraState));
+        this.camera.matrix.decompose(this.camera.position, this.camera.quaternion, this.camera.scale);
+        (this.camera as any).updateProjectionMatrix();
+
+        //Restoring browsing state:
+        if(browsingState.xAxisPickedDimension) { await this.UpdateAxis("X", browsingState.xAxisPickedDimension) }
+        if(browsingState.yAxisPickedDimension) { await this.UpdateAxis("Y", browsingState.yAxisPickedDimension) }
+        if(browsingState.zAxisPickedDimension) { await this.UpdateAxis("Z", browsingState.zAxisPickedDimension) }
+    }
+
+    public ClearXAxis(){
         this.xAxis.RemoveObjectsFromScene(this.scene);
         let newXAxis = new Axis();
         newXAxis.AxisDirection = AxisDirection.X;
         newXAxis.TitleString = "X";
-        newXAxis.TitleThreeObject = this.addText("X", {x:2,y:0,z:0}, new THREE.Color(0xF00000), 0.5);
-        newXAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:2,y:0,z:0}, new THREE.Color(0xF00000));
+        newXAxis.TitleThreeObject = this.addTextCallback("X", {x:2,y:0,z:0}, Colors.Red, 0.5);
+        newXAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:2,y:0,z:0}, Colors.Red);
         this.xAxis = newXAxis;
         this.computeCells();
     }
 
-    ClearYAxis(){
+    public ClearYAxis(){
         this.yAxis.RemoveObjectsFromScene(this.scene);
         let newYAxis = new Axis();
         newYAxis.AxisDirection = AxisDirection.Y;
         newYAxis.TitleString = "Y";
-        newYAxis.TitleThreeObject = this.addText("Y", {x:0,y:2,z:0}, new THREE.Color(0x00F000), 0.5);
-        newYAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:2,z:0}, new THREE.Color(0x00F000));
+        newYAxis.TitleThreeObject = this.addTextCallback("Y", {x:0,y:2,z:0}, Colors.Green, 0.5);
+        newYAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:0,y:2,z:0}, Colors.Green);
         this.yAxis = newYAxis;
         this.computeCells();
     }
 
-    ClearZAxis(){
+    public ClearZAxis(){
         this.zAxis.RemoveObjectsFromScene(this.scene);
         let newZAxis = new Axis();
         newZAxis.AxisDirection = AxisDirection.Z;
         newZAxis.TitleString = "Z";
-        newZAxis.TitleThreeObject = this.addText("Z", {x:0,y:0,z:2}, new THREE.Color(0x0000F0), 0.5);
-        newZAxis.LineThreeObject = this.addLine({x:0,y:0,z:0}, {x:0,y:0,z:2}, new THREE.Color(0x0000F0));
+        newZAxis.TitleThreeObject = this.addTextCallback("Z", {x:0,y:0,z:2}, Colors.Blue, 0.5);
+        newZAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:0,y:0,z:2}, Colors.Blue);
         this.zAxis = newZAxis;
         this.computeCells();
     }
 
-    /*Event handlers: */
-    onMouseClick = (me: MouseEvent) => {
+    /* EVENT HANDLERS: */
+    private onMouseClick = (me: MouseEvent) => {
         if(me.button == 0 || me.button == 1){ //left or middle click
             this.setState({ showContextMenu: false });
         }
     }
 
-    onRightClick = (me: MouseEvent) => {
+    private onRightClick = (me: MouseEvent) => {
         me.preventDefault();
         // calculate objects intersecting the picking ray:
         // is updated in function onMouseMove
@@ -285,7 +308,7 @@ class ThreeBrowser extends React.Component<{
         return false;
     }
 
-    onMouseMove = (event: MouseEvent) => {
+    private onMouseMove = (event: MouseEvent) => {
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -333,7 +356,7 @@ class ThreeBrowser extends React.Component<{
         }
     }
 
-    onKeyPress = (event: KeyboardEvent) => {
+    private onKeyPress = (event: KeyboardEvent) => {
         if(event.code === "Space"){
             //Move camera up in the y direction:
             this.camera.position.y += 0.1;
@@ -348,15 +371,15 @@ class ThreeBrowser extends React.Component<{
         }
     }
 
-    onOpenCubeInCardMode(){
+    private onOpenCubeInCardMode(){
         this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
     }
 
-    onOpenCubeInGridMode(){
+    private onOpenCubeInGridMode(){
         this.props.onOpenCubeInGridMode(this.contextMenuCubeObjects);
     }
 
-    onBrowserResize = () => {
+    private onBrowserResize = () => {
         let browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
         let width = browserElement.clientWidth;
         let height = browserElement.clientHeight;
@@ -366,55 +389,64 @@ class ThreeBrowser extends React.Component<{
         (this.camera as any).updateProjectionMatrix();
     }
 
-    onWebGLContextLost = (e: Event) => {
-        this.setState({showErrorMessage: true})
+    private onWebGLContextLost = (e: Event) => {
+        this.setState({showErrorMessage: true});
+        console.log(this.renderer.info);
     }
 
-    /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
-    addLine(fromPosition: Position, toPosition: Position, aColor:THREE.Color) {
-        let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
-        let lineGeometry = new THREE.Geometry();
+    /* CALLBACK FUNCTIONS */
+    /** Adds a line from fromPosition to toPosition with aColor */
+    private addLineCallback = (fromPosition: Position, toPosition: Position, aColor:Colors) => {
+        let lineMaterial : THREE.LineBasicMaterial;
+        switch(aColor){
+            case Colors.Red: lineMaterial = this.redLineMaterial; break;
+            case Colors.Green: lineMaterial = this.greenLineMaterial; break;
+            case Colors.Blue: lineMaterial = this.blueLineMaterial; break;
+            default: throw("Unknown color in addLineCallBack!");
+        }
+        let lineGeometry = new THREE.Geometry;
         let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
         let to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
         lineGeometry.vertices.push( from );
         lineGeometry.vertices.push( to );
         let lineMesh = new THREE.Line( lineGeometry, lineMaterial );
+        lineGeometry.dispose();
         this.scene.add( lineMesh );
         return lineMesh;
     }
 
-    /* Add some text with a color located on x, y, z */
-    addText(someText: string, aPosition:Position, aColor:THREE.Color, aSize:number){
-        let textGeometry = new THREE.TextGeometry( someText, {
-            font: this.font,
-            size: aSize,
-            height: 0.1,
-            curveSegments: 20
-        } );
-        let textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
+    /** Adds {SomeText} to aPosition{x, y, z} with aColor and aSize */
+    private addTextCallback = (someText: string, aPosition:Position, aColor:Colors, aSize:number) => {
+        let textGeometry : THREE.TextGeometry;
+        if(this.textGeometries.has(someText)){
+            textGeometry = this.textGeometries.get(someText)!;
+        }else{
+            textGeometry = new THREE.TextGeometry( someText, {
+                font: this.font,
+                size: aSize,
+                height: 0.01,
+                curveSegments: 3
+            });
+            this.textGeometries.set(someText, textGeometry);
+        }
+        let textMaterial: THREE.MeshBasicMaterial;
+        switch(aColor){
+            case Colors.Red: textMaterial = this.redMaterial; break;
+            case Colors.Green: textMaterial = this.greenMaterial; break;
+            case Colors.Blue: textMaterial = this.blueMaterial; break;
+            default: throw("Unknown color in addText!");
+        }
         let textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.x = aPosition.x;
         textMesh.position.y = aPosition.y;
         textMesh.position.z = aPosition.z;
         this.textMeshes.push(textMesh);
         this.scene.add( textMesh );
-        return textMesh; //Returns ThreeObject
+        return textMesh;
     }
 
-    addLineCallback = (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => {
-        let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
-        let lineGeometry = new THREE.Geometry();
-        let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
-        let to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
-        lineGeometry.vertices.push( from );
-        lineGeometry.vertices.push( to );
-        let lineMesh = new THREE.Line( lineGeometry, lineMaterial );
-        this.scene.add( lineMesh );
-        return lineMesh;
-    }
-
-    /* Add cubes to scene with given imageURL and a position */
-    addCubeCallback = (imageUrl: string, aPosition: Position) => {
+    /** Adds a cube to scene with given imageURL and aPosition */
+    private addCubeCallback = (imageUrl: string, aPosition: Position) => {
         //If image is already loaded previously, get it, otherwise load it:
         let imageMaterial : THREE.MeshBasicMaterial;
         if(this.boxTextures.has(imageUrl)){
@@ -434,37 +466,9 @@ class ThreeBrowser extends React.Component<{
         boxMesh.position.z = aPosition.z;
         //Add to scene:
         this.scene.add( boxMesh );
-        //Add to list of cube objects:
+        //Add to list of cube objects in order to detect raycaster collisions later:
         this.boxMeshes.push(boxMesh);
         return boxMesh;
-    }
-
-    addTextCallback = (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => {
-        let textGeometry : THREE.TextGeometry;
-        if(this.textGeometries.has(someText)){
-            textGeometry = this.textGeometries.get(someText)!;
-        }else{
-            textGeometry = new THREE.TextGeometry( someText, {
-                font: this.font,
-                size: aSize,
-                height: 0.1,
-                curveSegments: 20
-            });
-            this.textGeometries.set(someText, textGeometry);
-        }
-
-        let textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
-        let textMesh = new THREE.Mesh( textGeometry, textMaterial );
-        textMesh.position.x = aPosition.x;
-        textMesh.position.y = aPosition.y;
-        textMesh.position.z = aPosition.z;
-        this.textMeshes.push(textMesh);
-        this.scene.add( textMesh );
-        return textMesh; //Returns ThreeObject
-    }
-
-    addToCubeMeshesCallback = (cubeMesh: THREE.Mesh) => {
-        this.boxMeshes.push(cubeMesh);
     }
         
     /**
@@ -473,7 +477,7 @@ class ThreeBrowser extends React.Component<{
      * @param dimName "X", "Y" or "Z"
      * @param dimension 
      */
-    async UpdateAxis(dimName:string, dimension:PickedDimension){
+    public async UpdateAxis(dimName:string, dimension:PickedDimension){
         let axis : Axis = new Axis();
         switch(dimName){
             case "X":
@@ -530,7 +534,7 @@ class ThreeBrowser extends React.Component<{
         await this.computeCells();
     }
 
-    async computeCells(){
+    private async computeCells(){
         //Remove previous cells:
         this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
         this.boxMeshes = [];
@@ -585,7 +589,7 @@ class ThreeBrowser extends React.Component<{
         this.props.onFileCountChanged(uniquePhotoIds.size);
     }
     
-    GetCurrentBrowsingState(){
+    public GetCurrentBrowsingState(){
         console.log("Getting current browsing state")
         let currentBrowsingState : BrowsingState = {
             xAxisPickedDimension: this.xAxis.PickedDimension ? this.xAxis.PickedDimension : null,
@@ -596,7 +600,7 @@ class ThreeBrowser extends React.Component<{
         return currentBrowsingState;
     }
 
-    GetUniqueCubeObjects(){
+    public GetUniqueCubeObjects(){
         let uniqueCubeObjectIds = new Set<number>();
         let listOfUniqueCubeObjects : CubeObject[] = [];
         this.cells.forEach(c => c.CubeObjects.forEach(co => {
@@ -607,19 +611,4 @@ class ThreeBrowser extends React.Component<{
         }));
         return listOfUniqueCubeObjects;
     }
-
-    async RestoreBrowsingState(browsingState: BrowsingState){
-        console.log("Restoring previous browsing state:");
-        //Restoring camera state:
-        this.camera.matrix.fromArray(JSON.parse(browsingState.cameraState));
-        this.camera.matrix.decompose(this.camera.position, this.camera.quaternion, this.camera.scale);
-        (this.camera as any).updateProjectionMatrix();
-
-        //Restoring browsing state:
-        if(browsingState.xAxisPickedDimension) { await this.UpdateAxis("X", browsingState.xAxisPickedDimension) }
-        if(browsingState.yAxisPickedDimension) { await this.UpdateAxis("Y", browsingState.yAxisPickedDimension) }
-        if(browsingState.zAxisPickedDimension) { await this.UpdateAxis("Z", browsingState.zAxisPickedDimension) }
-    }
 }
-        
-export default ThreeBrowser;

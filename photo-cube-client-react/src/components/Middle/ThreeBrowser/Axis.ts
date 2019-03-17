@@ -5,6 +5,7 @@ import HierarchyNode from './HierarchyNode';
 import Tagset from './Tagset';
 import Hierarchy from './Hierarchy';
 import PickedDimension from '../../RightDock/PickedDimension';
+import { Colors } from './Colors';
 
 export enum AxisTypeEnum {
     Tagset = "Tagset",
@@ -43,8 +44,8 @@ export default class Axis{
 
     AddTagset(
         tagset: Tagset, 
-        addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
-        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
+        addTextCallback: (someText: string, aPosition:Position, aColor:Colors, aSize:number) => THREE.Mesh,
+        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:Colors) => THREE.Line){
 
         this.IsReady = false;
         this.AxisType = AxisTypeEnum.Tagset;
@@ -52,10 +53,10 @@ export default class Axis{
         //Sort tags alphabethically:
         tagset.Tags!.sort((a:Tag,b:Tag) => a.Name > b.Name ? 1 : a.Name < b.Name ? -1 : 0);
         this.Tags = tagset.Tags!;
-        let color: THREE.Color = 
-            this.AxisDirection === AxisDirection.X ? new THREE.Color(0xF00000): //Red
-            this.AxisDirection === AxisDirection.Y ? new THREE.Color(0x00F000): //Green
-            new THREE.Color(0x0000F0)                                           //Blue
+        let color: Colors = 
+            this.AxisDirection === AxisDirection.X ? Colors.Red:
+            this.AxisDirection === AxisDirection.Y ? Colors.Green:
+                                                     Colors.Blue;
         this.TitleThreeObject = addTextCallback(
             this.TitleString, //Text
             {                 //Coordinate:
@@ -92,8 +93,8 @@ export default class Axis{
 
     AddHierarchy(
         hierarchy: HierarchyNode,
-        addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
-        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
+        addTextCallback: (someText: string, aPosition:Position, aColor:Colors, aSize:number) => THREE.Mesh,
+        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:Colors) => THREE.Line){
         
         this.IsReady = false;
         this.AxisType = AxisTypeEnum.Hierarchy;
@@ -101,10 +102,10 @@ export default class Axis{
         this.Hierarchies = hierarchy.Children;
         this.Hierarchies.sort((a:HierarchyNode,b:HierarchyNode) => a.Tag.Name > b.Tag.Name ? 1 : a.Tag.Name < b.Tag.Name ? -1 : 0);
         
-        let color: THREE.Color = 
-            this.AxisDirection === AxisDirection.X ? new THREE.Color(0xF00000): //Red
-            this.AxisDirection === AxisDirection.Y ? new THREE.Color(0x00F000): //Green
-            new THREE.Color(0x0000F0);                                          //Blue
+        let color: Colors = 
+            this.AxisDirection === AxisDirection.X ? Colors.Red:
+            this.AxisDirection === AxisDirection.Y ? Colors.Green:
+                                                     Colors.Blue;
         //Adding title:
         this.TitleThreeObject = addTextCallback(
             this.TitleString, //Text
@@ -148,18 +149,18 @@ export default class Axis{
 
     AddHierarchyLeaf(
         hierarchy: HierarchyNode,
-        addTextCallback: (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => THREE.Mesh,
-        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => THREE.Line){
+        addTextCallback: (someText: string, aPosition:Position, aColor:Colors, aSize:number) => THREE.Mesh,
+        addLineCallback: (fromPosition: Position, toPosition: Position, aColor:Colors) => THREE.Line){
         
         this.IsReady = false;
         this.AxisType = AxisTypeEnum.HierarchyLeaf;
         this.RootNodeId = hierarchy.Id;
         this.Hierarchies = [hierarchy];
         
-        let color: THREE.Color = 
-            this.AxisDirection === AxisDirection.X ? new THREE.Color(0xF00000): //Red
-            this.AxisDirection === AxisDirection.Y ? new THREE.Color(0x00F000): //Green
-            new THREE.Color(0x0000F0);                                          //Blue if Z
+        let color: Colors = 
+            this.AxisDirection === AxisDirection.X ? Colors.Red:
+            this.AxisDirection === AxisDirection.Y ? Colors.Green:
+                                                     Colors.Blue;
         //Adding title:
         this.TitleThreeObject = addTextCallback(
             this.TitleString, //Text
@@ -197,8 +198,7 @@ export default class Axis{
                 //Fontsize:
                 0.1           
             )
-        ]
-        
+        ];
         this.IsReady = true;
     }
 }
