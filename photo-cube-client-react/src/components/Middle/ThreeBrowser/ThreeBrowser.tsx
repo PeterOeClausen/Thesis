@@ -83,7 +83,7 @@ class ThreeBrowser extends React.Component<{
 
     //Reusing THREE Geometries to save memory:
     boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-
+    boxTextures : Map<string, THREE.MeshBasicMaterial> = new Map<string, THREE.MeshBasicMaterial>();
 
     //Browsing state:
     //Cells:
@@ -182,6 +182,8 @@ class ThreeBrowser extends React.Component<{
     disposeWhatCanBeDisposed(){
         this.renderer.dispose();
         this.boxGeometry.dispose();
+        this.boxTextures.forEach((v:THREE.MeshBasicMaterial, k:string) => v.dispose());
+        this.boxTextures = new Map<string, THREE.MeshBasicMaterial>();
         this.cells = [];
         this.xAxis = new Axis();
         this.yAxis = new Axis();
@@ -365,24 +367,6 @@ class ThreeBrowser extends React.Component<{
         this.setState({showErrorMessage: true})
     }
 
-    /* Add cubes to scene with given imageURL and a position */
-    addCube(imageUrl: string, aPosition: Position) {
-        //Load image as material:
-        let imageMaterial = new THREE.MeshBasicMaterial({
-            map : this.textureLoader.load(imageUrl)
-        });
-        //Create mesh:
-        let boxMesh = new THREE.Mesh( this.boxGeometry, imageMaterial );
-        //Position in (x,y,z):
-        boxMesh.position.x = aPosition.x;
-        boxMesh.position.y = aPosition.y;
-        boxMesh.position.z = aPosition.z;
-        //Add to scene:
-        this.scene.add( boxMesh );
-        this.boxMeshes.push( boxMesh );
-        return boxMesh;
-    }  
-
     /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
     addLine(fromPosition: Position, toPosition: Position, aColor:THREE.Color) {
         let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
@@ -426,15 +410,21 @@ class ThreeBrowser extends React.Component<{
         return lineMesh;
     }
 
+    /* Add cubes to scene with given imageURL and a position */
     addCubeCallback = (imageUrl: string, aPosition: Position) => {
-        //Load image as material:
-        let imageMaterial = new THREE.MeshBasicMaterial({
-            map : this.textureLoader.load(imageUrl)
-        });
-        //Make box geometry:
-        let boxGeometry = this.boxGeometry;
+        //If image is already loaded previously, get it, otherwise load it:
+        let imageMaterial : THREE.MeshBasicMaterial;
+        if(this.boxTextures.has(imageUrl)){
+            imageMaterial = this.boxTextures.get(imageUrl)!;
+        }else{
+            //Load image as material:
+            imageMaterial = new THREE.MeshBasicMaterial({
+                map : this.textureLoader.load(imageUrl)
+            });
+            this.boxTextures.set(imageUrl, imageMaterial);
+        }
         //Create mesh:
-        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
+        let boxMesh = new THREE.Mesh( this.boxGeometry, imageMaterial );
         //Position in (x,y,z):
         boxMesh.position.x = aPosition.x;
         boxMesh.position.y = aPosition.y;
