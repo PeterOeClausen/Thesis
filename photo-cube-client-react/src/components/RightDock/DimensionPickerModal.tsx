@@ -46,11 +46,11 @@ class DimensionPickerModal extends Component<{
             <div>
                 <button className="width100" onClick={this.onOpenModal}>Choose</button>
                 <Modal open={open} onClose={this.onCloseModal} center>
-                    <h2>Pick a tagset or a hierarchy to show as a dimension</h2>
-                    <h3>Tagsets</h3>
-                    { this.renderTagsets() }
+                    <h2>Pick a hierarchy or a tagset to show as a dimension</h2>
                     <h3>Hierarchies</h3>
                     { this.renderHierachies() }
+                    <h3>Tagsets</h3>
+                    { this.renderTagsets() }
                 </Modal>
             </div>
         );

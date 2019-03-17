@@ -10,7 +10,7 @@ import Fetcher from './Fetcher';
 import Hierarchy from './Hierarchy';
 import Tagset from './Tagset';
 import HierarchyNode from './HierarchyNode';
-import { Raycaster, Object3D } from 'three';
+import { Raycaster } from 'three';
 import CubeObject from './CubeObject';
 import ICell from './Cell';
 import { BrowsingState } from './BrowsingState';
@@ -52,7 +52,7 @@ export default class ThreeBrowser extends React.Component<{
         if(this.state.showErrorMessage){
             errorMessage = 
                 <div id="ErrrorMessage">
-                    <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please refresh the browser.</p>
+                    <p>Sorry! Threejs crashed... Please refresh the browser.</p>
                 </div>
         }
         return(
@@ -66,23 +66,26 @@ export default class ThreeBrowser extends React.Component<{
     }
 
     //THREE interaction properties:
-    mount: HTMLDivElement|null = this.mount!;
-    scene: THREE.Scene = new THREE.Scene();
-    camera: THREE.Camera = new THREE.Camera();
-    controls: any;  //Set in componentDidMount
-    font: THREE.Font;
-    frameId: number = 0;
-    renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
-    textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-    textLoader: THREE.FontLoader = new THREE.FontLoader();
+    private mount: HTMLDivElement|null = this.mount!;
+    private scene: THREE.Scene = new THREE.Scene();
+    private camera: THREE.Camera = new THREE.Camera();
+    private controls: any;  //Set in componentDidMount
+    private font: THREE.Font;
+    private frameId: number = 0;
+    //Renderer to render scene:
+    private renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
+    //Texture loader for loading textures:
+    private textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
+    //Textloader for loading fonts:
+    private fontLoader: THREE.FontLoader = new THREE.FontLoader();
     //Raycaster used for detecting mouse over:
-    raycaster: Raycaster = new Raycaster();
+    private raycaster: Raycaster = new Raycaster();
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen. Updated in this.onMouseMove
-    mouse = new THREE.Vector2();
+    private mouse = new THREE.Vector2();
     //Used to find IntersectedObjects with this.raycaster:
-    boxMeshes: THREE.Mesh[] = [];
-    textMeshes: THREE.Mesh[] = [];
-    contextMenuCubeObjects: CubeObject[] = [];
+    private boxMeshes: THREE.Mesh[] = [];
+    private textMeshes: THREE.Mesh[] = [];
+    private contextMenuCubeObjects: CubeObject[] = [];
 
     //Reusing THREE Geometries and Materials to save memory, and to dispose them after:
     private boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -109,7 +112,7 @@ export default class ThreeBrowser extends React.Component<{
         this.yAxis.TitleString = "Y";
         this.zAxis.TitleString = "Z";
         //Loading font used in application:
-        this.font = this.textLoader.parse(helveticaRegular);
+        this.font = this.fontLoader.parse(helveticaRegular);
     }
     
     componentDidMount(){
@@ -212,16 +215,17 @@ export default class ThreeBrowser extends React.Component<{
             this.frameId = requestAnimationFrame(this.animate)
         }
     }
-        
-    private stop = () => {
-        cancelAnimationFrame(this.frameId)
-    }
-        
+
+    //Render loop:
     private animate = () => {
         this.renderScene()
         this.frameId = window.requestAnimationFrame(this.animate)
         //Point text to camera:
         this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ));
+    }
+        
+    private stop = () => {
+        cancelAnimationFrame(this.frameId)
     }
         
     private renderScene = () => {
@@ -531,6 +535,7 @@ export default class ThreeBrowser extends React.Component<{
                 break;
         }
 
+        //This await is important, don't remove it.
         await this.computeCells();
     }
 
@@ -546,40 +551,33 @@ export default class ThreeBrowser extends React.Component<{
 
         let newCells: Cell[] = [];
 
+        //Fetch cells based on which axis are defined:
         if(xDefined && yDefined && zDefined){   //X and Y and Z
             //Render all three axis
-            //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
-            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
-            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
-            //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
-            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined){                     //Y
-            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
-            //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
         this.cells = newCells;
 
-        //await promise!;
         console.log("Done computing cells")
 
         //Update filecount:
