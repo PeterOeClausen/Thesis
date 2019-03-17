@@ -14,16 +14,17 @@ import CubeObject from './Middle/ThreeBrowser/CubeObject';
  * Root component of the PhotoCubeClient application, containing LeftDock, Middle and RightDock.
  */
 export default class PhotoCubeClient extends React.Component {
-  //Component instance refferences:
+  //Component instance refferences to allow direct child method call:
   threeBrowser = React.createRef<ThreeBrowser>();
-  threeBrowserBrowsingState : BrowsingState|null = null;
   rightDock = React.createRef<RightDock>();
   
-  //State of PhotoCubeClient
+  //State of PhotoCubeClient used to render different browsing modes.
   state = {
     BrowsingMode: BrowsingModes.Cube, //Check selected value in BrowsingModeChanger, or pass down prop.
-    cubeObjects: []
   }
+
+  threeBrowserBrowsingState : BrowsingState|null = null;
+  cubeObjects : CubeObject[] = [];
 
   render() {
     //Conditional rendering:
@@ -35,12 +36,12 @@ export default class PhotoCubeClient extends React.Component {
         onOpenCubeInCardMode={this.onOpenCubeInCardMode}
         onOpenCubeInGridMode={this.onOpenCubeInGridMode}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Grid){
-      currentBrowser = <GridBrowser cubeObjects={this.state.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
+      currentBrowser = <GridBrowser cubeObjects={this.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Card){
-      currentBrowser = <CardBrowser cubeObjects={this.state.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
+      currentBrowser = <CardBrowser cubeObjects={this.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }
 
-    //Returned:
+    //Page returned:
     return (
         <div className="App grid-container">
           <LeftDock hideControls={this.state.BrowsingMode != BrowsingModes.Cube}/>
@@ -52,35 +53,6 @@ export default class PhotoCubeClient extends React.Component {
             onClearAxis={this.onClearAxis}/>
         </div>
     );
-  }
-
-  componentDidMount(){
-    /*
-    //Code can be used to start in Grid mode with data:
-    let cubeObjects: CubeObject[] = [{
-      Id: 4,
-      FileName: "IMG_1",
-      FileType: 0,
-      PhotoId: 4,
-      Photo: null,
-      ObjectTagRelations: null,
-      ThumbnailId: 4,
-      Thumbnail: null
-    },
-    {
-      Id: 4,
-      FileName: "IMG_2",
-      FileType: 0,
-      PhotoId: 9,
-      Photo: null,
-      ObjectTagRelations: null,
-      ThumbnailId: 4,
-      Thumbnail: null
-    }
-    ]
-    this.setState({cubeObjects: cubeObjects, BrowsingMode:BrowsingModes.Grid});
-    this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Grid);
-    */
   }
 
   /**
@@ -122,7 +94,7 @@ export default class PhotoCubeClient extends React.Component {
     if(this.state.BrowsingMode == BrowsingModes.Cube){ //Going from cube to other:
       //Saving current browsingstate:
       this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
-      this.setState({cubeObjects: this.threeBrowser.current!.GetUniqueCubeObjects()});
+      this.cubeObjects = this.threeBrowser.current!.GetUniqueCubeObjects()
     }
     this.setState({BrowsingMode: browsingMode});
   }
@@ -133,7 +105,8 @@ export default class PhotoCubeClient extends React.Component {
   onOpenCubeInCardMode = (cubeObjects: CubeObject[]) => {
     console.log("Opening cube in card mode:");
     this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
-    this.setState({cubeObjects: cubeObjects, BrowsingMode: BrowsingModes.Card});
+    this.cubeObjects = cubeObjects;
+    this.setState({BrowsingMode: BrowsingModes.Card});
     this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Card);
   }
 
@@ -143,7 +116,8 @@ export default class PhotoCubeClient extends React.Component {
   onOpenCubeInGridMode = (cubeObjects: CubeObject[]) => {
     console.log("Opening cube in grid mode:");
     this.threeBrowserBrowsingState = this.threeBrowser.current!.GetCurrentBrowsingState();
-    this.setState({cubeObjects: cubeObjects, BrowsingMode: BrowsingModes.Grid});
+    this.cubeObjects = cubeObjects;
+    this.setState({BrowsingMode: BrowsingModes.Grid});
     this.rightDock.current!.ChangeBrowsingMode(BrowsingModes.Grid);
   }
 }

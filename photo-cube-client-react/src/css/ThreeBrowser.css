@@ -1,9 +1,10 @@
 #ThreeBrowser{
-    background-color: green;
+    background-color: black;
     margin: 0;
 	padding: 0;
 	/*background-color: black;*/
 	overflow: hidden;
+	text-align: center;
 }
 
 #tooltip {

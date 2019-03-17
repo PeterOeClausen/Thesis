@@ -50,8 +50,6 @@ export default class CardBrowser extends React.Component<{
         if(this.props.cubeObjects.length > 0){
             await Fetcher.FetchTagsWithCubeObjectId(this.props.cubeObjects[this.state.photoIndex].Id)
             .then((tags:Tag[]) => {
-                console.log("then");
-                console.log(tags);
                 let result : string = "";
                 tags.forEach(t => result += t.Name + ", ");
                 this.setState({tagNamesWithCubeObjectId: result.substring(0, result.length - 2)})
