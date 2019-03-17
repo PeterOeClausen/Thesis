@@ -18,9 +18,9 @@ export default interface ICell{
 export default class Cell{
     //Reference to Scene.
     scene: THREE.Scene;
-    textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
+    textureLoader: THREE.TextureLoader;
     
-    //Coordinates:
+    //Coordinates in hyperCube:
     x: number;
     y: number;
     z: number;
@@ -33,6 +33,7 @@ export default class Cell{
 
     constructor(scene:THREE.Scene, textureLoader:THREE.TextureLoader, addToCubeMeshesCallback: (cubeMesh: THREE.Mesh) => void, aPosition:Position, cubeObjectData: CubeObject[]){
         this.scene = scene;
+        this.textureLoader = textureLoader;
         
         this.x = aPosition.x;
         this.y = aPosition.y;

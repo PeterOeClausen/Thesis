@@ -79,7 +79,7 @@ class ThreeBrowser extends React.Component<{
     mouse = new THREE.Vector2();
     
     textMeshes: THREE.Mesh[] = [];
-    cubeMeshes: THREE.Mesh[] = [];
+    boxMeshes: THREE.Mesh[] = [];
 
     //Reusing THREE Geometries to save memory:
     boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -266,7 +266,7 @@ class ThreeBrowser extends React.Component<{
         me.preventDefault();
         // calculate objects intersecting the picking ray:
         // is updated in function onMouseMove
-        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+        let intersects = this.raycaster.intersectObjects( this.boxMeshes );
         //Only show contextMenu if on cube object:
         if(intersects.length > 0){
             let conMenu : HTMLElement|null = document.getElementById('conMenu');
@@ -288,7 +288,7 @@ class ThreeBrowser extends React.Component<{
         // update the picking ray with the camera and mouse position
         this.raycaster.setFromCamera( this.mouse, this.camera );
         // calculate objects intersecting the picking ray
-        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+        let intersects = this.raycaster.intersectObjects( this.boxMeshes );
         if(intersects.length > 0){
             let xDefined : boolean = this.xAxis.TitleString !== "X";
             let yDefined : boolean = this.yAxis.TitleString !== "Y";
@@ -379,7 +379,7 @@ class ThreeBrowser extends React.Component<{
         boxMesh.position.z = aPosition.z;
         //Add to scene:
         this.scene.add( boxMesh );
-        this.cubeMeshes.push( boxMesh );
+        this.boxMeshes.push( boxMesh );
         return boxMesh;
     }  
 
@@ -432,7 +432,7 @@ class ThreeBrowser extends React.Component<{
             map : this.textureLoader.load(imageUrl)
         });
         //Make box geometry:
-        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+        let boxGeometry = this.boxGeometry;
         //Create mesh:
         let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
         //Position in (x,y,z):
@@ -441,6 +441,8 @@ class ThreeBrowser extends React.Component<{
         boxMesh.position.z = aPosition.z;
         //Add to scene:
         this.scene.add( boxMesh );
+        //Add to list of cube objects:
+        this.boxMeshes.push(boxMesh);
         return boxMesh;
     }
 
@@ -459,6 +461,10 @@ class ThreeBrowser extends React.Component<{
         this.textMeshes.push(textMesh);
         this.scene.add( textMesh );
         return textMesh; //Returns ThreeObject
+    }
+
+    addToCubeMeshesCallback = (cubeMesh: THREE.Mesh) => {
+        this.boxMeshes.push(cubeMesh);
     }
         
     /**
@@ -527,7 +533,7 @@ class ThreeBrowser extends React.Component<{
     async computeCells(){
         //Remove previous cells:
         this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
-        this.cubeMeshes = [];
+        this.boxMeshes = [];
 
         //Fetch and add new cells:
         let xDefined : boolean = this.xAxis.TitleString != "X";
@@ -578,13 +584,7 @@ class ThreeBrowser extends React.Component<{
             cell.CubeObjects.forEach(co => uniquePhotoIds.add(co.PhotoId)));
         this.props.onFileCountChanged(uniquePhotoIds.size);
     }
-
-    addToCubeMeshesCallback = (cubeMesh: THREE.Mesh) => {
-        this.cubeMeshes.push(cubeMesh);
-    }
     
-    
-
     GetCurrentBrowsingState(){
         console.log("Getting current browsing state")
         let currentBrowsingState : BrowsingState = {
@@ -593,7 +593,6 @@ class ThreeBrowser extends React.Component<{
             zAxisPickedDimension: this.zAxis.PickedDimension ? this.zAxis.PickedDimension : null,
             cameraState: JSON.stringify(this.camera.matrix.toArray())
         }
-
         return currentBrowsingState;
     }
 
