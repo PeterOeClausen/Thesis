@@ -18,11 +18,6 @@ import PickedDimension from '../../RightDock/PickedDimension';
 
 const OrbitControls = require('three-orbitcontrols')
 
-/*
- TODO:
-- Continue with tutorial: https://reactjs.org/tutorial/tutorial.html#completing-the-game
-*/
-
 /**
  * The ThreeBrowser Component is the browsing component used to browse photos in 3D.
  * The ThreeBrowser uses the three.js library for 3D rendering: https://threejs.org/
@@ -35,12 +30,13 @@ class ThreeBrowser extends React.Component<{
         onOpenCubeInGridMode: (cubeObjects: CubeObject[]) => void
     }>{
 
+    /* The state desides what is shown in the interface, and is changesd with a this.setState call. */
     state = {
         infoText: "Hover with mouse on a cube to see info",
-        showContextMenu: false
+        showContextMenu: false,
+        showErrorMessage: false
     };
 
-    //TODO: Add progressbar
     render(){
         let contextMenu = <div id="conMenu"></div>
         if(this.state.showContextMenu){
@@ -51,26 +47,24 @@ class ThreeBrowser extends React.Component<{
                     <button onClick={(e) => this.onOpenCubeInGridMode()}>Open cube in Grid mode</button>
                 </div>
         }
+        let errorMessage = <div id="ErrrorMessage"></div>
+        if(this.state.showErrorMessage){
+            errorMessage = 
+                <div id="ErrrorMessage">
+                    <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please refresh the browser.</p>
+                </div>
+        }
         return(
             <div className="grid-item" id="ThreeBrowser">
                 <div style={{ width: '400px', height: '400px' }} ref = {(mount) => { this.mount = mount }}/>
                 <div id="info">{this.state.infoText}</div>
                 {contextMenu}
-                <p>Sorry! Threejs crashed... Probably because it was set to do too much... Please refresh the browser.</p>
+                {errorMessage}
             </div>
         );
     }
 
-    onOpenCubeInCardMode(){
-        this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
-    }
-
-    onOpenCubeInGridMode(){
-        this.props.onOpenCubeInGridMode(this.contextMenuCubeObjects);
-    }
-
     mount: HTMLDivElement|null = this.mount!;
-    //ADD SCENE
     scene: THREE.Scene = new THREE.Scene();
     camera: THREE.Camera = new THREE.Camera();
     controls: any;  //Set in componentDidMount
@@ -78,14 +72,18 @@ class ThreeBrowser extends React.Component<{
     frameId: number = 0;
     renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer({ antialias: true });
     textureLoader: THREE.TextureLoader = new THREE.TextureLoader();
-    textMeshes: THREE.Mesh[] = [];
-    cubeMeshes: THREE.Mesh[] = [];
-    textLoader: any = new THREE.FontLoader();
+    textLoader: THREE.FontLoader = new THREE.FontLoader();
     //Raycaster used for detecting mouse over:
     raycaster: Raycaster = new Raycaster();
     //This will be 2D coordinates of the current mouse position, [0,0] is middle of the screen. Updated in this.onMouseMove
     mouse = new THREE.Vector2();
     
+    textMeshes: THREE.Mesh[] = [];
+    cubeMeshes: THREE.Mesh[] = [];
+
+    //Reusing THREE Geometries to save memory:
+    boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+
 
     //Browsing state:
     //Cells:
@@ -111,7 +109,7 @@ class ThreeBrowser extends React.Component<{
     }
     
     componentDidMount(){
-        //ADD CAMERA
+        //Adding camere:
         this.camera = new THREE.PerspectiveCamera(
             75,
             this.mount!.clientWidth / this.mount!.clientHeight,
@@ -122,7 +120,7 @@ class ThreeBrowser extends React.Component<{
         this.camera.position.y = 5;
         this.camera.position.z = 5;
         
-        //this.renderer.setClearColor('#000000') //Black clear color, default white.
+        //Setting up renderer:
         this.renderer.setSize(this.mount!.clientWidth, this.mount!.clientHeight)
         
         //Add rendered scene to DOM:
@@ -135,37 +133,7 @@ class ThreeBrowser extends React.Component<{
         this.font = this.textLoader.parse(helveticaRegular);
         
         //Filling out available space:
-        this.resizeBrowser();
-
-        //Resize canvas when resizing window:
-        window.addEventListener("resize", this.resizeBrowser);
-        //Add keydown handler:
-        document.addEventListener('keydown', this.handleKeyPress);
-        //Mouse move event handler:
-        this.renderer.domElement.addEventListener('mousemove', this.onMouseMove, false);
-
-        /* Move camera in Y direction when ctrl + scroll. not done...
-        this.renderer.domElement.addEventListener('scroll', (e) => {
-            if(this.ctrlIsDown && ){
-                e.preventDefault();
-
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if(e.key == "Control"){
-                this.ctrlIsDown = true;
-                console.log(e.key == "Control");
-            }
-            
-            //this.ctrlIsDown = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if(e.key == "Control"){
-                this.ctrlIsDown = false;
-            }
-        });*/
+        this.onBrowserResize();
 
         //Default x,y,z view:
         this.createInitialScene();
@@ -173,47 +141,73 @@ class ThreeBrowser extends React.Component<{
         //START ANIMATION
         this.start();
 
-        if(this.props.previousBrowsingState) this.RestoreBrowsingState(this.props.previousBrowsingState!);
+        //Restore to previous browsing state if it is given:
+        if(this.props.previousBrowsingState) { this.RestoreBrowsingState(this.props.previousBrowsingState!); }
 
+        //Subscribe eventlisterners:
+        this.subscribeEventHandlers();
+    }
+    
+    componentWillUnmount(){
+        this.stop()
+        this.unsubscribeEventHandlers();
+        this.mount!.removeChild(this.renderer.domElement);      
+        this.disposeWhatCanBeDisposed();  
+    }
+
+    subscribeEventHandlers(){
+        //Resize canvas when resizing window:
+        window.addEventListener("resize", this.onBrowserResize);
+        //Add keydown handler:
+        document.addEventListener('keydown', this.onKeyPress);
+        //Mouse move event handler:
+        this.renderer.domElement.addEventListener('mousemove', this.onMouseMove, false);
+        //If renderer crashes:
+        this.renderer.domElement.addEventListener("webglcontextlost", this.onWebGLContextLost, false);
         //Right click handler:
-        this.renderer.domElement.addEventListener('contextmenu', (me: MouseEvent) => {
-            me.preventDefault();
-            // calculate objects intersecting the picking ray:
-            // is updated in function onMouseMove
-            let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
-            //Only show contextMenu if on cube object:
-            if(intersects.length > 0){
-                let conMenu : HTMLElement|null = document.getElementById('conMenu');
-                let x = (me.clientX + 20) + 'px';
-                let y = (me.clientY + 20) + 'px';
-                conMenu!.style.top = y;
-                conMenu!.style.left = x;
-                this.setState({showContextMenu: true});
-                this.contextMenuCubeObjects = intersects[0].object.userData.cubeObjects;
-            }
-            return false;
-        }, false);
+        this.renderer.domElement.addEventListener('contextmenu', this.onRightClick, false);
+        //Mouse click handler:
+        this.renderer.domElement.addEventListener("click", this.onMouseClick, false);
+    }
 
-        this.renderer.domElement.addEventListener("click", (me: MouseEvent) => {
-            if(me.button == 0 || me.button == 1){ //left or middle click
-                this.setState({ showContextMenu: false });
-            }
-        });
+    unsubscribeEventHandlers(){
+        window.removeEventListener("resize", this.onBrowserResize);
+        document.removeEventListener('keydown', this.onKeyPress);
+        this.renderer.domElement.removeEventListener('mousemove', this.onMouseMove, false);
+        this.renderer.domElement.removeEventListener("webglcontextlost", this.onWebGLContextLost, false);
+        this.renderer.domElement.removeEventListener('contextmenu', this.onRightClick, false);
+        this.renderer.domElement.removeEventListener("click", this.onMouseClick, false);
+    }
 
-        /*
-        this.renderer.domElement.addEventListener( 'webglcontextrestored', () => {
+    disposeWhatCanBeDisposed(){
+        this.renderer.dispose();
+        this.boxGeometry.dispose();
+        this.cells = [];
+        this.xAxis = new Axis();
+        this.yAxis = new Axis();
+        this.zAxis = new Axis();
+        this.contextMenuCubeObjects = [];
+    }
 
-            this.camera.update( this.renderer, this.scene );
+    start = () => {
+        if (!this.frameId) {
+            this.frameId = requestAnimationFrame(this.animate)
+        }
+    }
         
-        } );
-        */
-
-        /*
-        THREE.DefaultLoadingManager.onProgress = (item:any, loaded: number, total: number) => {
-            console.log(item);
-            console.log((loaded / total * 100));
-        };
-        */
+    stop = () => {
+        cancelAnimationFrame(this.frameId)
+    }
+        
+    animate = () => {
+        this.renderScene()
+        this.frameId = window.requestAnimationFrame(this.animate)
+        //Point text to camera:
+        this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ) );
+    }
+        
+    renderScene = () => {
+        this.renderer.render(this.scene, this.camera);
     }
 
     createInitialScene(){
@@ -261,50 +255,80 @@ class ThreeBrowser extends React.Component<{
         this.computeCells();
     }
 
-    componentWillUnmount(){
-        this.stop()
-        this.mount!.removeChild(this.renderer.domElement)
-        this.unsubscribeToDocumentEvents();
-    }
-
-    unsubscribeToDocumentEvents(){
-        document.removeEventListener('keydown', this.handleKeyPress);
-        window.removeEventListener("resize", this.resizeBrowser);
-        this.mount!.removeEventListener('mousemove', this.onMouseMove);
-    }
-
-    start = () => {
-        if (!this.frameId) {
-            this.frameId = requestAnimationFrame(this.animate)
+    /*Event handlers: */
+    onMouseClick = (me: MouseEvent) => {
+        if(me.button == 0 || me.button == 1){ //left or middle click
+            this.setState({ showContextMenu: false });
         }
     }
-        
-    stop = () => {
-        cancelAnimationFrame(this.frameId)
-    }
-        
-    animate = () => {
-        this.renderScene()
-        this.frameId = window.requestAnimationFrame(this.animate)
-        //Point text to camera:
-        this.textMeshes.forEach((t:THREE.Mesh) => t.lookAt( this.camera.position ) );
-    }
-        
-    renderScene = () => {
-        this.renderer.render(this.scene, this.camera);
+
+    onRightClick = (me: MouseEvent) => {
+        me.preventDefault();
+        // calculate objects intersecting the picking ray:
+        // is updated in function onMouseMove
+        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+        //Only show contextMenu if on cube object:
+        if(intersects.length > 0){
+            let conMenu : HTMLElement|null = document.getElementById('conMenu');
+            let x = (me.clientX + 20) + 'px';
+            let y = (me.clientY + 20) + 'px';
+            conMenu!.style.top = y;
+            conMenu!.style.left = x;
+            this.setState({showContextMenu: true});
+            this.contextMenuCubeObjects = intersects[0].object.userData.cubeObjects;
+        }
+        return false;
     }
 
-    resizeBrowser = () => {
-        let browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
-        let width = browserElement.clientWidth;
-        let height = browserElement.clientHeight;
-        this.renderer.setSize(width, height);
-        //console.log(this.camera);
-        (this.camera as any).aspect = width / height; //For some reason, typescript cannot see .aspect property?
-        (this.camera as any).updateProjectionMatrix();
+    onMouseMove = (event: MouseEvent) => {
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
+        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera( this.mouse, this.camera );
+        // calculate objects intersecting the picking ray
+        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
+        if(intersects.length > 0){
+            let xDefined : boolean = this.xAxis.TitleString !== "X";
+            let yDefined : boolean = this.yAxis.TitleString !== "Y";
+            let zDefined : boolean = this.zAxis.TitleString !== "Z";
+            let infoText : string = "Number of photos: " + intersects[0].object.userData.size;
+            if(xDefined){
+                if(intersects[0].object.userData.x != 0 && this.xAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name)
+                }else if(this.xAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
+                }
+                else if(this.xAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
+                    infoText += ",  X: " + (this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
+                }
+            }
+            if(yDefined){
+                if(intersects[0].object.userData.y != 0 && this.yAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
+                }else if(this.yAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name);
+                }else if(this.yAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
+                    infoText += ",  Y: " + (this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name)
+                }
+            }
+            if(zDefined){
+                if(intersects[0].object.userData.z != 0 && this.zAxis.AxisType == AxisTypeEnum.Tagset){
+                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
+                }else if(this.zAxis.AxisType == AxisTypeEnum.Hierarchy){
+                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name);
+                }else if(this.zAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
+                    infoText += ",  Z: " + (this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name)
+                }
+            }
+            this.setState({infoText: infoText});
+        }else{
+            this.setState({infoText: "Hover with mouse on a cube to see info"});
+        }
     }
 
-    handleKeyPress = (event: KeyboardEvent) => {
+    onKeyPress = (event: KeyboardEvent) => {
         if(event.code === "Space"){
             //Move camera up in the y direction:
             this.camera.position.y += 0.1;
@@ -319,58 +343,48 @@ class ThreeBrowser extends React.Component<{
         }
     }
 
+    onOpenCubeInCardMode(){
+        this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
+    }
+
+    onOpenCubeInGridMode(){
+        this.props.onOpenCubeInGridMode(this.contextMenuCubeObjects);
+    }
+
+    onBrowserResize = () => {
+        let browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
+        let width = browserElement.clientWidth;
+        let height = browserElement.clientHeight;
+        this.renderer.setSize(width, height);
+        //console.log(this.camera);
+        (this.camera as any).aspect = width / height; //For some reason, typescript cannot see .aspect property?
+        (this.camera as any).updateProjectionMatrix();
+    }
+
+    onWebGLContextLost = (e: Event) => {
+        this.setState({showErrorMessage: true})
+    }
+
     /* Add cubes to scene with given imageURL and a position */
     addCube(imageUrl: string, aPosition: Position) {
         //Load image as material:
         let imageMaterial = new THREE.MeshBasicMaterial({
             map : this.textureLoader.load(imageUrl)
         });
-        //Make box geometry:
-        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
         //Create mesh:
-        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
+        let boxMesh = new THREE.Mesh( this.boxGeometry, imageMaterial );
         //Position in (x,y,z):
         boxMesh.position.x = aPosition.x;
         boxMesh.position.y = aPosition.y;
         boxMesh.position.z = aPosition.z;
         //Add to scene:
         this.scene.add( boxMesh );
-        this.cubeMeshes.push(boxMesh);
+        this.cubeMeshes.push( boxMesh );
         return boxMesh;
-    }
-
-    addCubeCallback = (imageUrl: string, aPosition: Position) => {
-        //Load image as material:
-        let imageMaterial = new THREE.MeshBasicMaterial({
-            map : this.textureLoader.load(imageUrl)
-        });
-        //Make box geometry:
-        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-        //Create mesh:
-        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
-        //Position in (x,y,z):
-        boxMesh.position.x = aPosition.x;
-        boxMesh.position.y = aPosition.y;
-        boxMesh.position.z = aPosition.z;
-        //Add to scene:
-        this.scene.add( boxMesh );
-        return boxMesh;
-    }
+    }  
 
     /* Add a line from THREE.Vector3(x,y,z) to THREE.Vector3(x,y,z) with a given color */
     addLine(fromPosition: Position, toPosition: Position, aColor:THREE.Color) {
-        let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
-        let lineGeometry = new THREE.Geometry();
-        let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
-        let to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
-        lineGeometry.vertices.push( from );
-        lineGeometry.vertices.push( to );
-        let lineMesh = new THREE.Line( lineGeometry, lineMaterial );
-        this.scene.add( lineMesh );
-        return lineMesh;
-    }
-
-    addLineCallback = (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => {
         let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
         let lineGeometry = new THREE.Geometry();
         let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
@@ -398,6 +412,36 @@ class ThreeBrowser extends React.Component<{
         this.textMeshes.push(textMesh);
         this.scene.add( textMesh );
         return textMesh; //Returns ThreeObject
+    }
+
+    addLineCallback = (fromPosition: Position, toPosition: Position, aColor:THREE.Color) => {
+        let lineMaterial = new THREE.LineBasicMaterial( { color: aColor } );
+        let lineGeometry = new THREE.Geometry();
+        let from = new THREE.Vector3(fromPosition.x,fromPosition.y,fromPosition.z);
+        let to = new THREE.Vector3(toPosition.x, toPosition.y, toPosition.z);
+        lineGeometry.vertices.push( from );
+        lineGeometry.vertices.push( to );
+        let lineMesh = new THREE.Line( lineGeometry, lineMaterial );
+        this.scene.add( lineMesh );
+        return lineMesh;
+    }
+
+    addCubeCallback = (imageUrl: string, aPosition: Position) => {
+        //Load image as material:
+        let imageMaterial = new THREE.MeshBasicMaterial({
+            map : this.textureLoader.load(imageUrl)
+        });
+        //Make box geometry:
+        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+        //Create mesh:
+        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
+        //Position in (x,y,z):
+        boxMesh.position.x = aPosition.x;
+        boxMesh.position.y = aPosition.y;
+        boxMesh.position.z = aPosition.z;
+        //Add to scene:
+        this.scene.add( boxMesh );
+        return boxMesh;
     }
 
     addTextCallback = (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => {
@@ -477,7 +521,7 @@ class ThreeBrowser extends React.Component<{
                 break;
         }
 
-        this.computeCells();
+        await this.computeCells();
     }
 
     async computeCells(){
@@ -496,31 +540,31 @@ class ThreeBrowser extends React.Component<{
             //Render all three axis
             //promise = this.fetchAndAddCubeObjectsForThreeAxis(this.xAxis, this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.xAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
             //promise = this.fetchAndAddCubeObjectsForTwoAxis(this.yAxis, this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.xAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined){                     //Y
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.yAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
             //promise = this.fetchAndAddCubeObjectsForOneAxis(this.zAxis);
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
-            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addToCubeMeshesCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
         this.cells = newCells;
@@ -539,53 +583,7 @@ class ThreeBrowser extends React.Component<{
         this.cubeMeshes.push(cubeMesh);
     }
     
-    onMouseMove = (event: MouseEvent) => {
-        // calculate mouse position in normalized device coordinates
-        // (-1 to +1) for both components
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        // update the picking ray with the camera and mouse position
-        this.raycaster.setFromCamera( this.mouse, this.camera );
-        // calculate objects intersecting the picking ray
-        let intersects = this.raycaster.intersectObjects( this.cubeMeshes );
-        if(intersects.length > 0){
-            let xDefined : boolean = this.xAxis.TitleString !== "X";
-            let yDefined : boolean = this.yAxis.TitleString !== "Y";
-            let zDefined : boolean = this.zAxis.TitleString !== "Z";
-            let infoText : string = "Number of photos: " + intersects[0].object.userData.size;
-            if(xDefined){
-                if(intersects[0].object.userData.x != 0 && this.xAxis.AxisType == AxisTypeEnum.Tagset){
-                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Tags[parseInt(intersects[0].object.userData.x) - 1].Name)
-                }else if(this.xAxis.AxisType == AxisTypeEnum.Hierarchy){
-                    infoText += ",  X: " + (this.xAxis.TitleString + ": " + this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
-                }
-                else if(this.xAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
-                    infoText += ",  X: " + (this.xAxis.Hierarchies[parseInt(intersects[0].object.userData.x) - 1].Tag.Name)
-                }
-            }
-            if(yDefined){
-                if(intersects[0].object.userData.y != 0 && this.yAxis.AxisType == AxisTypeEnum.Tagset){
-                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Tags[parseInt(intersects[0].object.userData.y) - 1].Name);
-                }else if(this.yAxis.AxisType == AxisTypeEnum.Hierarchy){
-                    infoText += ",  Y: " + (this.yAxis.TitleString + ": " + this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name);
-                }else if(this.yAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
-                    infoText += ",  Y: " + (this.yAxis.Hierarchies[parseInt(intersects[0].object.userData.y) - 1].Tag.Name)
-                }
-            }
-            if(zDefined){
-                if(intersects[0].object.userData.z != 0 && this.zAxis.AxisType == AxisTypeEnum.Tagset){
-                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Tags[parseInt(intersects[0].object.userData.z) - 1].Name);
-                }else if(this.zAxis.AxisType == AxisTypeEnum.Hierarchy){
-                    infoText += ",  Z: " + (this.zAxis.TitleString + ": " + this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name);
-                }else if(this.zAxis.AxisType == AxisTypeEnum.HierarchyLeaf){
-                    infoText += ",  Z: " + (this.zAxis.Hierarchies[parseInt(intersects[0].object.userData.z) - 1].Tag.Name)
-                }
-            }
-            this.setState({infoText: infoText});
-        }else{
-            this.setState({infoText: "Hover with mouse on a cube to see info"});
-        }
-    }
+    
 
     GetCurrentBrowsingState(){
         console.log("Getting current browsing state")
