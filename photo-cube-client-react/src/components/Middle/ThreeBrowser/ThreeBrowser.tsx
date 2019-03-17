@@ -81,9 +81,10 @@ class ThreeBrowser extends React.Component<{
     textMeshes: THREE.Mesh[] = [];
     boxMeshes: THREE.Mesh[] = [];
 
-    //Reusing THREE Geometries to save memory:
+    //Reusing THREE Geometries and Materials to save memory, and to dispose them after:
     boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     boxTextures : Map<string, THREE.MeshBasicMaterial> = new Map<string, THREE.MeshBasicMaterial>();
+    textGeometries : Map<string, THREE.TextGeometry> = new Map<string, THREE.TextGeometry>();
 
     //Browsing state:
     //Cells:
@@ -184,6 +185,8 @@ class ThreeBrowser extends React.Component<{
         this.boxGeometry.dispose();
         this.boxTextures.forEach((v:THREE.MeshBasicMaterial, k:string) => v.dispose());
         this.boxTextures = new Map<string, THREE.MeshBasicMaterial>();
+        this.textGeometries.forEach((v:THREE.TextGeometry, k:string) => v.dispose());
+        this.textGeometries = new Map<string, THREE.TextGeometry>();
         this.cells = [];
         this.xAxis = new Axis();
         this.yAxis = new Axis();
@@ -437,12 +440,19 @@ class ThreeBrowser extends React.Component<{
     }
 
     addTextCallback = (someText: string, aPosition:Position, aColor:THREE.Color, aSize:number) => {
-        let textGeometry = new THREE.TextGeometry( someText, {
-            font: this.font,
-            size: aSize,
-            height: 0.1,
-            curveSegments: 20
-        } );
+        let textGeometry : THREE.TextGeometry;
+        if(this.textGeometries.has(someText)){
+            textGeometry = this.textGeometries.get(someText)!;
+        }else{
+            textGeometry = new THREE.TextGeometry( someText, {
+                font: this.font,
+                size: aSize,
+                height: 0.1,
+                curveSegments: 20
+            });
+            this.textGeometries.set(someText, textGeometry);
+        }
+
         let textMaterial = new THREE.MeshBasicMaterial( { color: aColor } );
         let textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.x = aPosition.x;
