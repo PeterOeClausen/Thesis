@@ -100,7 +100,7 @@ You can now run the server by right-clicking the ObjectServer project, select 'S
 Note that when running these commands, it may give "WARN" and "notice" messages, however you can ignore these and keep going with the installation.
 
 ### Step 1: Install React:
-Be sure that you have installed React:
+After installing Node and restarting, open cmd and install React:
 ```
 npm install react
 ```
