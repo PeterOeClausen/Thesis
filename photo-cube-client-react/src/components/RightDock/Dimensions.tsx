@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import '../../css/Dimensions.css';
 import Dimension from './Dimension';
-import Tagset from '../Middle/ThreeBrowser/Tagset';
-import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import PickedDimension from './PickedDimension';
-//import {MyContext} from '../Middle/PhotoCubeClient';
 
-class Dimensions extends Component<{
+/**
+ * Container for Dimension.
+ * Used in RightDock.
+ */
+export default class Dimensions extends Component<{
     onDimensionChanged:(dimName: string, dimension:PickedDimension) => void,
     onClearAxis:(axisName: string) => void,
     className: string
@@ -25,5 +26,3 @@ class Dimensions extends Component<{
         );
     }
 }
-
-export default Dimensions;

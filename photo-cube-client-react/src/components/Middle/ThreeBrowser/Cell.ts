@@ -2,8 +2,6 @@ import CubeObject from './CubeObject';
 import * as THREE from 'three';
 import Fetcher from './Fetcher';
 import Position from './Position';
-import { TextureLoader } from 'three';
-import ImageTextureLoader from './ImageTextureLoader';
 
 export default interface ICell{
     //Coordinates:
@@ -15,6 +13,9 @@ export default interface ICell{
     CubeObjects: CubeObject[];
 }
 
+/**
+ * Repressents a Cell in the hypercube in the ThreeBrowser.
+ */
 export default class Cell{
     //Reference to Scene.
     scene: THREE.Scene;
@@ -55,6 +56,11 @@ export default class Cell{
         }
     }
 
+    RemoveFromScene(){
+        if(this.threeObject != null) this.scene.remove(this.threeObject);
+    }
+
+    /* //Not in use:
     ToggleSwitchingImagesEveryXms(miliseconds: number){
         setInterval(() => {
             this.imageIndex++;
@@ -66,28 +72,5 @@ export default class Cell{
             //Do something each 'miliseconds' seconds  
         }, miliseconds);
     }
-
-    private CreateCubeMesh(){
-        THREE.Cache.enabled = true;
-        let imageMaterial = new THREE.MeshBasicMaterial({
-            map : ImageTextureLoader.Load(Fetcher.baseUrl + "/thumbnail/" + this.CubeObjects[0].ThumbnailId)
-        });
-        //Make box geometry:
-        let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
-        //Create mesh:
-        let boxMesh = new THREE.Mesh( boxGeometry, imageMaterial );
-        //Position in (x,y,z):
-        boxMesh.position.x = this.x;
-        boxMesh.position.y = this.y;
-        boxMesh.position.z = this.z;
-        //Tooltip:
-        boxMesh.userData.tooltipText = this.CubeObjects.length + " photos.";
-        //Add to scene:
-        this.scene.add( boxMesh );
-        return boxMesh;
-    }
-
-    RemoveFromScene(){
-        if(this.threeObject != null) this.scene.remove(this.threeObject);
-    }
+    */
 }

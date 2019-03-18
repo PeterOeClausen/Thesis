@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace ConsoleAppForInteractingWithDatabase
 {
+    /// <summary>
+    /// Program that parses and adds the Laugavegur data to the database.
+    /// </summary>
     class Program
     {
         static void Main(string[] args)
@@ -15,7 +18,8 @@ namespace ConsoleAppForInteractingWithDatabase
             Console.WriteLine("Started up!");
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            //JamesWhiteDatasetInserter.InsertJamesWhiteDataset();
+
+            //Insert data:
             LaugavegurDatasetInserter.InsertLaugavegurDataset();
             
             // Get the elapsed time as a TimeSpan value.
@@ -26,39 +30,6 @@ namespace ConsoleAppForInteractingWithDatabase
             Console.WriteLine("Done! Took: " + elapsedTime + " in format: hh:mm:ss");
             Console.WriteLine("Press any key to shut down.");
             Console.ReadKey();
-        }
-
-        static void InsertObject()
-        {
-            var anObject = new CubeObject {
-                FileType = FileType.Photo,
-                ObjectTagRelations = new System.Collections.Generic.List<ObjectTagRelation>() { },
-                Photo = new Photo() { }
-            };
-            using( var context = new ObjectContext())
-            {
-                context.CubeObjects.Add(anObject);
-                context.SaveChanges();
-            }
-        }
-
-        static void GetAllObjects()
-        {
-            using (var context = new ObjectContext())
-            {
-                var cubeObjects = context.CubeObjects.ToList();
-                cubeObjects.ForEach(co => Console.WriteLine(co.Id));
-            }
-        }
-
-        static void DeleteAllObjects()
-        {
-            using (var context = new ObjectContext())
-            {
-                var allCubeObjects = context.CubeObjects.ToList();
-                context.CubeObjects.RemoveRange(allCubeObjects);
-                context.SaveChanges();
-            }
         }
     }
 }

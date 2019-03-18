@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import '../../css/BrowsingStateLoader.css'
 
-class BrowsingStateLoader extends Component<{
+/**
+ * Not in use. But couæd be used to save and load browsing states:
+ */
+export default class BrowsingStateLoader extends Component<{
         className: string
     }>{
     render() {
@@ -16,5 +19,3 @@ class BrowsingStateLoader extends Component<{
         );
     }
 }
-
-export default BrowsingStateLoader;

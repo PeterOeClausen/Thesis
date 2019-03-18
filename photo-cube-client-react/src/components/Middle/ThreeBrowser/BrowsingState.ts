@@ -1,10 +1,8 @@
-import Axis from "./Axis";
-import Cell from './Cell';
-import Position from "./Position";
-import * as THREE from 'three';
 import PickedDimension from "../../RightDock/PickedDimension";
-import CubeObject from "./CubeObject";
 
+/**
+ * Interface for object repressenting a previous ThreeBrowser Browsing State.
+ */
 export interface BrowsingState{
     xAxisPickedDimension: PickedDimension|null;
     yAxisPickedDimension: PickedDimension|null;

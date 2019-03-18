@@ -5,6 +5,9 @@ import '../../../css/CardBrowser.css';
 import { BrowsingModes } from '../../RightDock/BrowsingModeChanger';
 import Tag from '../ThreeBrowser/Tag';
 
+/**
+ * The CardBrowser allows the user to browse each photo one by one.
+ */
 export default class CardBrowser extends React.Component<{
     cubeObjects: CubeObject[],
     onBrowsingModeChanged : (browsingMode: BrowsingModes) => void

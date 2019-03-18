@@ -2,7 +2,6 @@
 using ObjectCubeServer.Models;
 using ObjectCubeServer.Models.DataAccess;
 using ObjectCubeServer.Models.DomainClasses;
-using ObjectCubeServer.Models.HelperClasses;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -70,6 +69,10 @@ namespace ConsoleAppForInteractingWithDatabase
             Console.WriteLine("Done with InsertLaugavegurDataset");
         }
 
+        /// <summary>
+        /// Parses and inserts cube objects, photos and thumbnails.
+        /// </summary>
+        /// <param name="pathToDataset"></param>
         private static void InsertCubeObjects(string pathToDataset)
         {
             string[] files = Directory.GetFiles(pathToDataset);
@@ -163,6 +166,11 @@ namespace ConsoleAppForInteractingWithDatabase
             }
         }
 
+        /// <summary>
+        /// Parses and inserts tags and tagsets. Also tags Photos.
+        /// </summary>
+        /// <param name="pathToTagFile"></param>
+        /// <param name="pathToErrorLogFile"></param>
         static void InsertTags(string pathToTagFile, string pathToErrorLogFile)
         {
             Console.WriteLine("Inserting TagsSets and Tags:");
@@ -199,7 +207,10 @@ namespace ConsoleAppForInteractingWithDatabase
 
                             //Also creates a tag with same name:
                             Tag tagWithSameNameAsTagset = DomainClassFactory.NewTag(tagsetName, tagsetFromDb);
-                            HelperMethods.AddTagToTagset(tagWithSameNameAsTagset, tagsetFromDb);
+                            //Add tag to tagset:
+                            tagWithSameNameAsTagset.Tagset = tagsetFromDb;
+                            tagsetFromDb.Tags.Add(tagWithSameNameAsTagset);
+                            //Add and update changes:
                             context.Tags.Add(tagWithSameNameAsTagset);
                             context.SaveChanges();
                         }
@@ -256,6 +267,10 @@ namespace ConsoleAppForInteractingWithDatabase
             }
         }
 
+        /// <summary>
+        /// Inserts hierarchies
+        /// </summary>
+        /// <param name="pathToHierarchiesFile"></param>
         private static void InsertHierarchies(string pathToHierarchiesFile)
         {
             Console.WriteLine("Inserting Hierarchies");
@@ -268,7 +283,7 @@ namespace ConsoleAppForInteractingWithDatabase
             {
                 Console.WriteLine("Inserting line number: " + lineCount);
 
-                //File format: Tagset:Parrent:Child:Child:Child:(...)
+                //File format: TagsetName:HierarchyName:ParrentTag:ChildTag:ChildTag:ChildTag:(...)
                 string[] split = line.Split(":");
                 string tagsetName = split[0];
                 string hierarchyName = split[1];
@@ -355,7 +370,7 @@ namespace ConsoleAppForInteractingWithDatabase
                         }
 
                         Node newChildNode = DomainClassFactory.NewNode(childTagFromDb, hierarchyFromDb);
-                        parentNodeFromDb.Children.Add(newChildNode); //Try not adding this line? Debug
+                        parentNodeFromDb.Children.Add(newChildNode);
                         hierarchyFromDb.Nodes.Add(newChildNode);
                         context.Update(parentNodeFromDb);
                         context.Update(hierarchyFromDb);

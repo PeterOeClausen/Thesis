@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace ObjectCubeServer.Models.DomainClasses
 {
+    /// <summary>
+    /// Repressents a Hiearchy in the M^3 model.
+    /// Has a name.
+    /// Belongs to a Tagset.
+    /// Has a collection of nodes.
+    /// Has a root node.
+    /// </summary>
     public class Hierarchy
     {
         [Key]
@@ -15,8 +22,7 @@ namespace ObjectCubeServer.Models.DomainClasses
         
         public Tagset Tagset { get; set; }
         public int TagsetId { get; set; }
-
-        //The rootnode has the same name as tagset by convention.
+        
         public List<Node> Nodes { get; set; }
 
         public int RootNodeId { get; set; }

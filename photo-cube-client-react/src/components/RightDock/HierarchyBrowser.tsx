@@ -3,6 +3,7 @@ import Fetcher from '../Middle/ThreeBrowser/Fetcher';
 import Hierarchy from '../Middle/ThreeBrowser/Hierarchy';
 import HierarchyNode from '../Middle/ThreeBrowser/HierarchyNode';
 import '../../css/HierarchyBrowser.css';
+import PickedDimension from './PickedDimension';
 
 /**
  * The hierarchy browser component enables the user to browse hierarchies.
@@ -37,12 +38,13 @@ export default class HierarchyBrowser extends React.Component<{
             </div>
         )
     }
-    
-    componentDidMount(){
-        //this.RenderHierarchy("X", {id:2});
-    }
 
-    async RenderHierarchy(dimName: string, dimension:any){
+    /**
+     * Given a dimName ("X", "Y" or "Z") and a PickedDimension renders the HierarchyBrowser.
+     * @param dimName 
+     * @param dimension 
+     */
+    async RenderHierarchy(dimName: string, dimension:PickedDimension){
         console.log("Render Hierarchy");
         let hierarchy : Hierarchy = await Fetcher.FetchHierarchy(dimension.id);
         let rootNode: HierarchyNode = await Fetcher.FetchNode(hierarchy.RootNodeId);
@@ -61,20 +63,14 @@ export default class HierarchyBrowser extends React.Component<{
         console.log(hierarchy);       
     }
 
-    //Recursively render nodes:
+    /**
+     * Helper method to recursively render buttons repressenting a nodes in a hierarchy.
+     * @param dimName "X" "Y" or "Z".
+     * @param node call with root node in a hierarchy.
+     * @param level call with level 0.
+     */
     private renderNode(dimName: string, node: HierarchyNode, level: number){
         let nodeLevelClassName : string = "nodeLevel-"+level;
-        /*
-        let buttonOrParagraph = node.Children.length == 0 ?
-            <p className={nodeLevelClassName}>{node.Tag.Name}</p>
-            :
-            <button
-                className={nodeLevelClassName} 
-                onClick={
-                    () => this.props.onDimensionChanged(dimName, {type:"hierarchyNode", id:node.Id, name:node.Tag.Name})}>
-                {node.Tag.Name}
-            </button> 
-        */
         let result = 
             <div key={"Node:" + node.Tag.Id + ", level: " + level}>
                 <button

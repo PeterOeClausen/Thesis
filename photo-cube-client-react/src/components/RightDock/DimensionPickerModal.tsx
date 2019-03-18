@@ -7,15 +7,13 @@ import PickedDimension from './PickedDimension';
 import Fetcher from '../Middle/ThreeBrowser/Fetcher';
 
 /**
- * A component containing a Modal for picking Dimensions.
+ * A component containing a Modal (popup) for picking Dimensions.
  * 
- * The user can choose between tagsets or hierarchies.
+ * The user can choose between hierarchies or tagsets.
  * 
  * It returns an object to given callback-function called onDimensionPicked().
  * The object given to onDimensionPicked contains either:
- * 
  * - Tagset: {type:"tagset", id:ts.TagsetId, name:ts.Name}
- * 
  * - Hierarchy: {type:"hierarchy", id:h.HirarchyId, name:h.Name}.
  * 
  * The Dimension is then to be shown in the ThreeBrowser.

@@ -1,5 +1,8 @@
 ﻿namespace ObjectCubeServer.Models.DomainClasses
 {
+    /// <summary>
+    /// Repressents a many-to-many relationship between CubeObjects and Tags.
+    /// </summary>
     public class ObjectTagRelation
     {
         public int ObjectId { get; set; }

@@ -28,21 +28,6 @@ namespace ObjectCubeServer.Controllers
             }
             return Ok(JsonConvert.SerializeObject(allHierarchies,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-
-            /*
-            List<Hierarchy> rootHierarchies;
-            using (var context = new ObjectContext())
-            {
-                rootHierarchies = context.Hierarchies.Include(h => h.RootNode).ToList();
-            }
-            if(rootHierarchies == null) { return NotFound("No root hierarchies were found. Check the database."); }
-
-            return Ok(JsonConvert.SerializeObject(rootHierarchies, Formatting.Indented, 
-                new JsonSerializerSettings() //Needed in order to avoid parrent-child-loop.
-                {
-                    ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                }));
-                */
         }
 
         // GET: api/Hierarchy/5
@@ -64,24 +49,6 @@ namespace ObjectCubeServer.Controllers
             }
             return Ok(JsonConvert.SerializeObject(hierarchyFound,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-        }
-
-        // POST: api/Hierarchy
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/Hierarchy/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

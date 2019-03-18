@@ -13,15 +13,5 @@ namespace ObjectCubeServer.Models.HelperClasses
             tag.Tagset = tagset;
             tagset.Tags.Add(tag);
         }
-
-        public static void AddTagToObject(Tag tag, CubeObject cubeObject)
-        {
-            tag.ObjectTagRelations.Add(new ObjectTagRelation()
-            {
-                CubeObject = cubeObject,
-                Tag = tag
-            });
-        }
-
     }
 }

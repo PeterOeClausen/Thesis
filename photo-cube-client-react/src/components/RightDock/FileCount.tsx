@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import '../../css/FileCount.css';
 
 /**
- * FileCount is a Component that shows how many objects the ThreeBrowser is currently showing.
+ * FileCount is a Component that shows how many unique photos the ThreeBrowser is currently showing.
  */
 class FileCount extends React.Component<{
         className: string

@@ -10,7 +10,10 @@ export enum BrowsingModes{
     Card
 }
 
-class BrowserModeChanger extends React.Component<{
+/**
+ * Used in RightDock to change the current browsing mode.
+ */
+export default class BrowserModeChanger extends React.Component<{
         onBrowsingModeChanged: (selectedBrowsingMode:BrowsingModes) => void
     }>{
     state = {
@@ -38,9 +41,11 @@ class BrowserModeChanger extends React.Component<{
         this.props.onBrowsingModeChanged(event.target.value);
     }
 
+    /**
+     * Parent component can call this method to change the <select> option.
+     * @param browsingMode 
+     */
     ChangeSelectedBrowsingMode(browsingMode: BrowsingModes){
         this.setState({selectedBrowsingMode: browsingMode});
     }
 }
-
-export default BrowserModeChanger;

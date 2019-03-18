@@ -29,7 +29,6 @@ namespace ObjectCubeServer.Controllers
             return Ok(JsonConvert.SerializeObject(allNodes));
         }
 
-        //Should return all childnodes and tags as well:
         // GET: api/Node/5
         [HttpGet("{id}", Name = "GetNodes")]
         public IActionResult Get(int id)
@@ -52,7 +51,8 @@ namespace ObjectCubeServer.Controllers
                 return Ok(JsonConvert.SerializeObject(nodeFound));
             }
         }
-        
+
+        #region HelperMethods:
         private Node RecursiveAddChildrenAndTags(Node parentNode)
         {
             List<Node> newChildNodes = new List<Node>();
@@ -75,23 +75,6 @@ namespace ObjectCubeServer.Controllers
             parentNode.Children = newChildNodes;
             return parentNode;
         }
-
-        // POST: api/Node
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/Node/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+        #endregion
     }
 }

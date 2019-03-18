@@ -19,6 +19,13 @@ export enum AxisDirection{
     Z = "Z"
 }
 
+/**
+ * Stores the information of an axis.
+ * Can be either X, Y or Z.
+ * Can be made with a Tagset, Hierarchy or a HierarchyLeaf through
+ * AddTagset, AddHierarchy or AddHierarchyLeaf respectively.
+ * RemoveObjectsFromScene removes the current objects from a given scene.
+ */
 export default class Axis{
     AxisDirection: AxisDirection|null = null;
     TitleString: string = "";

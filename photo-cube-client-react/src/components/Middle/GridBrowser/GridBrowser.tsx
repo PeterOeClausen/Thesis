@@ -4,6 +4,11 @@ import CubeObject from '../ThreeBrowser/CubeObject';
 import Fetcher from '../ThreeBrowser/Fetcher';
 import { BrowsingModes } from '../../RightDock/BrowsingModeChanger';
 
+/**
+ * The GridBrowser allows the user to browse a collection of photos side by side in a grid to get an overview.
+ * this.props.cubeObjects contains the cube object which photos are shown.
+ * this.props.onBrowsingModeChanged is a callback funtion that tells parent component that the browsing mode has been changed.
+ */
 export default class GridBrowser extends React.Component<{
     cubeObjects: CubeObject[],
     onBrowsingModeChanged: (browsingMode: BrowsingModes) => void

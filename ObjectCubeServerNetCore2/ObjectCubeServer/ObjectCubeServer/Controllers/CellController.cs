@@ -15,14 +15,20 @@ namespace ObjectCubeServer.Controllers
     [ApiController]
     public class CellController : ControllerBase
     {
-        // EXAMPLES:
-        // GET: /api/cell?xAxis={jsonObject}
-        // GET: /api/cell?yAxis={jsonObject}
-        // GET: /api/cell?zAxis={jsonObject}
-        // GET: /api/cell?xAxis={jsonObject}&yAxis={jsonObject}
-        // GET: /api/cell?xAxis={jsonObject}&zAxis={jsonObject}
-        // GET: /api/cell?yAxis={jsonObject}&zAxis={jsonObject}
-        // GET: /api/cell?xAxis={jsonObject}&yAxis={jsonObject}&zAxis={jsonObject}
+        /* EXAMPLES:
+         * GET: /api/cell?xAxis={jsonObject}
+         * GET: /api/cell?yAxis={jsonObject}
+         * GET: /api/cell?zAxis={jsonObject}
+         * GET: /api/cell?xAxis={jsonObject}&yAxis={jsonObject}
+         * GET: /api/cell?xAxis={jsonObject}&zAxis={jsonObject}
+         * GET: /api/cell?yAxis={jsonObject}&zAxis={jsonObject}
+         * GET: /api/cell?xAxis={jsonObject}&yAxis={jsonObject}&zAxis={jsonObject}
+         * 
+         * Where an axis showing a Hierarchy could be:
+         *  {"AxisDirection":"X","AxisType":"Hierarchy","TagsetId":0,"HierarchyNodeId":1}
+         * Or an axis showing a Tagset could be: 
+         *  {"AxisDirection":"X","AxisType":"Tagset","TagsetId":1,"HierarchyNodeId":0}
+        */
         public IActionResult Get(string xAxis, string yAxis, string zAxis)
         {
             bool xDefined = xAxis != null;
@@ -39,7 +45,7 @@ namespace ObjectCubeServer.Controllers
             //Creating Cells:
             List<Cell> cells = new List<Cell>();
             
-            if (xDefined && yDefined && zDefined)
+            if (xDefined && yDefined && zDefined) //XYZ
             {
                 cells =
                     xAxisCubeObjects.SelectMany((colist1, index1) =>
@@ -54,7 +60,7 @@ namespace ObjectCubeServer.Controllers
                             .ToList()
                     }))).ToList();
             }
-            else if (xDefined && yDefined)
+            else if (xDefined && yDefined)  //XY
             {
                 cells =
                     xAxisCubeObjects.SelectMany((colist1, index1) =>
@@ -69,7 +75,7 @@ namespace ObjectCubeServer.Controllers
                             .ToList()
                     })).ToList();
             }
-            else if (xDefined && zDefined)
+            else if (xDefined && zDefined)  //XZ
             {
                 cells =
                     xAxisCubeObjects.SelectMany((colist1, index1) =>
@@ -84,7 +90,7 @@ namespace ObjectCubeServer.Controllers
                             .ToList()
                     })).ToList();
             }
-            else if (yDefined && zDefined)
+            else if (yDefined && zDefined)  //YZ
             {
                 cells =
                     xAxisCubeObjects.SelectMany((colist1, index1) =>
@@ -99,7 +105,7 @@ namespace ObjectCubeServer.Controllers
                             .ToList()
                     })).ToList();
             }
-            else if (xDefined)
+            else if (xDefined)               //X
             {
                 cells =
                     xAxisCubeObjects.Select((colist1, index1) =>
@@ -111,7 +117,7 @@ namespace ObjectCubeServer.Controllers
                         CubeObjects = colist1
                     }).ToList();
             }
-            else if (yDefined)
+            else if (yDefined)                //Y
             {
                 cells =
                     yAxisCubeObjects.Select((colist1, index1) =>
@@ -123,7 +129,7 @@ namespace ObjectCubeServer.Controllers
                         CubeObjects = colist1
                     }).ToList();
             }
-            else if (zDefined)
+            else if (zDefined)                //Z
             {
                 cells =
                     zAxisCubeObjects.Select((colist1, index1) =>
@@ -135,11 +141,14 @@ namespace ObjectCubeServer.Controllers
                         CubeObjects = colist1
                     }).ToList();
             }
-            //Last filtering:
+            //If cells have no cubeObjects, remove them:
             cells.RemoveAll(c => c.CubeObjects.Count == 0);
+            //Return OK with json result:
             return Ok(JsonConvert.SerializeObject(cells,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
+
+        #region HelperMethods:
 
         /// <summary>
         /// Given a boolean defined and a ParsedAxis, returns a List of List of CubeObjects.
@@ -294,5 +303,6 @@ namespace ObjectCubeServer.Controllers
             tags.AddRange(tagsFromSubHierarchies);
             return tags;
         }
+        #endregion
     }
 }

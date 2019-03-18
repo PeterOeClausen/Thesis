@@ -2,7 +2,11 @@ import React, { Component } from 'react';
 import '../../css/LeftDock.css'
 import BrowsingStateLoader from './BrowsingStateLoader';
 
-class LeftDock extends Component<{
+/**
+ * LeftDock is the left portion of the interface.
+ * PhotoCubeClient.tsx contains: LeftDock, Middle and RightDock.
+ */
+export default class LeftDock extends Component<{
         hideControls: boolean
     }>{
     render() {
@@ -14,5 +18,3 @@ class LeftDock extends Component<{
         );
     }
 }
-
-export default LeftDock;

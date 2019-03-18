@@ -22,7 +22,7 @@ namespace ObjectCubeServer
                 .UseStartup<Startup>()
                 .ConfigureLogging((hostingContext, logging) =>
                 {
-                    logging.AddConsole();
+                    logging.AddConsole(); //Logs to console.
                 });
     }
 }

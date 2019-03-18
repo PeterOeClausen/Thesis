@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import '../css/PhotoCubeClient.css';
 import LeftDock from './LeftDock/LeftDock';
 import ThreeBrowser from './Middle/ThreeBrowser/ThreeBrowser';
@@ -11,7 +11,8 @@ import PickedDimension from './RightDock/PickedDimension';
 import CubeObject from './Middle/ThreeBrowser/CubeObject';
 
 /**
- * Root component of the PhotoCubeClient application, containing LeftDock, Middle and RightDock.
+ * Root component of the PhotoCubeClient application, containing LeftDock, Middle 
+ * (either ThreeBrowser, GridBrowser or a CardBrowser) and RightDock.
  */
 export default class PhotoCubeClient extends React.Component {
   //Component instance refferences to allow direct child method call:

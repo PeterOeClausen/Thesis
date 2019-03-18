@@ -2,9 +2,19 @@ import Axis from "./Axis";
 import CubeObject from './CubeObject';
 import Tag from "./Tag";
 
+/**
+ * The static Fetcher class is used to fetch data from the server.
+ * Method calls are reused, and if the server address changes, we only need the change the baseUrl.
+ */
 export default class Fetcher{
     static baseUrl: string = "https://localhost:44317/api/";
 
+    /**
+     * Fetches Cells from the PhotoCube Server. See CellController.cs in server implementation.
+     * @param xAxis
+     * @param yAxis 
+     * @param zAxis 
+     */
     static async FetchCellsFromAxis(xAxis: Axis|null, yAxis: Axis|null, zAxis: Axis|null){
         //Fetch and add new cells:
         let xDefined: boolean = xAxis !== null;
@@ -15,13 +25,18 @@ export default class Fetcher{
         if(xDefined) { queryString += "xAxis=" + this.parseAxis(xAxis!)}
         if(yDefined) { queryString += "&yAxis=" + this.parseAxis(yAxis!)}
         if(zDefined) { queryString += "&zAxis=" + this.parseAxis(zAxis!)}
-        //Header too long... use fetch with data instead! https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
         console.log(queryString);
             
         return fetch(queryString)
             .then(result => {return result.json();});
     }
 
+    /**
+     * Helper method for parsing an Axis into an object that is smaller than the Axis.ts class.
+     * Is parsed to ParsedAxis.cs on the server.
+     * Is a consice way of specifing an axis in a query to the server.
+     * @param axis 
+     */
     private static parseAxis(axis: Axis) : string{
         console.log(axis.TitleString);
         return JSON.stringify( 
@@ -34,32 +49,51 @@ export default class Fetcher{
         );
     }
 
+    /**
+     * Fetches a single Node with nodeId from the server.
+     * @param nodeId 
+     */
     static async FetchNode(nodeId: number){
         return await fetch(Fetcher.baseUrl + "/node/" + nodeId)
             .then(result => {return result.json()});
     }
 
+    /**
+     * Returns a single Hierarchy with hierarchyId.
+     * @param hierarchyId 
+     */
     static async FetchHierarchy(hierarchyId: number){
         return await fetch(Fetcher.baseUrl + "/hierarchy/" + hierarchyId)
             .then(result => {return result.json()});
     }
 
+    /**
+     * Returns a single tagset with the tagsetId.
+     * @param tagsetId 
+     */
     static async FetchTagset(tagsetId: number){
         return await fetch(Fetcher.baseUrl + "/tagset/" + tagsetId)
         .then(result => {return result.json()});
     }
 
+    /**
+     * Returns an url to the photo with id photoId.
+     * @param photoId 
+     */
     static GetPhotoURL(photoId: number) : string{
         return Fetcher.baseUrl + "/photo/" + photoId;
     }
 
+    /**
+     * Fetches the tags that a cube object with cubeObjectId is tagged with.
+     * @param cubeObjectId 
+     */
     static async FetchTagsWithCubeObjectId(cubeObjectId: number){
         return await fetch(Fetcher.baseUrl + "/tag?cubeObjectId=" + cubeObjectId)
             .then(result => {return result.json()});
     }
 
     /* THE REST OF THE FILE IS NOT IN USE, BUT IS KEPT FOR ILLUSTRATIVE PURPOSES: */
-
     //Not in use:
     static async imageResult(PhotoId: number){
         // Using sessionStorage as cache:

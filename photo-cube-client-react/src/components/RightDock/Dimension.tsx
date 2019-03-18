@@ -4,8 +4,7 @@ import DimensionPickerModal from './DimensionPickerModal';
 import PickedDimension from './PickedDimension';
 
 /**
- * Component repressenting a Dimension, can be either X, Y or Z.
- * 
+ * Component repressenting a Dimension, can be either X, Y or Z based on this.props.xyz.
  * Used in RightDock to choose values for dimensions.
  */
 class Dimension extends Component<{
@@ -27,7 +26,11 @@ class Dimension extends Component<{
                 {this.renderDimensionTypeAndName()}
                 <div className="width100">
                     <div className="displayInline width50"><DimensionPickerModal onDimensionPicked={this.dimensionPicked}/></div>
-                    <div className="displayInline width50"><button className="width100" onClick={() => this.onClearAxis(this.props.xyz)}>Clear</button></div>
+                    <div className="displayInline width50">
+                        <button 
+                            className="width100" 
+                            onClick={() => this.onClearAxis(this.props.xyz)}>Clear</button>
+                    </div>
                 </div>
             </div>
         );

@@ -28,7 +28,7 @@ namespace ObjectCubeServer.Controllers
                     return NotFound();
                 }
             }
-            return File(photo.Image, "image/jpeg");
+            return File(photo.Image, "image/jpeg"); //Notice it returns a file and not an OK result!
         }
     }
 }

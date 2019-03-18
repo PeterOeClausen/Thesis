@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -15,7 +12,7 @@ namespace ObjectCubeServer.Controllers
     [ApiController]
     public class CubeObjectController : ControllerBase
     {
-        // GET: api/CubeObject
+        // GET: api/CubeObject (currently not in use)
         [HttpGet]
         public IActionResult Get()
         {
@@ -30,7 +27,23 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
-        // GET: api/CubeObject/fromTagId/1
+        // GET: api/CubeObject/5 (currently not in use)
+        [HttpGet("{id}", Name = "GetCubeObject")]
+        public IActionResult Get(int id)
+        {
+            CubeObject cubeObjectFound;
+            using (var context = new ObjectContext())
+            {
+                cubeObjectFound = context.CubeObjects.Where(co => co.Id == id).FirstOrDefault();
+            }
+            if (cubeObjectFound != null)
+            {
+                return Ok(JsonConvert.SerializeObject(cubeObjectFound));
+            }
+            else return NotFound();
+        }
+
+        // GET: api/CubeObject/fromTagId/1 (currently not in use)
         [HttpGet("[action]/{tagId}")]
         public IActionResult FromTagId(int tagId)
         {
@@ -46,7 +59,7 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
-        // GET: api/CubeObject/from2TagIds/1/2
+        // GET: api/CubeObject/from2TagIds/1/2 (currently not in use)
         [HttpGet("[action]/{tagId1}/{tagId2}")]
         public IActionResult From2TagIds(int tagId1, int tagId2)
         {
@@ -63,7 +76,7 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
-        // GET: api/CubeObject/from3TagIds/1/2/3
+        // GET: api/CubeObject/from3TagIds/1/2/3 (currently not in use)
         [HttpGet("[action]/{tagId1}/{tagId2}/{tagId3}")]
         public IActionResult From3TagIds(int tagId1, int tagId2, int tagId3)
         {
@@ -81,25 +94,9 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
-        // GET: api/CubeObject/5
-        [HttpGet("{id}", Name = "GetCubeObject")]
-        public IActionResult Get(int id)
-        {
-            CubeObject cubeObjectFound;
-            using (var context = new ObjectContext())
-            {
-                cubeObjectFound = context.CubeObjects.Where(co => co.Id == id).FirstOrDefault();
-            }
-            if (cubeObjectFound != null)
-            {
-                return Ok(JsonConvert.SerializeObject(cubeObjectFound));
-            }
-            else return NotFound();
-        }
-
-        // GET: api/CubeObject/fromTagIdWithOTR/1
+        // GET: api/CubeObject/fromTagIdWithOTR/1 (currently not in use)
         [HttpGet("[action]/{tagId}")]
-        public IActionResult FromTagIdWithOTR(int tagId)
+        public IActionResult FromTagIdWithOTR(int tagId) //OTR is ObjectTagRelations
         {
             List<CubeObject> allCubeObjects;
             using (var context = new ObjectContext())
@@ -111,24 +108,6 @@ namespace ObjectCubeServer.Controllers
             }
             return Ok(JsonConvert.SerializeObject(allCubeObjects,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
-        }
-
-        // POST: api/CubeObject
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT: api/CubeObject/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ObjectCubeServer.Controllers
 {
+    /// <summary>
+    /// Not in use, but exists for illustrative purposes. 
+    /// GET, POST, PUT and DELETE are available.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase

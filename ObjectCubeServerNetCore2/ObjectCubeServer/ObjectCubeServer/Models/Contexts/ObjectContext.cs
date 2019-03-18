@@ -1,25 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ObjectCubeServer.Models.DomainClasses;
-using System.Collections.Generic;
 
 namespace ObjectCubeServer.Models.DataAccess
-/*
-* Before you can use the database, change the value of 'AttachDbFileName' to a valid directory on your machine.
-* Eg: C:\\Databases\\ObjectDB.mdf
-* You also need to run the following command in the Package Manager Console inside visual studio:
-* Update-Database
-* To apply the schema to the database.
-* 
-* Setup test data:
-* TODO.
-* 
-* To clear database and migrations:
-* - Delete the Migrations folder.
-* - Run the command "drop-database" from the PMC.
-* - Check this issue for more information: https://github.com/aspnet/EntityFramework.Docs/issues/1048
-*/
-
 {
+    /// <summary>
+    /// The ObjectContext is the entrypoint to the database.
+    /// 
+    /// Before you can use the database, change the value of 'AttachDbFileName' to a valid directory on your machine.
+    /// Eg: C:\\Databases\\ObjectDB.mdf
+    /// The Databases directory needs to exist.
+    /// 
+    /// Common Package Manager Console (PMC) commands:
+    ///     - Delete database and all its data:
+    ///     Drop-Database      
+    ///     - Add a new migration with the name "init". 
+    ///       This commnad also creates the Migration folder if it does not exist:
+    ///     Add-Migration 
+    ///     - Update the database with current schema:
+    ///     Update-Database
+    /// 
+    /// To clear database and migrations:
+    ///     - Delete the Migrations folder.
+    ///     - Run the command "drop-database" from the PMC (Package Manger Console).
+    ///     - Check this issue for more information: https://github.com/aspnet/EntityFramework.Docs/issues/1048
+    /// </summary>
     public class ObjectContext : DbContext
     {
         public ObjectContext()
@@ -33,7 +37,7 @@ namespace ObjectCubeServer.Models.DataAccess
         }
 
         /*
-         * Exposing which DBSets are available to be manipulated with
+         * Exposing which DBSets are available to get, add, update and delete from:
          */
         public DbSet<CubeObject> CubeObjects { get; set; }
         public DbSet<Photo> Photos { get; set; }
@@ -46,26 +50,30 @@ namespace ObjectCubeServer.Models.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //One to one relationship between CubeObject and Photo.
             //If CubeObject is deleted, then photo is also deleted.
+            //This is called "fluent API": https://docs.microsoft.com/en-us/ef/core/modeling/
+            //And is a way to specify database relations explicitly for Entity Framework CORE (EF CORE)
             modelBuilder.Entity<CubeObject>()
                 .HasOne<Photo>(co => co.Photo)
                 .WithOne(p => p.CubeObject)
                 .HasForeignKey<CubeObject>(co => co.PhotoId);
 
+            //One to one:
             modelBuilder.Entity<CubeObject>()
                 .HasOne<Thumbnail>(co => co.Thumbnail)
                 .WithOne(t => t.CubeObject)
                 .HasForeignKey<CubeObject>(co => co.ThumbnailId);
 
-            //Tells EF that ObjectTag's primary key is composed of ObjectId and TagId:
+            //Tells EF CORE that ObjectTag's primary key is composed of ObjectId and TagId:
             modelBuilder.Entity<ObjectTagRelation>()
                 .HasKey(ot => new { ot.ObjectId, ot.TagId });
-            //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and CubeObject:
+            //Tells EF CORE that there is a one-to-many relationship between ObjectTagRelation and CubeObject:
             modelBuilder.Entity<ObjectTagRelation>()
                 .HasOne(otr => otr.CubeObject)
                 .WithMany(co => co.ObjectTagRelations)
                 .HasForeignKey(otr => otr.ObjectId);
-            //Tells EF that there is a one-to-many relationsship between ObjectTagRelation and Tag:
+            //Tells EF CORE that there is a one-to-many relationsship between ObjectTagRelation and Tag:
             modelBuilder.Entity<ObjectTagRelation>()
                 .HasOne(otr => otr.Tag)
                 .WithMany(t => t.ObjectTagRelations)
@@ -82,6 +90,7 @@ namespace ObjectCubeServer.Models.DataAccess
                 .WithOne(t => t.Tagset)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            //Ids of Tags are generated when added... Needed for some reason...
             modelBuilder.Entity<Tag>()
                .Property(t => t.Id)
                .ValueGeneratedOnAdd();
@@ -98,7 +107,8 @@ namespace ObjectCubeServer.Models.DataAccess
                 .WithOne(n => n.Hierarchy)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            //If a tag is deleted, then so is the node:
+            //Node has a refference to a tag, but a tag has no refference to the nodes.
+            //If a Node is deleted the tag is not deleted.
             modelBuilder.Entity<Node>()
                 .HasOne(n => n.Tag)
                 .WithMany()
@@ -125,8 +135,6 @@ namespace ObjectCubeServer.Models.DataAccess
                     optionsBuilder.UseSqlServer("?");
                     break;
             }
-
-            //.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory;Trusted_Connection=True;ConnectRetryCount=0");
         }
     }
 }
