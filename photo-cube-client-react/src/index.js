@@ -4,7 +4,6 @@ import PhotoCubeClient from './components/PhotoCubeClient';
 import * as serviceWorker from './serviceWorker';
 
 /* Run 'npm start' to run project. */
-
 ReactDOM.render(<PhotoCubeClient />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
