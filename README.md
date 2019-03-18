@@ -1,4 +1,13 @@
 # MSc. Thesis - PhotoCube Client and Server implementations.
+## Info:
+This PhotoCube Client and Server implementations are made prototype applications developed for research purposes by Peter Øvergård Clausen as part of his MSc. thesis in Software Development at the IT University of Copenhagen.
+
+The PhotoCube uses the M^3 data model, initially proposed by Björn Thór Jónsson, combining multidimensional analysis and faceted search to browse large multimedia collections in order to gain useful insight.
+
+The PhotoCube Client is developed in React using Typescript. It also uses the ThreeJS library for 3D rendering.
+
+The PhotoCube Server is developed in C# in the .NET CORE framework, using Entity Framework CORE to communicate with an SQL database. It also uses SixLabor's ImageSharp framework to handle images and Newtonsoft's Json.NET framework to serialize and parse JSON.
+
 ## Prerequisites:
 On a Windows PC:
 
@@ -7,6 +16,7 @@ Tip: Hold ctrl when clicking on the links to open them in a new tab:
 * Download and install [Visual Studio Code IDE](https://code.visualstudio.com/) (Recommended for client development).
 * Download and install [Node](https://nodejs.org/en/) (Required for React client).
 * Download and install [SQL Server (Express and Developer editions are free, scroll down a bit)](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) (Required for running development server) **REMEMBER TO CHECK LOCALDB DURING INSTALLATION**.
+* Download and install the Google Chrome Browser or Edge to use the client application with. (Mozilla and other browsers are not yet supported).
 
 Please restart your computer after installing the frameworks, before trying out the code.
 
