@@ -1,6 +1,7 @@
 import Axis from "./Axis";
 import CubeObject from './CubeObject';
 import Tag from "./Tag";
+import { Filter } from "../../LeftDock/FacetedSearcher";
 
 /**
  * The static Fetcher class is used to fetch data from the server.
@@ -15,7 +16,7 @@ export default class Fetcher{
      * @param yAxis 
      * @param zAxis 
      */
-    static async FetchCellsFromAxis(xAxis: Axis|null, yAxis: Axis|null, zAxis: Axis|null){
+    static async FetchCellsFromAxis(xAxis: Axis|null, yAxis: Axis|null, zAxis: Axis|null, filters: Filter[]){
         //Fetch and add new cells:
         let xDefined: boolean = xAxis !== null;
         let yDefined: boolean = yAxis !== null;
@@ -25,6 +26,7 @@ export default class Fetcher{
         if(xDefined) { queryString += "xAxis=" + this.parseAxis(xAxis!)}
         if(yDefined) { queryString += "&yAxis=" + this.parseAxis(yAxis!)}
         if(zDefined) { queryString += "&zAxis=" + this.parseAxis(zAxis!)}
+        if(filters.length > 0){ queryString += "&filters=" + JSON.stringify(filters)}
         console.log(queryString);
             
         return fetch(queryString)
@@ -65,6 +67,15 @@ export default class Fetcher{
     static async FetchHierarchy(hierarchyId: number){
         return await fetch(Fetcher.baseUrl + "/hierarchy/" + hierarchyId)
             .then(result => {return result.json()});
+    }
+
+    /**
+     * Returns all tagsets.
+     * @param tagsetId 
+     */
+    static async FetchTagsets(){
+        return await fetch(Fetcher.baseUrl + "/tagset")
+        .then(result => {return result.json()});
     }
 
     /**

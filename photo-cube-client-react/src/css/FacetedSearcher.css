@@ -1,0 +1,22 @@
+.tagsetName{
+    font-weight: bold;
+    font-size: 17px;
+    /*border-width: 1px 0px 1px 0px;*/
+    /*border-width: 1px 0px 0px 0px;
+    border-color: white;
+    border-style: solid;*/
+    width: 100%;
+}
+
+.tagName{
+    
+}
+
+.scrollable2{
+    height: 800px;
+    overflow-y: auto;
+    border-width: 1px;
+    border-color: rgb(40, 40, 40);;
+    border-style: solid;
+    padding: 5px;
+}
