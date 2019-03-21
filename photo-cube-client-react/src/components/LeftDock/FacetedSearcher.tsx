@@ -42,17 +42,22 @@ export default class FacetedSearcher extends React.Component<{
                     .sort((ts1,ts2) => ts1.Name.localeCompare(ts2.Name))    //Sort each tagset
                     .map((ts:Tagset) => {                                   //Map each tagset to JSX element
                         return <div key={ts.Id}>
-                            <p className="tagsetName">{ts.Name +":"}</p><br/>
+                            <p className="tagsetName">{ts.Name +":"}</p>
+                            <br/>
                             {ts.Tags!
-                            .sort((t1,t2) => t1.Name.localeCompare(t2.Name))
+                            .sort((t1,t2) => t1.Name.localeCompare(t2.Name)) //Sort tags
                             .map(t => 
-                            <div className="tagName" key={t.Id}><p>{t.Name}<input 
-                                type="checkbox"
-                                name={"tag"}
-                                value={t.Id}
-                                onChange={e => this.onChange(e)}
-                                ></input>
-                                </p><br/></div>
+                                <div key={t.Id}>
+                                    <p>
+                                        {t.Name}
+                                        <input
+                                            type="checkbox"
+                                            name={"tag"}
+                                            value={t.Id}
+                                            onChange={e => this.onChange(e)}/>
+                                    </p>
+                                    <br/>
+                                </div>
                             )}
                         <hr/>
                         </div>;
