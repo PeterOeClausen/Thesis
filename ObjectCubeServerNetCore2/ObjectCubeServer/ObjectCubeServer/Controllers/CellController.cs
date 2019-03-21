@@ -236,7 +236,8 @@ namespace ObjectCubeServer.Controllers
             Node rootNode = fetchWholeHierarchyFromRootNode(parsedAxis.HierarchyNodeId);
             hierarchyNodes = rootNode.Children;
             return hierarchyNodes
-                .Select(n => getAllCubeObjectsTaggedWith(extractTagsFromHieararchy(n)))
+                .Select(n => getAllCubeObjectsTaggedWith(extractTagsFromHieararchy(n)) //Map hierarchy nodes to list of cube objects
+                .GroupBy(co => co.Id).Select(grouping => grouping.First()).ToList()) //Getting unique cubeobjects
                 .ToList();
         }
 
@@ -296,6 +297,7 @@ namespace ObjectCubeServer.Controllers
         
         /// <summary>
         /// Fetches all CubeObjects tagged with either of the tags in given list of tags.
+        /// Warning: Remember to filter returned CubeObjects for duplicates!
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
