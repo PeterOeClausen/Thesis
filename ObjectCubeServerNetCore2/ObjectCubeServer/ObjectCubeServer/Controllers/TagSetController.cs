@@ -23,9 +23,14 @@ namespace ObjectCubeServer.Controllers
             using (var context = new ObjectContext())
             {
                 allTagsets = context.Tagsets
+                    //.OrderBy(ts => ts.Name)
+                    .Include(ts => ts.Tags)
                     .ToList();
             }
-            return Ok(JsonConvert.SerializeObject(allTagsets));
+            //Sorting tags:
+            //allTagsets.ForEach(ts => ts.Tags.Sort((t1,t2) => t1.Name.CompareTo(t2.Name)));
+            return Ok(JsonConvert.SerializeObject(allTagsets,
+                new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })); //Ignore self referencing loops
         }
 
         // GET: api/tagset/5

@@ -9,6 +9,7 @@ import { BrowsingModes } from './RightDock/BrowsingModeChanger';
 import { BrowsingState } from './Middle/ThreeBrowser/BrowsingState';
 import PickedDimension from './RightDock/PickedDimension';
 import CubeObject from './Middle/ThreeBrowser/CubeObject';
+import { Filter } from './LeftDock/FacetedSearcher';
 
 /**
  * Root component of the PhotoCubeClient application, containing LeftDock, Middle 
@@ -22,6 +23,7 @@ export default class PhotoCubeClient extends React.Component {
   //State of PhotoCubeClient used to render different browsing modes.
   state = {
     BrowsingMode: BrowsingModes.Cube, //Check selected value in BrowsingModeChanger, or pass down prop.
+    filters: [] //Needs to be part of state to rerender ThreeBrowser when changed
   }
 
   threeBrowserBrowsingState : BrowsingState|null = null;
@@ -35,7 +37,8 @@ export default class PhotoCubeClient extends React.Component {
         onFileCountChanged={this.onFileCountChanged} 
         previousBrowsingState={this.threeBrowserBrowsingState}
         onOpenCubeInCardMode={this.onOpenCubeInCardMode}
-        onOpenCubeInGridMode={this.onOpenCubeInGridMode}/>
+        onOpenCubeInGridMode={this.onOpenCubeInGridMode}
+        filters={this.state.filters}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Grid){
       currentBrowser = <GridBrowser cubeObjects={this.cubeObjects} onBrowsingModeChanged={this.onBrowsingModeChanged}/>
     }else if(this.state.BrowsingMode == BrowsingModes.Card){
@@ -45,7 +48,8 @@ export default class PhotoCubeClient extends React.Component {
     //Page returned:
     return (
         <div className="App grid-container">
-          <LeftDock hideControls={this.state.BrowsingMode != BrowsingModes.Cube}/>
+          <LeftDock hideControls={this.state.BrowsingMode != BrowsingModes.Cube} 
+            onFiltersChanged={this.onFiltersChanged}/>
           {currentBrowser}
           <RightDock hideControls={this.state.BrowsingMode != BrowsingModes.Cube} 
             ref={this.rightDock}
@@ -61,6 +65,15 @@ export default class PhotoCubeClient extends React.Component {
    */
   onFileCountChanged = (fileCount: number) => {
     if(this.rightDock.current) this.rightDock.current.UpdateFileCount(fileCount);
+  }
+
+  /**
+   * Called if filters are changed in LeftDock.
+   */
+  onFiltersChanged = (filters: Filter[]) =>{
+    let callback = () => { if(this.threeBrowser.current){ this.threeBrowser.current.RecomputeCells(); } }
+    this.setState({filters: filters}, callback);
+    console.log(this.state.filters);
   }
 
   /**

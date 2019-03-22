@@ -16,6 +16,7 @@ import ICell from './Cell';
 import { BrowsingState } from './BrowsingState';
 import PickedDimension from '../../RightDock/PickedDimension';
 import { Colors } from './Colors';
+import { Filter } from '../../LeftDock/FacetedSearcher';
 
 const OrbitControls = require('three-orbitcontrols')
 
@@ -28,7 +29,8 @@ export default class ThreeBrowser extends React.Component<{
         onFileCountChanged: (fileCount: number) => void,
         previousBrowsingState: BrowsingState|null,
         onOpenCubeInCardMode: (cubeObjects: CubeObject[]) => void,
-        onOpenCubeInGridMode: (cubeObjects: CubeObject[]) => void
+        onOpenCubeInGridMode: (cubeObjects: CubeObject[]) => void,
+        filters: Filter[]
     }>{
 
     /* The state desides what is shown in the interface, and is changesd with a this.setState call. */
@@ -87,7 +89,7 @@ export default class ThreeBrowser extends React.Component<{
     private textMeshes: THREE.Mesh[] = [];
     private contextMenuCubeObjects: CubeObject[] = [];
 
-    //Reusing THREE Geometries and Materials to save memory, and to dispose them after:
+    //Reusing THREE Geometries and Materials to save memory, to speed things up, and to dispose them after:
     private boxGeometry : THREE.BoxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
     private boxTextures : Map<string, THREE.MeshBasicMaterial> = new Map<string, THREE.MeshBasicMaterial>();
     private textGeometries : Map<string, THREE.TextGeometry> = new Map<string, THREE.TextGeometry>();
@@ -184,8 +186,9 @@ export default class ThreeBrowser extends React.Component<{
         this.renderer.domElement.removeEventListener("click", this.onMouseClick, false);
     }
 
-    /* Cleans up memory. Geometries, Textures and Materials needs to be disposed manually: 
-       https://threejs.org/docs/index.html#manual/en/introduction/How-to-dispose-of-objects
+    /** 
+     * Cleans up memory. Geometries, Textures and Materials needs to be disposed manually:
+     * https://threejs.org/docs/index.html#manual/en/introduction/How-to-dispose-of-objects
      */
     private disposeWhatCanBeDisposed(){
         this.renderer.dispose();
@@ -210,6 +213,7 @@ export default class ThreeBrowser extends React.Component<{
         this.contextMenuCubeObjects = [];
     }
 
+    /** start, animate, stop, renderScene is part of ThreeJS render loop. */
     private start = () => {
         if (!this.frameId) {
             this.frameId = requestAnimationFrame(this.animate)
@@ -239,19 +243,6 @@ export default class ThreeBrowser extends React.Component<{
         this.ClearYAxis();
         //Creating Z-Axis:
         this.ClearZAxis();
-    }
-
-    private async restoreBrowsingState(browsingState: BrowsingState){
-        console.log("Restoring previous browsing state:");
-        //Restoring camera state:
-        this.camera.matrix.fromArray(JSON.parse(browsingState.cameraState));
-        this.camera.matrix.decompose(this.camera.position, this.camera.quaternion, this.camera.scale);
-        (this.camera as any).updateProjectionMatrix();
-
-        //Restoring browsing state:
-        if(browsingState.xAxisPickedDimension) { await this.UpdateAxis("X", browsingState.xAxisPickedDimension) }
-        if(browsingState.yAxisPickedDimension) { await this.UpdateAxis("Y", browsingState.yAxisPickedDimension) }
-        if(browsingState.zAxisPickedDimension) { await this.UpdateAxis("Z", browsingState.zAxisPickedDimension) }
     }
 
     public ClearXAxis(){
@@ -288,12 +279,14 @@ export default class ThreeBrowser extends React.Component<{
     }
 
     /* EVENT HANDLERS: */
+    /** Handler for mouse left click. */
     private onMouseClick = (me: MouseEvent) => {
         if(me.button == 0 || me.button == 1){ //left or middle click
             this.setState({ showContextMenu: false });
         }
     }
 
+    /** Handler for right click */
     private onRightClick = (me: MouseEvent) => {
         me.preventDefault();
         // calculate objects intersecting the picking ray:
@@ -312,6 +305,7 @@ export default class ThreeBrowser extends React.Component<{
         return false;
     }
 
+    /** Handler for when mouse moves */
     private onMouseMove = (event: MouseEvent) => {
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
@@ -360,6 +354,7 @@ export default class ThreeBrowser extends React.Component<{
         }
     }
 
+    /** Handler for keyboard presses. */
     private onKeyPress = (event: KeyboardEvent) => {
         if(event.code === "Space"){
             //Move camera up in the y direction:
@@ -375,24 +370,33 @@ export default class ThreeBrowser extends React.Component<{
         }
     }
 
+    /** Handler to rightclick - open cube in Card mode. */
     private onOpenCubeInCardMode(){
         this.props.onOpenCubeInCardMode(this.contextMenuCubeObjects);
     }
 
+    /**
+     * Handler to rightclick - Open cube in grid mode.
+     */
     private onOpenCubeInGridMode(){
         this.props.onOpenCubeInGridMode(this.contextMenuCubeObjects);
     }
 
+    /**
+     * Handler if window size changes. Resizes the canvas.
+     */
     private onBrowserResize = () => {
         let browserElement: HTMLElement = document.getElementById('ThreeBrowser')!;
         let width = browserElement.clientWidth;
         let height = browserElement.clientHeight;
         this.renderer.setSize(width, height);
-        //console.log(this.camera);
         (this.camera as any).aspect = width / height; //For some reason, typescript cannot see .aspect property?
         (this.camera as any).updateProjectionMatrix();
     }
 
+    /**
+     * Handler if ThreeJS crashes.
+     */
     private onWebGLContextLost = (e: Event) => {
         this.setState({showErrorMessage: true});
         console.log(this.renderer.info);
@@ -539,6 +543,10 @@ export default class ThreeBrowser extends React.Component<{
         await this.computeCells();
     }
 
+    /**
+     * Removes current cells from the scene.
+     * Clears the current cells and fetches new cells from the server:
+     */
     private async computeCells(){
         //Remove previous cells:
         this.cells.forEach((cell: Cell) => cell.RemoveFromScene());
@@ -554,25 +562,25 @@ export default class ThreeBrowser extends React.Component<{
         //Fetch cells based on which axis are defined:
         if(xDefined && yDefined && zDefined){   //X and Y and Z
             //Render all three axis
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, this.zAxis, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && yDefined){         //X and Y
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, this.yAxis, null, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined && zDefined){         //X and Z
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, this.zAxis, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined && zDefined){         //Y and Z
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, this.zAxis, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(xDefined){                     //X
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(this.xAxis, null, null, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(yDefined){                     //Y
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, this.yAxis, null, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
-            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis);
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 
@@ -586,7 +594,19 @@ export default class ThreeBrowser extends React.Component<{
             cell.CubeObjects.forEach(co => uniquePhotoIds.add(co.PhotoId)));
         this.props.onFileCountChanged(uniquePhotoIds.size);
     }
+
+    /**
+     * Recomputes the cells. 
+     * Can be called from parent component.
+     * Used to recompute cells after filters has been added.
+     */
+    public async RecomputeCells(){
+        await this.computeCells();
+    }
     
+    /**
+     * Used to get browsing state just before switching to another browsing mode.
+     */
     public GetCurrentBrowsingState(){
         console.log("Getting current browsing state")
         let currentBrowsingState : BrowsingState = {
@@ -598,6 +618,26 @@ export default class ThreeBrowser extends React.Component<{
         return currentBrowsingState;
     }
 
+    /**
+     * Used to restore from previous browsingstate - see this.GetCurrentBrowsingState().
+     * @param browsingState 
+     */
+    private async restoreBrowsingState(browsingState: BrowsingState){
+        console.log("Restoring previous browsing state:");
+        //Restoring camera state:
+        this.camera.matrix.fromArray(JSON.parse(browsingState.cameraState));
+        this.camera.matrix.decompose(this.camera.position, this.camera.quaternion, this.camera.scale);
+        (this.camera as any).updateProjectionMatrix();
+
+        //Restoring browsing state:
+        if(browsingState.xAxisPickedDimension) { await this.UpdateAxis("X", browsingState.xAxisPickedDimension) }
+        if(browsingState.yAxisPickedDimension) { await this.UpdateAxis("Y", browsingState.yAxisPickedDimension) }
+        if(browsingState.zAxisPickedDimension) { await this.UpdateAxis("Z", browsingState.zAxisPickedDimension) }
+    }
+
+    /**
+     * Used to collect cubeObjects to be shown in Grid or Card mode.
+     */
     public GetUniqueCubeObjects(){
         let uniqueCubeObjectIds = new Set<number>();
         let listOfUniqueCubeObjects : CubeObject[] = [];

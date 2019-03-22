@@ -29,15 +29,17 @@ namespace ObjectCubeServer.Controllers
          * Or an axis showing a Tagset could be: 
          *  {"AxisDirection":"X","AxisType":"Tagset","TagsetId":1,"HierarchyNodeId":0}
         */
-        public IActionResult Get(string xAxis, string yAxis, string zAxis)
+        public IActionResult Get(string xAxis, string yAxis, string zAxis, string filters)
         {
             bool xDefined = xAxis != null;
             bool yDefined = yAxis != null;
             bool zDefined = zAxis != null;
+            bool filtersDefined = filters != null;
             //Parsing:
             ParsedAxis axisX = xDefined ? JsonConvert.DeserializeObject<ParsedAxis>(xAxis) : null;
             ParsedAxis axisY = yDefined ? JsonConvert.DeserializeObject<ParsedAxis>(yAxis) : null;
             ParsedAxis axisZ = zDefined ? JsonConvert.DeserializeObject<ParsedAxis>(zAxis) : null;
+            List<ParsedFilter> filtersList = filtersDefined ? JsonConvert.DeserializeObject<List<ParsedFilter>>(filters) : null;
             //Extracting cubeObjects:
             List<List<CubeObject>> xAxisCubeObjects = getAllCubeObjectsFromAxis(xDefined, axisX);
             List<List<CubeObject>> yAxisCubeObjects = getAllCubeObjectsFromAxis(yDefined, axisY);
@@ -143,12 +145,31 @@ namespace ObjectCubeServer.Controllers
             }
             //If cells have no cubeObjects, remove them:
             cells.RemoveAll(c => c.CubeObjects.Count == 0);
+            //Filtering:
+            if(filtersDefined && filtersList.Count > 0)
+            {
+                cells.ForEach(c => c.CubeObjects = filterCubeObjects(c.CubeObjects, filtersList));
+            }
             //Return OK with json result:
             return Ok(JsonConvert.SerializeObject(cells,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         #region HelperMethods:
+        /// <summary>
+        /// Helper method that given a list of cubeobjects and a list of filters, returns a new list of
+        /// cubeobjects, where cubeobjects that doesn't pass through the filters are removed.
+        /// </summary>
+        /// <param name="cubeObjects"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
+        private List<CubeObject> filterCubeObjects(List<CubeObject> cubeObjects, List<ParsedFilter> filters)
+        {
+            return cubeObjects
+                .Where(co =>
+                    filters.TrueForAll(f => co.ObjectTagRelations.Exists(otr => otr.TagId == f.tagId)))
+                .ToList();
+        }
 
         /// <summary>
         /// Given a boolean defined and a ParsedAxis, returns a List of List of CubeObjects.
@@ -216,7 +237,8 @@ namespace ObjectCubeServer.Controllers
             Node rootNode = fetchWholeHierarchyFromRootNode(parsedAxis.HierarchyNodeId);
             hierarchyNodes = rootNode.Children;
             return hierarchyNodes
-                .Select(n => getAllCubeObjectsTaggedWith(extractTagsFromHieararchy(n)))
+                .Select(n => getAllCubeObjectsTaggedWith(extractTagsFromHieararchy(n)) //Map hierarchy nodes to list of cube objects
+                .GroupBy(co => co.Id).Select(grouping => grouping.First()).ToList()) //Getting unique cubeobjects
                 .ToList();
         }
 
@@ -267,6 +289,7 @@ namespace ObjectCubeServer.Controllers
             using (var context = new ObjectContext())
             {
                 cubeObjects = context.CubeObjects
+                    .Include(co => co.ObjectTagRelations)
                     .Where(co => co.ObjectTagRelations.Where(otr => otr.TagId == tagId).Count() > 0) //Is tagged with tagId at least once
                     .ToList();
             }
@@ -275,6 +298,7 @@ namespace ObjectCubeServer.Controllers
         
         /// <summary>
         /// Fetches all CubeObjects tagged with either of the tags in given list of tags.
+        /// Warning: Remember to filter returned CubeObjects for duplicates!
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
