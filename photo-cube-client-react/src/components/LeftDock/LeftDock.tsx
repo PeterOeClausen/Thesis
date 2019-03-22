@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import '../../css/LeftDock.css'
-import BrowsingStateLoader from './BrowsingStateLoader';
+import '../../css/LeftDock.css';
 import FacetedSearcher, { Filter } from './FacetedSearcher';
 
 /**
@@ -12,12 +11,12 @@ export default class LeftDock extends Component<{
         onFiltersChanged : (filters: Filter[]) => void
     }>{
     render() {
-        let classNames = "hide" //this.props.hideControls ? "hide" : "";
         return (
             <div id="LeftDock">
 		  		<FacetedSearcher className={this.props.hideControls ? "hide" : ""} onFiltersChanged={this.props.onFiltersChanged}/>
 	  		</div>
         );
-        //<BrowsingStateLoader className={classNames}/>
+        //Not in use: let classNames = "hide" //this.props.hideControls ? "hide" : "";
+        //Not in use: <BrowsingStateLoader className={classNames}/>
     }
 }

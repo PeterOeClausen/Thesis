@@ -3,11 +3,18 @@ import Fetcher from '../Middle/ThreeBrowser/Fetcher';
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 import '../../css/FacetedSearcher.css';
 
+/**
+ * An interface for Filter. Now only supports tagId filtering, but can be expanded.
+ */
 export interface Filter{
     type: string,
     tagId: number
 }
 
+/**
+ * The FacetedSearcher component enables the user to use faceted search on the current browsing state with 
+ * the ThreeBrowser. It is used in LeftDock. 
+ */
 export default class FacetedSearcher extends React.Component<{
     onFiltersChanged : (filters:Filter[]) => void,
     className: string
@@ -16,6 +23,7 @@ export default class FacetedSearcher extends React.Component<{
         tagsets: []
     }
 
+    //The unique set of filters currently active:
     activeFilters : Set<Filter> = new Set();
 
     render(){
@@ -35,6 +43,11 @@ export default class FacetedSearcher extends React.Component<{
         this.renderTagsets()
     }
 
+    /**
+     * Fetches tagsets and tags from the server, and pressents them with a checkbox.
+     * If the checkbox is checked or unchecked, this.onChange is called, and the filter
+     * is added to activaFilters.
+     */
     private async renderTagsets(){
         let renderedTagsets = await Fetcher.FetchTagsets()
             .then((tagsets:Tagset[]) => {
@@ -66,24 +79,22 @@ export default class FacetedSearcher extends React.Component<{
         this.setState({tagsets: renderedTagsets});
     }
 
+    /**
+     * Called when a toggle or untoggle happens.
+     * @param e 
+     */
     private onChange(e:React.ChangeEvent<HTMLInputElement>){
-        console.log(e);
         if(e.target.checked){
             //Add filter
-            console.log(e.target.value);
-            console.log("Checked!");
             this.activeFilters.add( { type: e.target.name, tagId: parseInt(e.target.value) } );
-            console.log(Array.from(this.activeFilters));
+            //Notify parent component of change:
             this.props.onFiltersChanged(Array.from(this.activeFilters));
         }else{
-            //Add filter
-            console.log(e.target.value);
-            console.log("Unchecked!");
-            //activeFilters.delete didn't work, so this is a workaround:
+            //Removing filter (activeFilters.remove() didn't work, this is a workaround):
             let newSet : Set<Filter> = new Set();
             this.activeFilters.forEach(f => {if(f.tagId != parseInt(e.target.value)) newSet.add(f)});
             this.activeFilters = newSet;
-            console.log(Array.from(this.activeFilters));
+            //Notify parent component of change:
             this.props.onFiltersChanged(Array.from(this.activeFilters));
         }
     }

@@ -156,14 +156,15 @@ namespace ObjectCubeServer.Controllers
         }
 
         #region HelperMethods:
-
+        /// <summary>
+        /// Helper method that given a list of cubeobjects and a list of filters, returns a new list of
+        /// cubeobjects, where cubeobjects that doesn't pass through the filters are removed.
+        /// </summary>
+        /// <param name="cubeObjects"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
         private List<CubeObject> filterCubeObjects(List<CubeObject> cubeObjects, List<ParsedFilter> filters)
         {
-            /*return cubeObjects
-                .Where(co => co.ObjectTagRelations
-                    .Exists(otr => filters
-                        .Exists(f => f.tagId == otr.TagId)))
-                .ToList();*/
             return cubeObjects
                 .Where(co =>
                     filters.TrueForAll(f => co.ObjectTagRelations.Exists(otr => otr.TagId == f.tagId)))
