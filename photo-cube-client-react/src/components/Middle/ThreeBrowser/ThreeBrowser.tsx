@@ -243,6 +243,7 @@ export default class ThreeBrowser extends React.Component<{
         this.ClearYAxis();
         //Creating Z-Axis:
         this.ClearZAxis();
+        this.computeCells();
     }
 
     public ClearXAxis(){
@@ -253,7 +254,6 @@ export default class ThreeBrowser extends React.Component<{
         newXAxis.TitleThreeObject = this.addTextCallback("X", {x:2,y:0,z:0}, Colors.Red, 0.5);
         newXAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:2,y:0,z:0}, Colors.Red);
         this.xAxis = newXAxis;
-        this.computeCells();
     }
 
     public ClearYAxis(){
@@ -264,7 +264,6 @@ export default class ThreeBrowser extends React.Component<{
         newYAxis.TitleThreeObject = this.addTextCallback("Y", {x:0,y:2,z:0}, Colors.Green, 0.5);
         newYAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:0,y:2,z:0}, Colors.Green);
         this.yAxis = newYAxis;
-        this.computeCells();
     }
 
     public ClearZAxis(){
@@ -275,7 +274,6 @@ export default class ThreeBrowser extends React.Component<{
         newZAxis.TitleThreeObject = this.addTextCallback("Z", {x:0,y:0,z:2}, Colors.Blue, 0.5);
         newZAxis.LineThreeObject = this.addLineCallback({x:0,y:0,z:0}, {x:0,y:0,z:2}, Colors.Blue);
         this.zAxis = newZAxis;
-        this.computeCells();
     }
 
     /* EVENT HANDLERS: */
@@ -581,6 +579,9 @@ export default class ThreeBrowser extends React.Component<{
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }else if(zDefined){                     //Z
             let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, this.zAxis, this.props.filters);
+            ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
+        } else if(!xDefined && !yDefined && !zDefined){
+            let ICells : ICell[] = await Fetcher.FetchCellsFromAxis(null, null, null, this.props.filters);
             ICells.forEach((c:ICell) => newCells.push(new Cell(this.scene, this.textureLoader, this.addCubeCallback, {x: c.x, y: c.y, z:c.z}, c.CubeObjects)));
         }
 

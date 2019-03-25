@@ -93,9 +93,21 @@ export default class PhotoCubeClient extends React.Component {
   onClearAxis = (axisName: string) => {
     console.log("Clear axis: " + axisName);
     switch(axisName){
-      case "X": if(this.threeBrowser.current) this.threeBrowser.current.ClearXAxis(); break;
-      case "Y": if(this.threeBrowser.current) this.threeBrowser.current.ClearYAxis(); break;
-      case "Z": if(this.threeBrowser.current) this.threeBrowser.current.ClearZAxis(); break;
+      case "X": if(this.threeBrowser.current) {
+        this.threeBrowser.current.ClearXAxis();
+        this.threeBrowser.current.RecomputeCells();
+      }
+      break;
+      case "Y": if(this.threeBrowser.current) {
+        this.threeBrowser.current.ClearYAxis(); 
+        this.threeBrowser.current.RecomputeCells();
+      }
+      break;
+      case "Z": if(this.threeBrowser.current) {
+        this.threeBrowser.current.ClearZAxis();
+        this.threeBrowser.current.RecomputeCells();
+      }
+      break;
     }
   }
 

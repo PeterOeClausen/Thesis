@@ -46,13 +46,14 @@ namespace ObjectCubeServer.Controllers
             List<List<CubeObject>> zAxisCubeObjects = getAllCubeObjectsFromAxis(zDefined, axisZ);
             //Creating Cells:
             List<Cell> cells = new List<Cell>();
-            
+
             if (xDefined && yDefined && zDefined) //XYZ
             {
                 cells =
                     xAxisCubeObjects.SelectMany((colist1, index1) =>
                     yAxisCubeObjects.SelectMany((colist2, index2) =>
-                    zAxisCubeObjects.Select((colist3, index3) => new Cell() {
+                    zAxisCubeObjects.Select((colist3, index3) => new Cell()
+                    {
                         x = index1 + 1,
                         y = index2 + 1,
                         z = index3 + 1,
@@ -143,6 +144,17 @@ namespace ObjectCubeServer.Controllers
                         CubeObjects = colist1
                     }).ToList();
             }
+            else if (!xDefined && !yDefined && !zDefined) //If X Y and Z are not defined, show all:
+            {
+                cells = new List<Cell>(){
+                    new Cell() {
+                        x = 1,
+                        y = 1,
+                        z = 1,
+                        CubeObjects = getAllCubeObjects()
+                    }
+                };
+            }
             //If cells have no cubeObjects, remove them:
             cells.RemoveAll(c => c.CubeObjects.Count == 0);
             //Filtering:
@@ -156,6 +168,18 @@ namespace ObjectCubeServer.Controllers
         }
 
         #region HelperMethods:
+        private List<CubeObject> getAllCubeObjects()
+        {
+            List<CubeObject> allCubeObjects;
+            using (var context = new ObjectContext())
+            {
+                allCubeObjects = context.CubeObjects
+                    .Include(co => co.ObjectTagRelations)
+                    .ToList();
+            }
+            return allCubeObjects;
+        }
+
         /// <summary>
         /// Helper method that given a list of cubeobjects and a list of filters, returns a new list of
         /// cubeobjects, where cubeobjects that doesn't pass through the filters are removed.

@@ -21,7 +21,7 @@ export default class Fetcher{
         let xDefined: boolean = xAxis !== null;
         let yDefined: boolean = yAxis !== null;
         let zDefined: boolean = zAxis !== null;
-        if(!xDefined && !yDefined && !zDefined){ throw new Error("xAxis, yAxis and zAxis cannot all be null!") }
+        
         let queryString: string = this.baseUrl + "cell/?";
         if(xDefined) { queryString += "xAxis=" + this.parseAxis(xAxis!)}
         if(yDefined) { queryString += "&yAxis=" + this.parseAxis(yAxis!)}
