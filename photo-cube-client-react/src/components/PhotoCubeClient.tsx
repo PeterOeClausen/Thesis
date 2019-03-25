@@ -73,7 +73,6 @@ export default class PhotoCubeClient extends React.Component {
   onFiltersChanged = (filters: Filter[]) =>{
     let callback = () => { if(this.threeBrowser.current){ this.threeBrowser.current.RecomputeCells(); } }
     this.setState({filters: filters}, callback);
-    console.log(this.state.filters);
   }
 
   /**

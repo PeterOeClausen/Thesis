@@ -141,14 +141,19 @@ export default class ThreeBrowser extends React.Component<{
         //Filling out available space with renderer:
         this.onBrowserResize();
 
-        //Default x,y,z view:
-        this.createInitialScene();
-
         //Start animation:
         this.start();
 
+        //Default x,y,z view:
+        this.createInitialScene();
+
         //Restore to previous browsing state if it is given:
-        if(this.props.previousBrowsingState) { this.restoreBrowsingState(this.props.previousBrowsingState!); }
+        if(this.props.previousBrowsingState) { 
+            this.restoreBrowsingState(this.props.previousBrowsingState!); 
+        }else{
+            //To trigger compute cells in default x,y,z view:
+            this.computeCells();
+        }
 
         //Subscribe eventlisterners:
         this.subscribeEventHandlers();
@@ -236,14 +241,13 @@ export default class ThreeBrowser extends React.Component<{
         this.renderer.render(this.scene, this.camera);
     }
 
-    private createInitialScene(){
+    private async createInitialScene(){
         //Creating X-Axis:
         this.ClearXAxis();
         //Creating Y-Axis:
         this.ClearYAxis();
         //Creating Z-Axis:
         this.ClearZAxis();
-        this.computeCells();
     }
 
     public ClearXAxis(){
