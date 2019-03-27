@@ -96,7 +96,7 @@ namespace ObjectCubeServer.Controllers
             else if (yDefined && zDefined)  //YZ
             {
                 cells =
-                    xAxisCubeObjects.SelectMany((colist1, index1) =>
+                    yAxisCubeObjects.SelectMany((colist1, index1) =>
                     zAxisCubeObjects.Select((colist2, index2) =>
                     new Cell()
                     {
