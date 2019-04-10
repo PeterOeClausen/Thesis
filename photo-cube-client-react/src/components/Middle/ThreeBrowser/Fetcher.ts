@@ -79,6 +79,15 @@ export default class Fetcher{
     }
 
     /**
+     * Returns all hierarchies.
+     * @param tagsetId 
+     */
+    static async FetchHierarchies(){
+        return await fetch(Fetcher.baseUrl + "/hierarchy")
+        .then(result => {return result.json()});
+    }
+
+    /**
      * Returns a single tagset with the tagsetId.
      * @param tagsetId 
      */

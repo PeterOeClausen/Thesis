@@ -167,6 +167,23 @@ namespace ObjectCubeServer.Controllers
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
+        private List<ParsedFilter> transformHierarchyFilterIntoTagFilters(ParsedFilter pf)
+        {
+            Node node;
+            using (var context = new ObjectContext())
+            {
+                node = context.Nodes
+                    .Where(n => n.Id == pf.nodeId)
+                    .First();
+            }
+            List<Tag> tagsInNode = extractTagsFromHieararchy(node);
+            return tagsInNode.Select(t => new ParsedFilter()
+            {
+                type = "tag",
+                tagId = t.Id
+            }).ToList();
+        }
+
         #region HelperMethods:
         private List<CubeObject> getAllCubeObjects()
         {
