@@ -15,6 +15,7 @@
 .scrollable2{
     height: 800px;
     overflow-y: auto;
+    white-space: nowrap;
     border-width: 1px;
     border-color: rgb(40, 40, 40);;
     border-style: solid;

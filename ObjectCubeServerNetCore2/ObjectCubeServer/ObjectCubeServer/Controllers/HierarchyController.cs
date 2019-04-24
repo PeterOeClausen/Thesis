@@ -24,8 +24,15 @@ namespace ObjectCubeServer.Controllers
             {
                 allHierarchies = context.Hierarchies
                     .Include(h => h.Nodes)
+                        .ThenInclude(n => n.Tag)
                     .ToList();
             }
+            //Add rootnode and recursively add subnodes and their tags:
+            allHierarchies.ForEach(h => h.Nodes = new List<Node>()
+            {
+                RecursiveAddChildrenAndTags(h.Nodes.FirstOrDefault(n => n.Id == h.RootNodeId))
+            });
+
             return Ok(JsonConvert.SerializeObject(allHierarchies,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
@@ -50,5 +57,30 @@ namespace ObjectCubeServer.Controllers
             return Ok(JsonConvert.SerializeObject(hierarchyFound,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
+
+        #region HelperMethods:
+        private Node RecursiveAddChildrenAndTags(Node parentNode)
+        {
+            List<Node> newChildNodes = new List<Node>();
+            foreach (Node childNode in parentNode.Children)
+            {
+                Node childNodeWithTagAndChildren;
+                using (var context = new ObjectContext())
+                {
+                    childNodeWithTagAndChildren = context.Nodes
+                        .Where(n => n.Id == childNode.Id)
+                        .Include(n => n.Tag)
+                        .Include(n => n.Children)
+                            .ThenInclude(cn => cn.Tag)
+                        .FirstOrDefault();
+                }
+                childNodeWithTagAndChildren.Children.Sort((cn1, cn2) => cn1.Tag.Name.CompareTo(cn2.Tag.Name));
+                childNodeWithTagAndChildren = RecursiveAddChildrenAndTags(childNodeWithTagAndChildren);
+                newChildNodes.Add(childNodeWithTagAndChildren);
+            }
+            parentNode.Children = newChildNodes;
+            return parentNode;
+        }
+        #endregion
     }
 }

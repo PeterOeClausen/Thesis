@@ -29,14 +29,24 @@ export default class GridBrowser extends React.Component<{
         );
     }
 
+    /**
+     * Component is to be shown. - Subscribe eventlisteners.
+     */
     componentDidMount(){
         document.addEventListener("keydown", (e) => this.onKeydown(e));
     }
 
+    /**
+     * Component is to be hidden. - Unsubscribe event listeners
+     */
     componentWillUnmount(){
         document.removeEventListener("keydown", (e) => this.onKeydown(e));
     }
 
+    /**
+     * Handling Escape
+     * @param e 
+     */
     onKeydown(e: KeyboardEvent){
         //console.log(e.key);
         if(e.key == "Escape"){

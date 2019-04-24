@@ -9,5 +9,6 @@ namespace ObjectCubeServer.Models.DomainClasses
     {
         public string type { get; set; }
         public int tagId { get; set; }
+        public int nodeId { get; set; }
     }
 }
