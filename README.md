@@ -154,6 +154,14 @@ You can also right click a cube and press "Show cube in card mode" to open a cub
 
 ![RightClickOpenCardMode.png](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/RightClickOpenCardMode.png)
 
+You can further filter out photos using the Hirarchical Faceted Searcher on the left:
+
+![HierarchicalFacetedSearchFilters.png](https://github.com/PeterOeClausen/Thesis/blob/master/userManualImages/HierarchicalFacetedSearchFilters.png)
+
+Applying filters "Björn" and "Solveig" filters out all photos that are not tagged with both "Björn" and "Solveig".
+
+Picking a parent node like "Family" filters out all photos that are not tagged with either "Family", "Asa", "Asthor", "Björn", or "Solveig" (The parent node, and all subnodes recursively).
+
 ## Other (needed if you are going to make changes to the database or downloaded npm packages on a seperate computer):
 If you need to delete the data in the database, run:
 ```
