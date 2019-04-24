@@ -52,12 +52,11 @@ export default class Fetcher{
     }
 
     /**
-     * Fetches a single Node with nodeId from the server.
-     * @param nodeId 
+     * Returns all hierarchies.
      */
-    static async FetchNode(nodeId: number){
-        return await fetch(Fetcher.baseUrl + "/node/" + nodeId)
-            .then(result => {return result.json()});
+    static async FetchHierarchies(){
+        return await fetch(Fetcher.baseUrl + "/hierarchy")
+        .then(result => {return result.json()});
     }
 
     /**
@@ -70,8 +69,16 @@ export default class Fetcher{
     }
 
     /**
+     * Fetches a single Node with nodeId from the server.
+     * @param nodeId 
+     */
+    static async FetchNode(nodeId: number){
+        return await fetch(Fetcher.baseUrl + "/node/" + nodeId)
+            .then(result => {return result.json()});
+    }
+
+    /**
      * Returns all tagsets.
-     * @param tagsetId 
      */
     static async FetchTagsets(){
         return await fetch(Fetcher.baseUrl + "/tagset")

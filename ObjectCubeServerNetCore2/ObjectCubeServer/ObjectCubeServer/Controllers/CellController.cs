@@ -28,6 +28,13 @@ namespace ObjectCubeServer.Controllers
          *  {"AxisDirection":"X","AxisType":"Hierarchy","TagsetId":0,"HierarchyNodeId":1}
          * Or an axis showing a Tagset could be: 
          *  {"AxisDirection":"X","AxisType":"Tagset","TagsetId":1,"HierarchyNodeId":0}
+         *  
+         * The same way, filters can also be added:
+         * Hierarchy filter:
+         *     &filters=[{"type":"hierarchy","tagId":0,"nodeId":116}]
+         * Tag filter:
+         *     &filters=[{"type":"tag","tagId":42,"nodeId":0}]
+         * 
         */
         public IActionResult Get(string xAxis, string yAxis, string zAxis, string filters)
         {
@@ -157,17 +164,35 @@ namespace ObjectCubeServer.Controllers
             }
             //If cells have no cubeObjects, remove them:
             cells.RemoveAll(c => c.CubeObjects.Count == 0);
+
             //Filtering:
             if(filtersDefined && filtersList.Count > 0)
             {
-                cells.ForEach(c => c.CubeObjects = filterCubeObjects(c.CubeObjects, filtersList));
+                //Devide filters:
+                List<ParsedFilter> tagFilters = filtersList.Where(f => f.type.Equals("tag")).ToList();
+                List<ParsedFilter> hierarchyFilters = filtersList.Where(f => f.type.Equals("hierarchy")).ToList();
+
+                //Apply filters:
+                if(tagFilters.Count > 0)
+                {
+                    cells.ForEach(c => c.CubeObjects = filterCubeObjectsWithTagFilters(c.CubeObjects, tagFilters));
+                }
+                if(hierarchyFilters.Count > 0)
+                {
+                    cells.ForEach(c => c.CubeObjects = filterCubeObjectsWithHierarchyFilters(c.CubeObjects, hierarchyFilters));
+                }
             }
+
             //Return OK with json result:
             return Ok(JsonConvert.SerializeObject(cells,
                 new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
         }
 
         #region HelperMethods:
+        /// <summary>
+        /// Helper method that fetches all CubeObjects
+        /// </summary>
+        /// <returns></returns>
         private List<CubeObject> getAllCubeObjects()
         {
             List<CubeObject> allCubeObjects;
@@ -185,14 +210,47 @@ namespace ObjectCubeServer.Controllers
         /// cubeobjects, where cubeobjects that doesn't pass through the filters are removed.
         /// </summary>
         /// <param name="cubeObjects"></param>
-        /// <param name="filters"></param>
+        /// <param name="tagFilters"></param>
         /// <returns></returns>
-        private List<CubeObject> filterCubeObjects(List<CubeObject> cubeObjects, List<ParsedFilter> filters)
+        private List<CubeObject> filterCubeObjectsWithTagFilters(List<CubeObject> cubeObjects, List<ParsedFilter> tagFilters)
         {
             return cubeObjects
                 .Where(co =>
-                    filters.TrueForAll(f => co.ObjectTagRelations.Exists(otr => otr.TagId == f.tagId)))
+                    tagFilters.TrueForAll(f => co.ObjectTagRelations.Exists(otr => otr.TagId == f.tagId))) //Must be tagged with each tag
                 .ToList();
+        }
+
+        /// <summary>
+        /// Filters input list of cubeobjects with given hierarchy filters.
+        /// If a cube object is tagged with a tag in a hierarchy, then it passes through the filter.
+        /// </summary>
+        /// <param name="cubeObjects"></param>
+        /// <param name="hierarchyFilters"></param>
+        /// <returns></returns>
+        private List<CubeObject> filterCubeObjectsWithHierarchyFilters(List<CubeObject> cubeObjects, List<ParsedFilter> hierarchyFilters)
+        {
+            //Getting all tags per hierarchy filter:
+            List<List<Tag>> tagsPerHierarchyFilter = hierarchyFilters
+                .Select(hf => extractTagsFromHierarchyFilter(hf)) //Map into list of tags
+                .ToList();
+
+            //If cubeObject has tag in hierarchy, let it pass throgh the filter:
+            return cubeObjects
+                .Where(co => tagsPerHierarchyFilter.TrueForAll( //CubeObject must be tagged with tag in each of the tag lists (flattened hierarchies)
+                        lstOfTags => co.ObjectTagRelations.Exists( //For each tag list, there must exist a cube object where:
+                            otr => lstOfTags.Exists(tag => tag.Id == otr.TagId) //the cube object is tagged with one tag id from the taglist.
+                        )
+                    )
+                ).ToList();
+        }
+
+        private List<Tag> extractTagsFromHierarchyFilter(ParsedFilter pf)
+        {
+            //Get node and subnodes with tags:
+            Node node = fetchWholeHierarchyFromRootNode(pf.nodeId);
+            //Extract tags:
+            List<Tag> tagsInNode = extractTagsFromHieararchy(node);
+            return tagsInNode;
         }
 
         /// <summary>

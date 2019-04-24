@@ -58,9 +58,7 @@ export default class HierarchyBrowser extends React.Component<{
             case "Z":
                 this.setState({zIsHieararchy:true, zNodes: this.renderNode(dimName, rootNode, 0)});
                 break;
-        }
-        
-        console.log(hierarchy);       
+        }   
     }
 
     /**

@@ -3,6 +3,9 @@ import * as THREE from 'three';
 import Fetcher from './Fetcher';
 import Position from './Position';
 
+/**
+ * Interface repressenting a primitive cell object. Used to create cells classes from.
+ */
 export default interface ICell{
     //Coordinates:
     x: number;
