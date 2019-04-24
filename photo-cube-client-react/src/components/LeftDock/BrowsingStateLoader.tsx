@@ -7,6 +7,7 @@ import '../../css/BrowsingStateLoader.css'
 export default class BrowsingStateLoader extends Component<{
         className: string
     }>{
+        
     render() {
         return (
             <div id="BrowsingStateLoader" className={this.props.className}>

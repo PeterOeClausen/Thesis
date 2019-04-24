@@ -22,15 +22,25 @@ export default class FacetedSearcher extends React.Component<{
     onFiltersChanged : (filters:Filter[]) => void,
     className: string
 }>{
+    hierarchyBasedSearcher = React.createRef<HierarchyBasedSearcher>();
+
     render(){
         return(
             <div id="FacetedSearcher" className={this.props.className}>
                 <h4 className="Header">Faceted search</h4>
                 <p>Toggle a checkbox to apply a filter:</p>
                 <hr/>
-                <HierarchyBasedSearcher className={this.props.className} onFiltersChanged={this.props.onFiltersChanged}/>
+                <HierarchyBasedSearcher ref={this.hierarchyBasedSearcher} className={this.props.className} onFiltersChanged={this.props.onFiltersChanged}/>
             </div>
         );
+        //<button className="width100" onClick={e => this.onClearAllFilters(e)}>Clear all filters</button>
         //<TagBasedSearcher className={this.props.className} onFiltersChanged={this.props.onFiltersChanged}/>
+    }
+
+    /**
+     * Used for clear filters button, not currently used...
+     */
+    private onClearAllFilters = (e: React.MouseEvent) => {
+        if(this!.hierarchyBasedSearcher) { this.hierarchyBasedSearcher.current!.ClearFilters(); }
     }
 }

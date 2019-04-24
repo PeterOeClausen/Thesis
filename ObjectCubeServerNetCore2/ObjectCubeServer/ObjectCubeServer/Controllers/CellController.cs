@@ -220,6 +220,13 @@ namespace ObjectCubeServer.Controllers
                 .ToList();
         }
 
+        /// <summary>
+        /// Filters input list of cubeobjects with given hierarchy filters.
+        /// If a cube object is tagged with a tag in a hierarchy, then it passes through the filter.
+        /// </summary>
+        /// <param name="cubeObjects"></param>
+        /// <param name="hierarchyFilters"></param>
+        /// <returns></returns>
         private List<CubeObject> filterCubeObjectsWithHierarchyFilters(List<CubeObject> cubeObjects, List<ParsedFilter> hierarchyFilters)
         {
             //Getting all tags per hierarchy filter:

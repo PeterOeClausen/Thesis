@@ -49,6 +49,9 @@ export default class CardBrowser extends React.Component<{
         }
     }
 
+    /**
+     * Get's tags associated with each and updates state.
+     */
     private async updateTagsInState() {
         if(this.props.cubeObjects.length > 0){
             await Fetcher.FetchTagsWithCubeObjectId(this.props.cubeObjects[this.state.photoIndex].Id)
@@ -69,6 +72,10 @@ export default class CardBrowser extends React.Component<{
         document.removeEventListener("keydown", (e) => this.onKeydown(e));
     }
 
+    /**
+     * Showing spinner, however images are loaded too fast for the spinner to show.
+     * @param e 
+     */
     onImageLoad(e: SyntheticEvent<HTMLImageElement, Event>){
         this.setState({spinnerVisibility: "hidden"});
         if(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight){
@@ -84,6 +91,10 @@ export default class CardBrowser extends React.Component<{
         this.setState({spinnerVisibility: "visible"});
     }
 
+    /**
+     * Left arrow, Right arrow and Escape controls.
+     * @param e 
+     */
     onKeydown(e: KeyboardEvent){
         //console.log(e.key);
         if(e.key == "ArrowRight"){

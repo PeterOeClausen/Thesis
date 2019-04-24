@@ -3,6 +3,11 @@ import Fetcher from '../Middle/ThreeBrowser/Fetcher';
 import Tagset from '../Middle/ThreeBrowser/Tagset';
 import { Filter } from './FacetedSearcher';
 
+/**
+ * Tag based faceted search component.
+ * Shows tagsets and tags within as well as checkboxes.
+ * If a tag's checkbox is added, a filter is applied.
+ */
 export default class TagBasedSearcher extends React.Component<{
     onFiltersChanged : (filters:Filter[]) => void,
     className: string
