@@ -28,8 +28,9 @@ Please restart your computer after installing the frameworks, before trying out 
 Either clone this repository or download it as a zip file with the green button on the top-right of this page.
 
 ## Download the dataset:
-Link to zip file on OneDrive containing the Laugavegur dataset:
-https://1drv.ms/f/s!AuZm-4W16RlCgrZn2U2YOsOXT57mpg
+Ask Peter Øvergård Clausen: [PeterOeClausen@gmail.com](mailto:PeterOeClausen@gmail.com)
+or Björn Thór Jónsson: [bjth@itu.dk](mailto:bjth@itu.dk)
+for the Laugavegur dataset.
 
 ## Installing and running the server:
 ### Step 0: Open the ObjectCubeServer solution file in Visual Studio:
