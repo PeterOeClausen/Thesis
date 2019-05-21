@@ -13,7 +13,7 @@
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-responsive-modal": "^3.5.1",
-    "react-scripts": "2.1.2",
+    "react-scripts": "^3.0.0",
     "three": "^0.100.0",
     "three-orbitcontrols": "^2.99.1",
     "typescript": "^3.2.4"

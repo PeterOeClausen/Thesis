@@ -173,11 +173,11 @@ export default class Fetcher{
         if(tag2 != null){ 
             //Filters out CubeObjects not tagged with tag2:
             cubeObjectArrResult = cubeObjectArrResult
-                .filter(co => co.ObjectTagRelations!.some(otr => otr.TagId == tag2.Id));
+                .filter(co => co.ObjectTagRelations!.some(otr => otr.TagId === tag2.Id));
         }if(tag3 != null){
             //Filters out CubeObjects not tagged with tag3:
             cubeObjectArrResult = cubeObjectArrResult
-                .filter(co => co.ObjectTagRelations!.some(otr => otr.TagId == tag3.Id));
+                .filter(co => co.ObjectTagRelations!.some(otr => otr.TagId === tag3.Id));
         }
         return cubeObjectArrResult;
     }
