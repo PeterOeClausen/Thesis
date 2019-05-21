@@ -2,6 +2,10 @@
 ## Info:
 This PhotoCube Client and Server implementations are made prototype applications developed for research purposes by Peter Øvergård Clausen as part of his MSc. thesis in Software Development at the IT University of Copenhagen.
 
+The PhotoCube system will be further developed here: [https://github.com/ITU-PITLab/PhotoCube](https://github.com/ITU-PITLab/PhotoCube).
+
+This repository is only to showcase what I, Peter Øvergård Clausen, did in my thesis.
+
 The PhotoCube uses the M^3 data model, initially proposed by Björn Thór Jónsson, combining multidimensional analysis and faceted search to browse large multimedia collections in order to gain useful insight.
 
 The PhotoCube Client is developed in React using Typescript. It also uses the ThreeJS library for 3D rendering.
