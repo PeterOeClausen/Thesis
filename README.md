@@ -29,7 +29,7 @@ https://1drv.ms/f/s!AuZm-4W16RlCgrZn2U2YOsOXT57mpg
 
 ## Installing and running the server:
 ### Step 0: Open the ObjectCubeServer solution file in Visual Studio:
-Open the *ObjectCubeServer.sln* solution file in Visual Studio. This can be found in the *ObjectCubeServerNetCore2/ObjectCubeServer/* directory.
+Open the *ObjectCubeServer.sln* solution file in Visual Studio. This can be found in the *Server/ObjectCubeServer/* directory.
 
 If Visual Studio says that you need to download and install extensions to make it work, please do so.
 
@@ -105,7 +105,7 @@ After installing Node and restarting, open cmd and install React:
 npm install react
 ```
 ### Step 2: Install the project:
-Navigate to the *photo-cube-client-react/* directory and run:
+Navigate to the *Client/* directory and run:
 ```
 npm install
 ```
