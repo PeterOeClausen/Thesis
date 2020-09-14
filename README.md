@@ -101,6 +101,8 @@ When the Console Application says "Press any key to shut down." the database is 
 
 You can now run the server by right-clicking the ObjectServer project, select 'Set as StartUp Project' and then run the application by pressing the play button in the top of Visual Studio.
 
+Alternatively you can you the `dotnet run` command: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-run
+
 ## Installing and running the client:
 Note that when running these commands, it may give "WARN" and "notice" messages, however you can ignore these and keep going with the installation.
 
