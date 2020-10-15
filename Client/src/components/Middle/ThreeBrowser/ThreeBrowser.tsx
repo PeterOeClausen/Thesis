@@ -67,8 +67,8 @@ export default class ThreeBrowser extends React.Component<{
         );
     }
 
-    //THREE interaction properties:
-    private mount: HTMLDivElement|null = this.mount!;
+    //THREE interaction properties:´
+    private mount: HTMLDivElement | null | undefined;
     private scene: THREE.Scene = new THREE.Scene();
     private camera: THREE.Camera = new THREE.Camera();
     private controls: any;  //Set in componentDidMount
@@ -118,52 +118,56 @@ export default class ThreeBrowser extends React.Component<{
     }
     
     componentDidMount(){
-        //Adding camera:
-        this.camera = new THREE.PerspectiveCamera(
-            75,
-            this.mount!.clientWidth / this.mount!.clientHeight,
-            0.1,
-            1000
-        );
-        this.camera.position.x = 5;
-        this.camera.position.y = 5;
-        this.camera.position.z = 5;
-        
-        //Setting up renderer:
-        this.renderer.setSize(this.mount!.clientWidth, this.mount!.clientHeight)
-        
-        //Add rendered scene to DOM:
-        this.mount!.appendChild(this.renderer.domElement)
-        
-        //Set controls to OrbitControls:
-        this.controls = new OrbitControls( this.camera, this.renderer.domElement);
+        if(this.mount){
+            //Adding camera:
+            this.camera = new THREE.PerspectiveCamera(
+                75,
+                this.mount.clientWidth / this.mount.clientHeight,
+                0.1,
+                1000
+            );
+            this.camera.position.x = 5;
+            this.camera.position.y = 5;
+            this.camera.position.z = 5;
+            
+            //Setting up renderer:
+            this.renderer.setSize(this.mount.clientWidth, this.mount.clientHeight)
+            
+            //Add rendered scene to DOM:
+            this.mount.appendChild(this.renderer.domElement)
+            
+            //Set controls to OrbitControls:
+            this.controls = new OrbitControls( this.camera, this.renderer.domElement);
 
-        //Filling out available space with renderer:
-        this.onBrowserResize();
+            //Filling out available space with renderer:
+            this.onBrowserResize();
 
-        //Start animation:
-        this.start();
+            //Start animation:
+            this.start();
 
-        //Default x,y,z view:
-        this.createInitialScene();
+            //Default x,y,z view:
+            this.createInitialScene();
 
-        //Restore to previous browsing state if it is given:
-        if(this.props.previousBrowsingState) { 
-            this.restoreBrowsingState(this.props.previousBrowsingState!); 
-        }else{
-            //To trigger compute cells in default x,y,z view:
-            this.computeCells();
+            //Restore to previous browsing state if it is given:
+            if(this.props.previousBrowsingState) { 
+                this.restoreBrowsingState(this.props.previousBrowsingState!); 
+            }else{
+                //To trigger compute cells in default x,y,z view:
+                this.computeCells();
+            }
+
+            //Subscribe eventlisterners:
+            this.subscribeEventHandlers();
         }
-
-        //Subscribe eventlisterners:
-        this.subscribeEventHandlers();
     }
     
     /** Before closing component: */
     componentWillUnmount(){
         this.stop()
         this.unsubscribeEventHandlers();
-        this.mount!.removeChild(this.renderer.domElement);      
+        if(this.mount){
+            this.mount.removeChild(this.renderer.domElement);
+        }
         this.disposeWhatCanBeDisposed();  
     }
 
