@@ -1,16 +1,16 @@
 # MSc. Thesis - PhotoCube Client and Server implementations.
 ## Info:
-This PhotoCube Client and Server implementations are made prototype applications developed for research purposes by Peter Øvergård Clausen as part of his MSc. thesis in Software Development at the IT University of Copenhagen.
+The PhotoCube Client and Server implementations are prototype applications developed by Peter Øvergård Clausen for his MSc. thesis in Software Development at the IT University of Copenhagen.
 
-The PhotoCube system will be further developed here: [https://github.com/ITU-PITLab/PhotoCube](https://github.com/ITU-PITLab/PhotoCube).
+Further development of the PhotoCube system can be found here: PhotoCube on GitHub.
 
-This repository is only to showcase what I, Peter Øvergård Clausen, did in my thesis.
+This repository showcases the work I, Peter Øvergård Clausen, did in my thesis.
 
-The PhotoCube uses the M^3 data model, initially proposed by Björn Thór Jónsson, combining multidimensional analysis and faceted search to browse large multimedia collections in order to gain useful insight.
+PhotoCube uses the M^3 data model, initially proposed by Björn Thór Jónsson, which combines multidimensional analysis and faceted search for browsing large multimedia collections.
 
-The PhotoCube Client is developed in React using Typescript. It also uses the ThreeJS library for 3D rendering.
+The PhotoCube Client is built in React with Typescript and uses the ThreeJS library for 3D rendering.
 
-The PhotoCube Server is developed in C# in the .NET CORE framework, using Entity Framework CORE to communicate with an SQL database. It also uses SixLabor's ImageSharp framework to handle images and Newtonsoft's Json.NET framework to serialize and parse JSON.
+The PhotoCube Server is developed in C# on the .NET CORE framework, using Entity Framework CORE for SQL database communication, SixLabor's ImageSharp for image handling, and Newtonsoft's Json.NET for JSON serialization and parsing.
 
 ## Prerequisites:
 On a Windows PC:
